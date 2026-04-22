@@ -23,9 +23,11 @@ def get_spinal_sections(
     # 2. Get the vectors for each section
     all_prisms = []
     section_points = []
+    centers = []
     for idx in indices:
         # 2.1. Get the centerline center position as a center ref
         centerline_pos = centerline[idx]
+        centers.append(centerline_pos)
 
         # 2.2. Get the tangent vector
         tagent_vector = get_tangent_vector(centerline, idx, centerline_pos)
@@ -49,7 +51,7 @@ def get_spinal_sections(
         prism_corners = [corner.tolist() for corner in vert]
         all_prisms.append(prism_corners)
 
-    return np.asarray(all_prisms), section_points
+    return np.asarray(all_prisms), section_points, np.asarray(centers)
 
 
 # ──────────────────────────────────────────────────────

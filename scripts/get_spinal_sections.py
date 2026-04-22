@@ -42,7 +42,7 @@ if __name__ == '__main__':
         centerline = load_points(centerline_path)
 
         # 2. Get the spinal sections
-        spinal_sections, section_points = get_spinal_sections(
+        spinal_sections, section_points, section_centers = get_spinal_sections(
             points,
             centerline,
             N_CUTS,
@@ -60,6 +60,8 @@ if __name__ == '__main__':
         # 4. Saved the data
         out_path = save_to_json(spinal_sections.tolist(), filepath.parent, "sections_sc.json")
         print(f"Saved section data from {mouse} into {out_path}")
+        out_path = save_to_json(section_centers.tolist(), filepath.parent, "section_centers_sc.json")
+        print(f"Saved section centers from {mouse} into {out_path}")
         out_data = [section.tolist() for section in section_points]
         out_path = save_to_json(out_data, filepath.parent, "section_points_sc.json")
         print(f"Saved section point data from {mouse} into {out_path}")

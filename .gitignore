@@ -210,3 +210,6 @@ __marimo__/
 data/
 out/
 .zed/
+
+*.bkp
+*slides.json
