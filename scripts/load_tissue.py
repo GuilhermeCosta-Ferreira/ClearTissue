@@ -23,3 +23,5 @@ if __name__ == '__main__':
     payload = LoadTissue(filepath).load_tissue()
 
     print(payload)
+
+    payload.metadata.create_metadata(payload.metadata.file_path)

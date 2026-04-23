@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .DataType import DataType
 from .tissue_loader import load_points
+from ..tissue import ClearTissue
 
 
 
@@ -16,7 +17,7 @@ from .tissue_loader import load_points
 class LoadTissue:
     path: Path
 
-    def load_tissue(self, type: DataType = DataType.POINTS):
+    def load_tissue(self, type: DataType = DataType.POINTS) -> ClearTissue | None:
         if type == DataType.POINTS:
             return self._load_points()
         else:
