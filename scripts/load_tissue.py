@@ -10,7 +10,7 @@ from typing import cast
 from clearbrain.data import LoadTissue
 from clearbrain.processing import scale_tissue, compress_to_volume
 from clearbrain.tissue import ClearTissue
-from clearbrain.tissue.view import plot_volume_overview, plot_volume_coronal
+from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
 
 
 
@@ -23,6 +23,8 @@ FILE_TARGET: str = "tissue_sc.json"
 
 SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
 WINDOW_SIZE: int = 25
+
+TO_SAVE: bool = False
 
 
 
@@ -53,5 +55,6 @@ if __name__ == '__main__':
     vol_tissue = compress_to_volume(tissue, WINDOW_SIZE)
     print(f"Volume has now shape: {vol_tissue.volume.shape}, thanks to a window of size: {WINDOW_SIZE}\n")
 
-    plot_volume_coronal(vol_tissue, 50, show_centers=True)
+    plot_volume_coronal(vol_tissue, 50, show_centers=True, is_save=TO_SAVE)
+    plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
     plt.show()

@@ -4,9 +4,11 @@
 import numpy as np
 
 from matplotlib.figure import Figure
+from pathlib import Path
 
 from ..ClearVolume import ClearVolume
 from ...plots import PlotSettings, plot_imshow_grid
+from ...save import SaveSettings
 
 
 
@@ -15,7 +17,9 @@ from ...plots import PlotSettings, plot_imshow_grid
 # ================================================================
 def plot_volume_overview(
     volume_tissue: ClearVolume,
-    nr_cuts: int
+    nr_cuts: int,
+    is_save: bool = False,
+    save_settings: SaveSettings | None = None
 ) -> tuple[Figure, np.ndarray]:
     # 1. Extract the data
     volume = volume_tissue.volume
@@ -41,7 +45,20 @@ def plot_volume_overview(
     nr_rows = nr_cuts
     plt_cfg = PlotSettings(nr_cols=3, nr_rows=nr_rows)
 
-    return plot_imshow_grid(imgs, titles, plt_cfg)
+    fig, axes = plot_imshow_grid(imgs, titles, plt_cfg)
+
+    # 6. Deals with the save config
+    if save_settings is None:
+        save_settings = SaveSettings(
+            name=f"overview_slices_{nr_cuts-1}_cuts",
+            out_path=Path(f"out/{volume_tissue.metadata.mouse}")
+        )
+
+    # 7. Save if needed
+    if is_save:
+        save_settings.save_plot(fig)
+
+    return fig, axes
 
 
 # ──────────────────────────────────────────────────────
