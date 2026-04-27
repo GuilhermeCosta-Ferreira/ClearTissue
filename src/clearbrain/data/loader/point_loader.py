@@ -1,14 +1,13 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-import os
 import numpy as np
 
 from pathlib import Path
 
-from .loader import load_json
-from ..meta import Metadata
-from ..tissue import ClearTissue
+from .file_loader import load_json
+from .metadata_loader import load_metadata
+from ...tissue import ClearTissue
 
 
 # ================================================================
@@ -16,7 +15,7 @@ from ..tissue import ClearTissue
 # ================================================================
 def load_points(path: Path):
     data = load_points_data(path)
-    metadata = load_points_metadata(path)
+    metadata = load_metadata(path)
 
     return ClearTissue(data, metadata)
 
@@ -36,31 +35,3 @@ def load_points_data(path: Path) -> np.ndarray:
         raise ValueError(f"The loaded points need to be of shape (N, 3) ({points.shape})")
 
     return points
-
-def load_points_metadata(path: Path):
-    metadata_filepath = path.parent / f"{path.stem}_metadata{path.suffix}"
-
-    if os.path.exists(metadata_filepath):
-        return Metadata.from_path(metadata_filepath)
-    else:
-        print("No metadata found, creating a new one")
-        return Metadata.from_filename(metadata_filepath)
-
-
-
-# ================================================================
-# 2. Section: Volume
-# ================================================================
-def load_volume(path: Path):
-    data = load_volume_data(path)
-    metadata = load_volume_metadata(path)
-
-
-# ──────────────────────────────────────────────────────
-# 2.1 Subsection: Load the individual parts
-# ──────────────────────────────────────────────────────
-def load_volume_data(path: Path):
-    pass
-
-def load_volume_metadata(path: Path):
-    pass

@@ -7,9 +7,9 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import cast
 
-from clearbrain.data import LoadTissue
+from clearbrain.data import TissueLoader
 from clearbrain.processing import scale_tissue, compress_to_volume
-from clearbrain.tissue import ClearTissue
+from clearbrain.tissue import ClearTissue, TissueType
 from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
 
 
@@ -19,7 +19,7 @@ from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
 # ================================================================
 DATA_FOLDER: Path = Path("data")
 MOUSE: str = "32B"
-FILE_TARGET: str = "tissue_sc.json"
+TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
 WINDOW_SIZE: int = 25
@@ -33,11 +33,15 @@ TO_SAVE: bool = False
 # ================================================================
 if __name__ == '__main__':
     # 1. Load the tissue
-    filepath = DATA_FOLDER / MOUSE / FILE_TARGET
-    tissue = cast(ClearTissue, LoadTissue(filepath).load_tissue())
+    loader = TissueLoader(
+        mouse = MOUSE,
+        tissue_type = TISSUE_TYPE,
+        base_path=DATA_FOLDER
+    )
+    tissue = loader.load_points()
 
     print("================================================================")
-    print(f"Working with tissue from file: {str(filepath)}")
+    print(f"Working with tissue from file: {str(loader._source_filepath)}")
     print("================================================================")
     print(f"Range of X: {np.min(tissue.points[:,0])} - {np.max(tissue.points[:,0])}")
     print(f"Range of Y: {np.min(tissue.points[:,1])} - {np.max(tissue.points[:,1])}")

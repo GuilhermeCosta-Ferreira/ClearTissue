@@ -7,8 +7,6 @@ import os
 from pathlib import Path
 
 from ..tissue import TissueType
-from .load_metadata import load_metadata
-
 
 
 
@@ -21,32 +19,6 @@ class Metadata:
     tissue_type: TissueType
     file_path: Path
     description: str = ""
-
-
-
-    # ================================================================
-    # 2. Section: Class Methods
-    # ================================================================
-    @classmethod
-    def from_path(cls, path: Path) -> 'Metadata':
-        meta = load_metadata(path)
-
-        return Metadata(
-            mouse = meta["mouse"],
-            tissue_type = meta["tissue_type"],
-            description = meta["description"],
-            file_path=path
-        )
-
-    @classmethod
-    def from_filename(cls, path: Path):
-        tissue_type = path.stem.rsplit("_", 2)[-2]
-
-        return Metadata(
-            mouse = str(path.parent.name),
-            tissue_type=TissueType.from_str(tissue_type),
-            file_path=path
-        )
 
 
 

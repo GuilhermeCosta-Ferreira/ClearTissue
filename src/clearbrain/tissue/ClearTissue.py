@@ -6,7 +6,7 @@ import numpy as np
 from dataclasses import dataclass
 from copy import deepcopy
 
-from ..meta import Metadata
+from ..data import Metadata
 
 
 

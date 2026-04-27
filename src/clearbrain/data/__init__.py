@@ -1,6 +1,7 @@
-from .LoadTissue import LoadTissue
-
+from .TissueLoader import TissueLoader
+from .Metadata import Metadata
 
 __all__ = [
-    "LoadTissue",
+    "TissueLoader",
+    "Metadata"
 ]

@@ -4,6 +4,8 @@
 import os
 import json
 
+import numpy as np
+
 from pathlib import Path
 
 
@@ -11,7 +13,7 @@ from pathlib import Path
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def load_json(path: Path) -> dict:
+def load_json(path: Path) -> dict | list:
     # A. Makes sure there is a file
     if not os.path.exists(path):
         raise FileNotFoundError(f"File not found: {path}")
@@ -20,3 +22,10 @@ def load_json(path: Path) -> dict:
         payload = json.load(f)
 
     return payload
+
+def load_npy(path: Path) -> np.ndarray:
+    # A. Makes sure there is a file
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"File not found: {path}")
+
+    return np.load("path")
