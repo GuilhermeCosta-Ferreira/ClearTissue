@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import cast
 
-from clearbrain.data import TissueLoader, TissueDownloader
+from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
 from clearbrain.processing import scale_tissue, compress_to_volume
 from clearbrain.tissue import ClearTissue, TissueType
 from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
@@ -33,15 +33,16 @@ TO_SAVE: bool = False
 # ================================================================
 if __name__ == '__main__':
     # 1. Load the tissue
-    loader = TissueLoader(
+    source = TissueSource(
         mouse = MOUSE,
         tissue_type = TISSUE_TYPE,
         base_path=DATA_FOLDER
     )
+    loader = TissueLoader(source)
     tissue = loader.load_points()
 
     print("================================================================")
-    print(f"Working with tissue from file: {str(loader._source_filepath)}")
+    print(f"Working with tissue from file: {str(source.source_filepath)}")
     print("================================================================")
     print(f"Range of X: {np.min(tissue.points[:,0])} - {np.max(tissue.points[:,0])}")
     print(f"Range of Y: {np.min(tissue.points[:,1])} - {np.max(tissue.points[:,1])}")
@@ -63,9 +64,9 @@ if __name__ == '__main__':
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
 
-    downloader = TissueDownloader.from_loader(loader)
+    downloader = TissueDownloader(source)
 
-    p = downloader.download_volume(vol_tissue)
+    p = downloader.download_volume(vol_tissue, to_update=True)
     print(f"Downloaded at {p}")
-    p = downloader.download_points(tissue, suffix="_scaled")
+    p = downloader.download_points(tissue, suffix="_scaled", to_update=True)
     print(f"Downloaded at {p}")

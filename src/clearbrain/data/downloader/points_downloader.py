@@ -19,8 +19,8 @@ def download_points(
     suffix: str
 ) -> Path:
     # 1. Load the needed variables
-    points = tissue.points
-    file_path = source_filepath.parent / f"{source_filepath.stem}{suffix}.npy"
+    points = tissue.points.tolist()
+    file_path = source_filepath.parent / f"{source_filepath.stem}{suffix}.json"
 
     # 1.A Handles update edge-cases to avoid unwanted overwrite
     if os.path.exists(file_path) and not to_update:
