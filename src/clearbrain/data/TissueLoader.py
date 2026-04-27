@@ -4,9 +4,11 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 
+
 from .loader import load_metadata, load_volume, load_points
 
 from ..tissue import ClearTissue, ClearVolume, TissueType
+from .TissueDownloader import TissueDownloader
 from .Metadata import Metadata
 
 
@@ -33,6 +35,16 @@ class TissueLoader:
             source_filepath = folder_path / self.alt_source
 
         object.__setattr__(self, "_source_filepath", source_filepath)
+
+
+    @classmethod
+    def from_downloader(cls, downloader: TissueDownloader) -> 'TissueLoader':
+        return TissueLoader(
+            mouse = downloader.mouse,
+            tissue_type = downloader.tissue_type,
+            base_path = downloader.base_path,
+            alt_source = downloader.alt_source
+        )
 
 
 

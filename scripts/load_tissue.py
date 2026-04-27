@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import cast
 
-from clearbrain.data import TissueLoader
+from clearbrain.data import TissueLoader, TissueDownloader
 from clearbrain.processing import scale_tissue, compress_to_volume
 from clearbrain.tissue import ClearTissue, TissueType
 from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
@@ -61,4 +61,11 @@ if __name__ == '__main__':
 
     plot_volume_coronal(vol_tissue, 50, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
-    plt.show()
+    plt.show(block=False)
+
+    downloader = TissueDownloader.from_loader(loader)
+
+    p = downloader.download_volume(vol_tissue)
+    print(f"Downloaded at {p}")
+    p = downloader.download_points(tissue, suffix="_scaled")
+    print(f"Downloaded at {p}")
