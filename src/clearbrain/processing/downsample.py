@@ -49,7 +49,7 @@ def get_volume_shape_from_window(data_range: np.ndarray, window_size: int) -> np
 def build_volume(points: np.ndarray, volume_shape: np.ndarray, window_size: int) -> np.ndarray:
     downsampled_points = (points // window_size).astype(int)
 
-    volume = np.zeros(volume_shape)
+    volume = np.zeros(volume_shape, dtype=int)
     for p in downsampled_points:
         volume[p[0], p[1], p[2]] += 1
     return volume

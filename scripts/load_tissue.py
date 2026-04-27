@@ -10,6 +10,7 @@ from typing import cast
 from clearbrain.data import LoadTissue
 from clearbrain.processing import scale_tissue, compress_to_volume
 from clearbrain.tissue import ClearTissue
+from clearbrain.tissue.view import plot_volume_overview, plot_volume_coronal
 
 
 
@@ -50,8 +51,7 @@ if __name__ == '__main__':
 
     # 3.Compress into a volume (instead a list of points)
     vol_tissue = compress_to_volume(tissue, WINDOW_SIZE)
-    print(vol_tissue.volume.shape)
+    print(f"Volume has now shape: {vol_tissue.volume.shape}, thanks to a window of size: {WINDOW_SIZE}\n")
 
-    plt.figure()
-    plt.imshow(vol_tissue.volume[:, 100, :])
+    plot_volume_coronal(vol_tissue, 50, show_centers=True)
     plt.show()
