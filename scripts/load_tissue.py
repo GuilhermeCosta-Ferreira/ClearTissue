@@ -64,8 +64,8 @@ if __name__ == '__main__':
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
 
+    # 4. Saves the new files
     downloader = TissueDownloader(source)
-
     p = downloader.download_volume(vol_tissue, to_update=True)
     print(f"Downloaded at {p}")
     p = downloader.download_points(tissue, suffix="_scaled", to_update=True)
