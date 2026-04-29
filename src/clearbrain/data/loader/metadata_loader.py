@@ -22,7 +22,7 @@ def load_metadata(source_filepath: Path):
 
         return Metadata(
             mouse = meta["mouse"],
-            tissue_type = meta["tissue_type"],
+            tissue_type = TissueType.from_str(meta["tissue_type"]),
             description = meta["description"],
             file_path=metadata_path
         )

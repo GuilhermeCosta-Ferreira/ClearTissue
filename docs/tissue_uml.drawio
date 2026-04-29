@@ -261,14 +261,11 @@
             <mxPoint x="480" y="400" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="VM2PziwSYxVi0D9SSNG6-5" parent="WIyWlLk6GJQsqaUBKTNV-1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#CCFFE6;" value="&lt;i style=&quot;font-weight: normal;&quot;&gt;SpinalCenterline&lt;/i&gt;" vertex="1">
-          <mxGeometry height="88" width="160" x="640" y="72" as="geometry" />
+        <mxCell id="VM2PziwSYxVi0D9SSNG6-5" parent="WIyWlLk6GJQsqaUBKTNV-1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#FFFFCC;" value="&lt;i style=&quot;font-weight: normal;&quot;&gt;SpinalCenterline&lt;/i&gt;" vertex="1">
+          <mxGeometry height="120" width="160" x="640" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="VM2PziwSYxVi0D9SSNG6-6" parent="VM2PziwSYxVi0D9SSNG6-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ volume: np.ndarray&lt;div&gt;+ points: np.ndarray&lt;/div&gt;&lt;div&gt;+ metadata: Metadata&lt;/div&gt;" vertex="1">
-          <mxGeometry height="54" width="160" y="26" as="geometry" />
-        </mxCell>
-        <mxCell id="VM2PziwSYxVi0D9SSNG6-7" parent="VM2PziwSYxVi0D9SSNG6-5" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
-          <mxGeometry height="8" width="160" y="80" as="geometry" />
+        <mxCell id="VM2PziwSYxVi0D9SSNG6-6" parent="VM2PziwSYxVi0D9SSNG6-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ volume: np.ndarray&lt;div&gt;+ points: np.ndarray&lt;/div&gt;&lt;div&gt;+ metadata: Metadata&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;color: rgb(255, 102, 102);&quot;&gt;+ derivative: np.ndarray&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="94" width="160" y="26" as="geometry" />
         </mxCell>
         <mxCell id="VM2PziwSYxVi0D9SSNG6-11" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="VM2PziwSYxVi0D9SSNG6-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="KJ-KwieZcmjA-HbrrtZJ-59">
           <mxGeometry relative="1" as="geometry">
@@ -278,7 +275,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="VM2PziwSYxVi0D9SSNG6-12" parent="WIyWlLk6GJQsqaUBKTNV-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=30;" value="🧪" vertex="1">
-          <mxGeometry height="40" width="40" x="780" y="50" as="geometry" />
+          <mxGeometry height="40" width="40" x="780" y="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

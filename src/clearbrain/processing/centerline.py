@@ -43,7 +43,16 @@ def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> Spinal
             centerline_volume[center[0], sl, center[1]] = 1
         centerline_centers[sl] = np.array([center[0], center[1]])
 
-    return SpinalCenterline(centerline_volume, centerline_centers, tissue_volume.metadata)
+    # 4. Adds to 3D the centerline
+    centerline_3d = np.column_stack(
+        (
+            centerline_centers[:, 0],
+            np.arange(nr_slices),
+            centerline_centers[:, 1],
+        )
+    )
+
+    return SpinalCenterline(centerline_volume, centerline_3d, tissue_volume.metadata)
 
 
 
