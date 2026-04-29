@@ -44,7 +44,7 @@ def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> Spinal
         centerline_centers[sl] = np.array([center[0], center[1]])
 
     # 4. Adds to 3D the centerline
-    centerline_3d = np.column_stack(
+    centerline_centers = np.column_stack(
         (
             centerline_centers[:, 0],
             np.arange(nr_slices),
@@ -52,7 +52,10 @@ def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> Spinal
         )
     )
 
-    return SpinalCenterline(centerline_volume, centerline_3d, tissue_volume.metadata)
+    # 5. Extend the coord where is nan
+    centerline_centers = fill_nan_coords(centerline_centers)
+
+    return SpinalCenterline(centerline_volume, centerline_centers, tissue_volume.metadata)
 
 
 
@@ -67,3 +70,23 @@ def get_img_center(img: np.ndarray) -> np.ndarray:
         center = np.array([np.nan, np.nan])
 
     return center
+
+def fill_nan_coords(centerline_centers: np.ndarray) -> np.ndarray:
+    filled = centerline_centers.copy()
+
+    slice_ids = filled[:, 1]
+
+    for col in (0, 2):  # x and z columns
+        values = filled[:, col]
+        valid = ~np.isnan(values)
+
+        if valid.sum() == 0:
+            raise ValueError(f"Column {col} is fully NaN; cannot interpolate centerline.")
+
+        filled[:, col] = np.round(np.interp(
+            slice_ids,
+            slice_ids[valid],
+            values[valid],
+        ))
+
+    return filled
