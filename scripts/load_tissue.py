@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import cast
 
 from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
-from clearbrain.processing import get_centerline, scale_tissue, compress_to_volume
+from clearbrain.processing import get_centerline, scale_tissue, compress_to_volume, stretch_tissue
 from clearbrain.tissue import ClearTissue, TissueType
-from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
+from clearbrain.tissue.view import plot_spinal_direction, plot_volume_coronal, plot_volume_overview
 
 
 
@@ -23,6 +23,8 @@ TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
 WINDOW_SIZE: int = 25
+
+SMOOTH_WINDOW_SIZE: int = 25
 
 TO_SAVE: bool = False
 
@@ -64,7 +66,15 @@ if __name__ == '__main__':
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
 
+    # 4. Get the centerline direction
     centerline = get_centerline(vol_tissue)
+    plot_spinal_direction(vol_tissue, centerline)
+    plt.show(block=False)
+
+    stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
+    plot_volume_coronal(stretch_tissue, 50, show_centers=True, is_save=TO_SAVE)
+    plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
+    plt.show(block=True)
 
     # 4. Saves the new files
     downloader = TissueDownloader(source)
