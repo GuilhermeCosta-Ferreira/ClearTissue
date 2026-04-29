@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import cast
 
 from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
-from clearbrain.processing import scale_tissue, compress_to_volume
+from clearbrain.processing import get_centerline, scale_tissue, compress_to_volume
 from clearbrain.tissue import ClearTissue, TissueType
 from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
 
@@ -62,7 +62,10 @@ if __name__ == '__main__':
 
     plot_volume_coronal(vol_tissue, 50, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
-    plt.show(block=False)
+    plt.show(block=True)
+    plt.close()
+
+    get_centerline(vol_tissue)
 
     # 4. Saves the new files
     downloader = TissueDownloader(source)

@@ -21,7 +21,8 @@ def download_volume(
 ) -> Path:
     # 1. Load the needed variables
     volume_data = volume.volume
-    file_path = source_filepath.parent / f"{source_filepath.stem}{suffix}.npy"
+    sample_factor = volume.sample_factor
+    file_path = source_filepath.parent / f"{source_filepath.stem}{suffix}_SF{sample_factor}.npy"
 
     # 1.A Handles update edge-cases to avoid unwanted overwrite
     if os.path.exists(file_path) and not to_update:

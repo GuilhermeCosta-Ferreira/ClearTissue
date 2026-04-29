@@ -23,7 +23,7 @@ def compress_to_volume(tissue: ClearTissue, window_size: int) -> ClearVolume:
 
     volume = build_volume(points, volume_shape, window_size)
 
-    return ClearVolume(volume, tissue.metadata)
+    return ClearVolume(volume, tissue.metadata, window_size)
 
 
 
