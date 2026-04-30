@@ -2,6 +2,7 @@
 # 0. Section: IMPORTS
 # ================================================================
 import numpy as np
+import SimpleITK as sitk
 from matplotlib import pyplot as plt
 
 from pathlib import Path
@@ -74,7 +75,10 @@ if __name__ == '__main__':
     stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
     plot_volume_coronal(stretch_tissue, 50, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
-    plt.show(block=True)
+    plt.show(block=False)
+
+    print(type(sitk.CenteredTransformInitializerFilter.MOMENTS))
+    print(sitk.CenteredTransformInitializerFilter.MOMENTS)
 
     # 4. Saves the new files
     downloader = TissueDownloader(source)

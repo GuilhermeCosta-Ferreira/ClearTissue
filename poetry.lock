@@ -1610,6 +1610,31 @@ doc = ["intersphinx_registry", "jupyterlite-pyodide-kernel", "jupyterlite-sphinx
 test = ["Cython", "array-api-strict (>=2.3.1)", "asv", "gmpy2", "hypothesis (>=6.30)", "meson", "mpmath", "ninja ; sys_platform != \"emscripten\"", "pooch", "pytest (>=8.0.0)", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
 
 [[package]]
+name = "simpleitk"
+version = "2.5.4"
+description = "SimpleITK is a simplified interface to the Insight Toolkit (ITK) for image registration and segmentation"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "simpleitk-2.5.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:267b7a6f8beb5f3d513f5f3b44a6c40d4dd1d094fd6414ddc215472c948ad789"},
+    {file = "simpleitk-2.5.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:5966890dff60303fc1d76e97c3f85beb202065ef4959617d13e825ee26466145"},
+    {file = "simpleitk-2.5.4-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:fa48d4fa3bcbd3bbbef15cf3e943562d5a6cd6c4becd99ba152ffb3ee91b0c00"},
+    {file = "simpleitk-2.5.4-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:222538d61bcc43b8d7f463f545a119573fe83b9dfc534c95e18ce5d2d75facfe"},
+    {file = "simpleitk-2.5.4-cp310-cp310-win_amd64.whl", hash = "sha256:65a79e27a130e9092f8f2469ee7f1cf16b7b871433be21e41f833dfc1f679300"},
+    {file = "simpleitk-2.5.4-cp311-abi3-macosx_10_9_x86_64.whl", hash = "sha256:58f5018711adcefae9fa9aca784323b8125b01fa715e1dd1e565c5587bc73079"},
+    {file = "simpleitk-2.5.4-cp311-abi3-macosx_11_0_arm64.whl", hash = "sha256:38773eaba333c2f5ee8bf1073229c12c7af8391381a69667891d427e78bbc9d1"},
+    {file = "simpleitk-2.5.4-cp311-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:ab2af59c93ee6304d6a85bbd8f33025b041db8b3c512553f6fad30461bf33c2a"},
+    {file = "simpleitk-2.5.4-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:4cbb85a6125c0248c774b6e202ca86128b82d5c60bec2a90d59f8a0e94df518c"},
+    {file = "simpleitk-2.5.4-cp311-abi3-win_amd64.whl", hash = "sha256:1fa8636047a4a5402cde792c30fe2629bd270b798f4d0ebaf999248543ca9262"},
+    {file = "simpleitk-2.5.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:5600b9f04465475c2f9ed1f1affa4ecc727f45531d7f41296240c0f5ac01a3d6"},
+    {file = "simpleitk-2.5.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:619d52dd2257642caada865c846c99f0463d342432505d87713a830b1333e6da"},
+    {file = "simpleitk-2.5.4-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:24a84d13176c4b6aa550913e97ede65c30a23621dcbe92b13d489c2fc69d04f1"},
+    {file = "simpleitk-2.5.4-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:416759909aecfa61edd7a92c20b506a81c0c08dd7a44d296140490380f293d93"},
+    {file = "simpleitk-2.5.4-cp39-cp39-win_amd64.whl", hash = "sha256:8868ab8d2a844c21a5c3470168fa167804d44c3973b69f452220fca1a9b46f5b"},
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1792,4 +1817,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "8abca8a9ebe19971ce9b9f635bd30f01d0ddd4e12bf092a5f609d63d67239b5e"
+content-hash = "c5e3efba6e86e3be1f6d9261fa703e9519d29834cfcc259dc2fc3d42e8a8e4f1"
