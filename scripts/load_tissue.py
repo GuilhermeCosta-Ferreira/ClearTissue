@@ -3,6 +3,7 @@
 # ================================================================
 import pickle
 
+from clearbrain.registration import RegistrationConfig, Registrator, RegistratorResampler, RigidRegistration
 import numpy as np
 import nibabel as nib
 from matplotlib import pyplot as plt
@@ -21,7 +22,7 @@ from clearbrain.tissue.view import plot_spinal_direction, plot_volume_coronal, p
 # 1. Section: INPUTS
 # ================================================================
 DATA_FOLDER: Path = Path("data")
-MOUSE: str = "32B"
+MOUSE: str = "74"
 TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
@@ -73,16 +74,32 @@ if __name__ == '__main__':
     centerline = get_centerline(vol_tissue)
     plot_spinal_direction(vol_tissue, centerline)
     plt.show(block=False)
+    print("Centerline with spinal direction assessed\n")
 
     stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
     plot_volume_coronal(stretch_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
+    print(
+        "Tissue has been stretched, with stable density: "
+        f"  Sum Density before: {np.sum(vol_tissue.volume)}\n"
+        f"  Sum Desnity after: {np.sum(stretch_tissue.volume)}\n"
+    )
 
-    untwisted_tissue, twisting_data = untwist_spinal_coord(stretch_tissue, 75)
+    registrator = Registrator(
+        strategy=RigidRegistration(),
+        resampler=RegistratorResampler(),
+        config=RegistrationConfig(),
+    )
+    untwisted_tissue, twisting_data = untwist_spinal_coord(stretch_tissue, registrator)
     plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
+    print(
+        "Tissue has been untwisted. the density stability is:\n"
+        f"  Sum Density before: {np.sum(stretch_tissue.volume)}\n"
+        f"  Sum Desnity after: {np.sum(untwisted_tissue.volume)}\n"
+    )
 
     # 4. Saves the new files
     downloader = TissueDownloader(source)
