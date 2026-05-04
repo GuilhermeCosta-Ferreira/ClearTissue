@@ -33,6 +33,5 @@ class RegistrationMethodBuilder:
         self.interpolator_factory.apply_registration(method, config.interpolator)
         self.resolution_factory.apply(method, config.multiple_res)
 
-        method.SetOptimizerScalesFromPhysicalShift()
 
         return method

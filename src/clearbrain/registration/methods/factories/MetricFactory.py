@@ -18,6 +18,7 @@ class MetricFactory:
     loss_names: ClassVar[dict[str, list[str]]] = {
         "Mutual Information": ["MI", "Mutual Information", "Mattes Mutual Information"],
         "Mean Squares": ["LS", "Least Squares", "MSE", "Mean Squares"],
+        "Correlation": ["CC", "Correlation", "Cross Correlation"],
     }
 
     def apply(
@@ -35,6 +36,8 @@ class MetricFactory:
 
         elif self._matches(metric_name, "Mean Squares"):
             method.SetMetricAsMeanSquares()
+        elif self._matches(metric_name, "Correlation"):
+            method.SetMetricAsCorrelation()
 
         else:
             raise ValueError(

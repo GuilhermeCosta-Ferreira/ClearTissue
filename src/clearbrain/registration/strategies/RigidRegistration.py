@@ -28,17 +28,6 @@ class RigidRegistration(RegistratorStrategy):
             config.transform_center
         )
 
-        # Force no initial translation
-        dim = fixed.GetDimension()
-
-        if dim == 2:
-            initial_transform = sitk.Euler2DTransform(initial_transform)
-            initial_transform.SetTranslation((0.0, 0.0))
-
-        elif dim == 3:
-            initial_transform = sitk.Euler3DTransform(initial_transform)
-            initial_transform.SetTranslation((0.0, 0.0, 0.0))
-
         return initial_transform
 
 def get_dim(image: sitk.Image) -> sitk.Transform:

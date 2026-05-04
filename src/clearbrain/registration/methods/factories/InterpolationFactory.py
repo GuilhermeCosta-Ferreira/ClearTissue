@@ -18,6 +18,7 @@ class InterpolationFactory:
     interpolation_names: ClassVar[dict[str, list[str]]] = {
         "Linear": ["Linear"],
         "Nearest": ["NN", "Nearest", "Nearest Neighbour"],
+        "BSpline": ["BSpline", "Spline"]
     }
 
     def apply_registration(
@@ -31,6 +32,8 @@ class InterpolationFactory:
             method.SetInterpolator(sitk.sitkLinear)
         elif self._matches(interpolation_names, "Nearest"):
             method.SetInterpolator(sitk.sitkNearestNeighbor)
+        elif self._matches(interpolation_names, "BSpline"):
+            method.SetInterpolator(sitk.sitkBSpline)
         else:
             raise ValueError(
                 f"The '{interpolation_config.registration}' interpolation is not "
@@ -48,6 +51,8 @@ class InterpolationFactory:
             method.SetInterpolator(sitk.sitkLinear)
         elif self._matches(interpolation_names, "Nearest"):
             method.SetInterpolator(sitk.sitkNearestNeighbor)
+        elif self._matches(interpolation_names, "BSpline"):
+            method.SetInterpolator(sitk.sitkBSpline)
         else:
             raise ValueError(
                 f"The '{interpolation_config.resampling}' interpolation is not "

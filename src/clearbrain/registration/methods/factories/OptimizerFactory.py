@@ -18,9 +18,8 @@ class OptimizerFactory:
     optimizer_names: ClassVar[dict[str, list[str]]] = {
         "Gradient Descent": ["GD", "Gradient Descent"],
         "LBFGS": ["LBFGS"],
+        "Exhaustive": ["Exhaustive", "Constrained"]
     }
-
-    sitk.ImageRegistrationMethod.Once
 
     def apply(
         self,
@@ -35,6 +34,7 @@ class OptimizerFactory:
                 numberOfIterations=optimizer_config.iterations,
                 maximumNumberOfCorrections=optimizer_config.maximum_number_corrections
             )
+            method.SetOptimizerScalesFromPhysicalShift()
         elif self._matches(optimizer_name, "Gradient Descent"):
             method.SetOptimizerAsGradientDescent(
                 learningRate=optimizer_config.learning_rate,
@@ -44,6 +44,10 @@ class OptimizerFactory:
                 estimateLearningRate=optimizer_config.estimate_learning_rate,
                 maximumStepSizeInPhysicalUnits=optimizer_config.max_step_size_physical_units
             )
+            method.SetOptimizerScalesFromPhysicalShift()
+        elif self._matches(optimizer_name, "Exhaustive"):
+            method.SetOptimizerAsExhaustive(optimizer_config.constrains)
+            method.SetOptimizerScales(optimizer_config.scales)
         else:
             raise ValueError(
                 f"The '{optimizer_config.name}' loss is not implemented. "
