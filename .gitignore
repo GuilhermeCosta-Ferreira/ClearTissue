@@ -216,3 +216,6 @@ out/
 *.DS_Store/
 .DS_Store/
 .DS_Store
+
+*.nii.gz
+*.pkl

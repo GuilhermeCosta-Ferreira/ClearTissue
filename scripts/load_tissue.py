@@ -1,7 +1,10 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+import pickle
+
 import numpy as np
+import nibabel as nib
 from matplotlib import pyplot as plt
 
 from pathlib import Path
@@ -76,10 +79,10 @@ if __name__ == '__main__':
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
 
-    untwisted_tissue = untwist_spinal_coord(stretch_tissue, centerline)
+    untwisted_tissue, twisting_data = untwist_spinal_coord(stretch_tissue, 75)
     plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
-    plt.show(block=True)
+    plt.show(block=False)
 
     # 4. Saves the new files
     downloader = TissueDownloader(source)
@@ -93,3 +96,25 @@ if __name__ == '__main__':
     print(f"Downloaded at {p}")
     p = downloader.download_volume(untwisted_tissue, suffix="_untwisted", to_update=True)
     print(f"Downloaded at {p}")
+
+    # saves the stretch
+    volume = np.asarray(stretch_tissue.volume)  # your 3D numpy array
+    print(np.max(volume))
+    volume_to_save = volume.astype(np.uint8)
+    print(np.max(volume_to_save))
+    affine = np.eye(4)  # identity transform, voxel coordinates only
+    nii = nib.Nifti1Image(volume_to_save, affine)
+    nib.save(nii, f"{MOUSE}_volume.nii.gz")
+
+
+    # saves the untwist
+    volume = np.asarray(untwisted_tissue.volume)  # your 3D numpy array
+    print(np.max(volume))
+    volume_to_save = volume.astype(np.uint8)
+    print(np.max(volume_to_save))
+    affine = np.eye(4)  # identity transform, voxel coordinates only
+    nii = nib.Nifti1Image(volume_to_save, affine)
+    nib.save(nii, f"{MOUSE}_volume_untwist.nii.gz")
+
+    with open(f"{MOUSE}_twisting_data.pkl", "wb") as f:
+        pickle.dump(twisting_data, f, protocol=pickle.HIGHEST_PROTOCOL)
