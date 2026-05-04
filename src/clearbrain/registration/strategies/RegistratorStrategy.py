@@ -4,6 +4,7 @@
 import SimpleITK as sitk
 
 from abc import ABC, abstractmethod
+from dataclasses import field, dataclass
 
 from ..configs import RegistrationConfig
 from ..methods import RegistrationMethodBuilder
@@ -13,8 +14,9 @@ from ..methods import RegistrationMethodBuilder
 # ================================================================
 # 1. Section: Functions
 # ================================================================
+@dataclass
 class RegistratorStrategy(ABC):
-    method_builder: RegistrationMethodBuilder = RegistrationMethodBuilder()
+    method_builder: RegistrationMethodBuilder = field(default_factory=RegistrationMethodBuilder)
 
     @abstractmethod
     def build_initial_transform(self, fixed: sitk.Image, moving: sitk.Image, config: RegistrationConfig) -> sitk.Transform:

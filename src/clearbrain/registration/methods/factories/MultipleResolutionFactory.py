@@ -23,5 +23,3 @@ class MultipleResolutionFactory:
             method.SetShrinkFactorsPerLevel(shrinkFactors=res_config.shrink_factors)
             method.SetSmoothingSigmasPerLevel(smoothingSigmas=res_config.smoothing_sigmas)
             method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
-        else:
-            print("Multiple resolutions not enabled, Registration could take more time")

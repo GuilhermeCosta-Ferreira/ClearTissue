@@ -3,7 +3,7 @@
 # ================================================================
 import SimpleITK as sitk
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .factories import InterpolationFactory
 from ..configs import RegistrationConfig
@@ -15,7 +15,7 @@ from ..configs import RegistrationConfig
 # ================================================================
 @dataclass
 class RegistratorResampler:
-    interpolation_factory: InterpolationFactory = InterpolationFactory()
+    interpolation_factory: InterpolationFactory = field(default_factory=InterpolationFactory)
 
     def configure(
         self,

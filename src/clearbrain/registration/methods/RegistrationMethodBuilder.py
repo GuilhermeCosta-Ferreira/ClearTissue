@@ -3,7 +3,7 @@
 # ================================================================
 import SimpleITK as sitk
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..configs import RegistrationConfig
 from .factories import (
@@ -20,10 +20,10 @@ from .factories import (
 # ================================================================
 @dataclass
 class RegistrationMethodBuilder:
-    metric_factory: MetricFactory = MetricFactory()
-    optimizer_factory: OptimizerFactory = OptimizerFactory()
-    interpolator_factory: InterpolationFactory = InterpolationFactory()
-    resolution_factory: MultipleResolutionFactory = MultipleResolutionFactory()
+    metric_factory: MetricFactory = field(default_factory=MetricFactory)
+    optimizer_factory: OptimizerFactory = field(default_factory=OptimizerFactory)
+    interpolator_factory: InterpolationFactory = field(default_factory=InterpolationFactory)
+    resolution_factory: MultipleResolutionFactory = field(default_factory=MultipleResolutionFactory)
 
     def build(self, config: RegistrationConfig) -> sitk.ImageRegistrationMethod:
         method = sitk.ImageRegistrationMethod()
