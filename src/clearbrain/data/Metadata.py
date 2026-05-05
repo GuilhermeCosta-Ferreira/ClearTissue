@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..tissue import TissueType
+from ..tissue.TissueType import TissueType
 
 
 

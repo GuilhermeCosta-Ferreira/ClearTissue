@@ -14,7 +14,7 @@ from ..Metadata import Metadata
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def load_metadata(source_filepath: Path):
+def load_metadata(source_filepath: Path) -> Metadata:
     metadata_path = source_filepath.parent / f"{source_filepath.stem}_metadata.json"
 
     if os.path.exists(metadata_path):

@@ -7,24 +7,26 @@ from pathlib import Path
 
 from .file_loader import load_json
 from .metadata_loader import load_metadata
-from ...tissue import ClearTissue
+from ...tissue.ClearTissue import ClearTissue
 
 
 # ================================================================
 # 1. Section: Points
 # ================================================================
-def load_points(path: Path):
-    data = load_points_data(path)
+def load_points(path: Path, suffix: str):
+    data = load_points_data(path, suffix)
     metadata = load_metadata(path)
 
     return ClearTissue(data, metadata)
 
 
+
 # ──────────────────────────────────────────────────────
 # 1.1 Subsection: Load the individual parts
 # ──────────────────────────────────────────────────────
-def load_points_data(path: Path) -> np.ndarray:
-    payload = load_json(path)
+def load_points_data(path: Path, suffix: str) -> np.ndarray:
+    file_path = path.parent / f"{path.stem}{suffix}.json"
+    payload = load_json(file_path)
 
     if not isinstance(payload, list):
         raise TypeError(f"The loaded file did not contain a list of points ({type(payload)})")

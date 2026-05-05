@@ -1,20 +1,33 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-import pickle
-
-from clearbrain.registration import RegistrationConfig, Registrator, RegistratorResampler, RigidRegistration
 import numpy as np
-import nibabel as nib
 from matplotlib import pyplot as plt
 
 from pathlib import Path
 from typing import cast
 
-from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
-from clearbrain.processing import get_centerline, scale_tissue, compress_to_volume, stretch_tissue, untwist_spinal_coord
 from clearbrain.tissue import ClearTissue, TissueType
-from clearbrain.tissue.view import plot_spinal_direction, plot_volume_coronal, plot_volume_overview
+from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
+from clearbrain.tissue.view import (
+    plot_spinal_direction,
+    plot_volume_coronal,
+    plot_volume_overview
+)
+from clearbrain.registration import (
+    RegistrationConfig,
+    Registrator,
+    RegistratorResampler,
+    RigidRegistration
+)
+
+from clearbrain.processing import (
+    get_centerline,
+    scale_tissue,
+    compress_to_volume,
+    stretch_tissue,
+    untwist_spinal_coord
+)
 
 
 
@@ -76,16 +89,22 @@ if __name__ == '__main__':
     plt.show(block=False)
     print("Centerline with spinal direction assessed\n")
 
+    # 5. Applies the stretching of the coord
     stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
     plot_volume_coronal(stretch_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
+    density_before = np.sum(vol_tissue.volume)
+    density_after = np.sum(stretch_tissue.volume)
+    percentage_change = (density_after - density_before) / density_before * 100
     print(
-        "Tissue has been stretched, with stable density: "
-        f"  Sum Density before: {np.sum(vol_tissue.volume)}\n"
-        f"  Sum Desnity after: {np.sum(stretch_tissue.volume)}\n"
+        "Tissue has been stretched, with stable density:\n"
+        f"  Sum Density before: {density_before}\n"
+        f"  Sum Density after:  {density_after}\n"
+        f"  Percentage change:  {percentage_change:.2f}%\n"
     )
 
+    # 6. Applies the untwisting of the coord
     registrator = Registrator(
         strategy=RigidRegistration(),
         resampler=RegistratorResampler(),
@@ -95,13 +114,17 @@ if __name__ == '__main__':
     plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
     plt.show(block=False)
+    density_before = np.sum(stretch_tissue.volume)
+    density_after = np.sum(untwisted_tissue.volume)
+    percentage_change = (density_after - density_before) / density_before * 100
     print(
-        "Tissue has been untwisted. the density stability is:\n"
-        f"  Sum Density before: {np.sum(stretch_tissue.volume)}\n"
-        f"  Sum Desnity after: {np.sum(untwisted_tissue.volume)}\n"
+        "Tissue has been untwisted, with stable density:\n"
+        f"  Sum Density before: {density_before}\n"
+        f"  Sum Density after:  {density_after}\n"
+        f"  Percentage change:  {percentage_change:.2f}%\n"
     )
 
-    # 4. Saves the new files
+    # 7. Saves the new files
     downloader = TissueDownloader(source)
     p = downloader.download_volume(vol_tissue, to_update=True)
     print(f"Downloaded at {p}")
@@ -111,27 +134,8 @@ if __name__ == '__main__':
     print(f"Downloaded at {p}")
     p = downloader.download_volume(stretch_tissue, suffix="_stretch", to_update=True)
     print(f"Downloaded at {p}")
-    p = downloader.download_volume(untwisted_tissue, suffix="_untwisted", to_update=True)
+    p = downloader.download_twisting_data(twisting_data, to_update=True)
     print(f"Downloaded at {p}")
 
-    # saves the stretch
-    volume = np.asarray(stretch_tissue.volume)  # your 3D numpy array
-    print(np.max(volume))
-    volume_to_save = volume.astype(np.uint8)
-    print(np.max(volume_to_save))
-    affine = np.eye(4)  # identity transform, voxel coordinates only
-    nii = nib.Nifti1Image(volume_to_save, affine)
-    nib.save(nii, f"{MOUSE}_volume.nii.gz")
-
-
-    # saves the untwist
-    volume = np.asarray(untwisted_tissue.volume)  # your 3D numpy array
-    print(np.max(volume))
-    volume_to_save = volume.astype(np.uint8)
-    print(np.max(volume_to_save))
-    affine = np.eye(4)  # identity transform, voxel coordinates only
-    nii = nib.Nifti1Image(volume_to_save, affine)
-    nib.save(nii, f"{MOUSE}_volume_untwist.nii.gz")
-
-    with open(f"{MOUSE}_twisting_data.pkl", "wb") as f:
-        pickle.dump(twisting_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    p = downloader.download_volume(untwisted_tissue, suffix="_untwisted", to_update=False)
+    print(f"Downloaded at {p}")
