@@ -28,7 +28,7 @@ def stretch_tissue(tissue_volume: ClearVolume, centerline: SpinalCenterline, smo
                     volume=volume,
                     center=center,
                     direction=direction,
-                    order=1,
+                    order=0,
                 )
 
         stretch_volume[:, sl, :] = img

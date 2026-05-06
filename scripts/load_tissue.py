@@ -93,7 +93,7 @@ if __name__ == '__main__':
     stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
     plot_volume_coronal(stretch_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
-    plt.show(block=False)
+    plt.show(block=True)
     density_before = np.sum(vol_tissue.volume)
     density_after = np.sum(stretch_tissue.volume)
     percentage_change = (density_after - density_before) / density_before * 100
@@ -113,7 +113,6 @@ if __name__ == '__main__':
     untwisted_tissue, twisting_data = untwist_spinal_coord(stretch_tissue, registrator)
     plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
-    plt.show(block=False)
     density_before = np.sum(stretch_tissue.volume)
     density_after = np.sum(untwisted_tissue.volume)
     percentage_change = (density_after - density_before) / density_before * 100
@@ -123,6 +122,7 @@ if __name__ == '__main__':
         f"  Sum Density after:  {density_after}\n"
         f"  Percentage change:  {percentage_change:.2f}%\n"
     )
+    plt.show(block=False)
 
     # 7. Saves the new files
     downloader = TissueDownloader(source)
