@@ -28,4 +28,4 @@ def load_npy(path: Path) -> np.ndarray:
     if not os.path.exists(path):
         raise FileNotFoundError(f"File not found: {path}")
 
-    return np.load("path")
+    return np.load(path)

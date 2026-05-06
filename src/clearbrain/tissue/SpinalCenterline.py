@@ -5,7 +5,7 @@ import numpy as np
 
 from dataclasses import dataclass
 
-from ..data import Metadata
+from ..data.Metadata import Metadata
 
 
 

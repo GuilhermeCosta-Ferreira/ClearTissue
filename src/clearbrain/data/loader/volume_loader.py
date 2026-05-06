@@ -5,7 +5,7 @@ import re
 
 from pathlib import Path
 
-from ...tissue import ClearVolume
+from ...tissue.ClearVolume import ClearVolume
 from .file_loader import load_npy
 from .metadata_loader import load_metadata
 
@@ -14,9 +14,8 @@ from .metadata_loader import load_metadata
 # ================================================================
 # 2. Section: Volume
 # ================================================================
-def load_volume(source_filepath: Path) -> ClearVolume:
-    volume_path = source_filepath.parent / f"{source_filepath.stem}_volume_SF.json"
-    volume_path = find_file_path(volume_path)
+def load_volume(source_filepath: Path, suffix: str, sample_factor: int) -> ClearVolume:
+    volume_path = source_filepath.parent / f"{source_filepath.stem}{suffix}_SF{sample_factor}.npy"
 
     data = load_volume_data(volume_path)
     metadata = load_metadata(source_filepath)
@@ -45,10 +44,10 @@ def find_file_path(path: Path) -> Path:
     ]
 
     if len(matches) == 0:
-            raise FileNotFoundError(
-                f"No volume metadata file found matching {path.stem}<number>.json "
-                f"in {path.parent}"
-            )
+        raise FileNotFoundError(
+            f"No volume metadata file found matching {path.stem}<number>.json "
+            f"in {path.parent}"
+        )
 
     if len(matches) > 1:
         raise RuntimeError(

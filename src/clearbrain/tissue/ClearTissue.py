@@ -1,12 +1,16 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+from __future__ import annotations
+
 import numpy as np
 
 from dataclasses import dataclass
 from copy import deepcopy
 
-from ..data import Metadata
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..data import Metadata
 
 
 
