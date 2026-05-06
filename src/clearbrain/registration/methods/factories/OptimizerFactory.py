@@ -17,7 +17,7 @@ from ...configs import OptimizerConfig
 class OptimizerFactory:
     optimizer_names: ClassVar[dict[str, list[str]]] = {
         "Gradient Descent": ["GD", "Gradient Descent"],
-        "LBFGS": ["LBFGS"],
+        "LBFGS": ["LBFGS", "Mask"],
         "Exhaustive": ["Exhaustive", "Constrained"]
     }
 

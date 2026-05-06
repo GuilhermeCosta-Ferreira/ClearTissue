@@ -5,12 +5,17 @@ from .config import (
     InterpolationConfig,
     MultipleResolutionConfig
 )
+from .default_configs import(
+    UNTWISTING_REGISTRATION,
+    TEMPLATE_WARP_REGISTRATION
+)
 
 __all__ = [
     "RegistrationConfig",
     "MetricConfig",
     "OptimizerConfig",
     "InterpolationConfig",
-    "MultipleResolutionConfig"
-
+    "MultipleResolutionConfig",
+    "UNTWISTING_REGISTRATION",
+    "TEMPLATE_WARP_REGISTRATION"
 ]
