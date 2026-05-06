@@ -2,12 +2,9 @@
 # 0. Section: IMPORTS
 # ================================================================
 import numpy as np
-from matplotlib import pyplot as plt
-
-from matplotlib.widgets import Slider
-from matplotlib.patches import Circle
 
 from ..tissue import ClearVolume
+from ..plots.interactive import plot_interactive_circle_on_image
 
 
 
@@ -85,58 +82,13 @@ def get_circlular_mask(biggest_slice: np.ndarray, margin: int) -> np.ndarray:
 
 def select_circle_margin_interactive(
     best_slice: np.ndarray,
-    initial_margin: int = 0,
-    min_margin: int = 0,
-    max_margin: int = 100,
 ) -> int:
-    (cx, cy), data_radius = get_minimum_circle_params(best_slice)
-    selected_margin = int(initial_margin)
+    center, data_radius = get_minimum_circle_params(best_slice)
 
-    fig, ax = plt.subplots()
-    plt.subplots_adjust(bottom=0.25)
-
-    ax.imshow(best_slice, cmap="gray")
-    ax.set_title(
-        f"Best slice | Data radius={data_radius:.1f}px"
+    selected_margin = plot_interactive_circle_on_image(
+        best_slice,
+        data_radius,
+        center
     )
-    ax.axis("off")
-
-    circle = Circle(
-        (cx, cy),
-        data_radius + selected_margin,
-        fill=False,
-        linewidth=2,
-        color="yellow"
-    )
-    ax.add_patch(circle)
-
-    slider_ax = plt.axes((0.2, 0.08, 0.6, 0.04))
-
-    margin_slider = Slider(
-        ax=slider_ax,
-        label="Margin",
-        valmin=min_margin,
-        valmax=max_margin,
-        valinit=initial_margin,
-        valstep=1,
-    )
-
-    def update(value):
-        nonlocal selected_margin
-
-        selected_margin = int(value)
-        circle.set_radius(data_radius + selected_margin)
-
-        ax.set_title(
-            f"Data radius={data_radius:.1f}px | "
-            f"Margin={selected_margin}px | "
-            f"Final radius={data_radius + selected_margin:.1f}px"
-        )
-
-        fig.canvas.draw_idle()
-
-    margin_slider.on_changed(update)
-
-    plt.show(block=True)
 
     return selected_margin
