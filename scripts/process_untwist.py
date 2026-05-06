@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 from pathlib import Path
 
-from clearbrain.processing import clear_external_points
+from clearbrain.processing import clear_external_points, rotate_spinal_cord
 from clearbrain.tissue import TissueType
 from clearbrain.data import TissueLoader, TissueSource
 from clearbrain.tissue.view import plot_volume_coronal
@@ -44,4 +44,8 @@ if __name__ == '__main__':
 
     cleaned_tissue = clear_external_points(tissue)
     plot_volume_coronal(cleaned_tissue, 20)
+    plt.show()
+
+    rotated_tissue = rotate_spinal_cord(cleaned_tissue)
+    plot_volume_coronal(rotated_tissue, 20)
     plt.show()
