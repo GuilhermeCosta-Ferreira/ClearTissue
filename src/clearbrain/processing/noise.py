@@ -11,7 +11,7 @@ from ..plots.interactive import plot_interactive_circle_on_image
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def clear_external_points (tissue: ClearVolume, margin: int = -1) -> ClearVolume:
+def clear_external_points(tissue: ClearVolume, margin: int = -1) -> ClearVolume:
     # 1. Load the data
     volume = tissue.volume
     biggest_slice = get_biggest_slice(volume)
