@@ -15,5 +15,5 @@ __all__ = [
     "untwist_spinal_coord",
     "clear_external_points",
     "rotate_spinal_cord",
-    "crop_excess"
+    "crop_excess",
 ]

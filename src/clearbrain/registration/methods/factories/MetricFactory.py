@@ -9,7 +9,6 @@ from typing import ClassVar
 from ...configs import MetricConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -44,7 +43,6 @@ class MetricFactory:
                 f"The '{metric_config.name}' loss is not implemented. "
                 f"Please select one of: {self.loss_names.keys()}"
             )
-
 
     # ──────────────────────────────────────────────────────
     # 1.1 Subsection: Helper Functions

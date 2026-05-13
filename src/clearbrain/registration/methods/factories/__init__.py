@@ -7,5 +7,5 @@ __all__ = [
     "MetricFactory",
     "OptimizerFactory",
     "InterpolationFactory",
-    "MultipleResolutionFactory"
+    "MultipleResolutionFactory",
 ]

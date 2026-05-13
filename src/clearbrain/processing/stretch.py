@@ -9,11 +9,12 @@ from scipy.ndimage import map_coordinates
 from ..tissue import ClearVolume, SpinalCenterline
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def stretch_tissue(tissue_volume: ClearVolume, centerline: SpinalCenterline, smooth_window: int = 9) -> ClearVolume:
+def stretch_tissue(
+    tissue_volume: ClearVolume, centerline: SpinalCenterline, smooth_window: int = 9
+) -> ClearVolume:
     volume = tissue_volume.volume
     spinal_centers = centerline.points
     spinal_direction = centerline.smooth_derivative(smooth_window)
@@ -25,16 +26,17 @@ def stretch_tissue(tissue_volume: ClearVolume, centerline: SpinalCenterline, smo
         direction = spinal_direction[sl]
 
         img = extract_perpendicular_slice(
-                    volume=volume,
-                    center=center,
-                    direction=direction,
-                    order=0,
-                )
+            volume=volume,
+            center=center,
+            direction=direction,
+            order=0,
+        )
 
         stretch_volume[:, sl, :] = img
 
-    return ClearVolume(stretch_volume, tissue_volume.metadata, tissue_volume.sample_factor)
-
+    return ClearVolume(
+        stretch_volume, tissue_volume.metadata, tissue_volume.sample_factor
+    )
 
 
 # ──────────────────────────────────────────────────────
@@ -72,6 +74,7 @@ def _perpendicular_plane_basis(direction: np.ndarray):
 
     return u, v
 
+
 def extract_perpendicular_slice(
     volume: np.ndarray,
     center: np.ndarray,
@@ -81,7 +84,7 @@ def extract_perpendicular_slice(
     center = np.asarray(center, dtype=float)
     direction = np.asarray(direction, dtype=float)
 
-    height, _,  width = volume.shape
+    height, _, width = volume.shape
 
     if not np.all(np.isfinite(center)) or not np.all(np.isfinite(direction)):
         return np.full((height, width), np.nan, dtype=float)
@@ -92,8 +95,8 @@ def extract_perpendicular_slice(
         return np.full((height, width), np.nan, dtype=float)
 
     # Coordinates centered around zero
-    uu = (np.arange(width) - (width - 1) / 2)
-    vv = (np.arange(height) - (height - 1) / 2)
+    uu = np.arange(width) - (width - 1) / 2
+    vv = np.arange(height) - (height - 1) / 2
 
     U, V = np.meshgrid(uu, vv, indexing="xy")
 

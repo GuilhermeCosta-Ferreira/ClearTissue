@@ -15,7 +15,6 @@ from .RegistrationResult import RegistrationResult
 from .Registrator import convert_input
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -26,9 +25,7 @@ class QuickRegistrator:
     config: RegistrationConfig
 
     def quick_registration(
-        self,
-        fixed: sitk.Image | np.ndarray,
-        moving: sitk.Image | np.ndarray
+        self, fixed: sitk.Image | np.ndarray, moving: sitk.Image | np.ndarray
     ) -> RegistrationResult:
         """No resampling applied, registered image is empty"""
         # 1. Converts the input
@@ -44,11 +41,11 @@ class QuickRegistrator:
         registration_time = time.time() - start_time
 
         return RegistrationResult(
-            registered_image = np.zeros_like(moving),
-            transform = transform,
-            final_metric = method.GetMetricValue(),
-            stop_condition = method.GetOptimizerStopConditionDescription(),
-            elapsed_time = registration_time
+            registered_image=np.zeros_like(moving),
+            transform=transform,
+            final_metric=method.GetMetricValue(),
+            stop_condition=method.GetOptimizerStopConditionDescription(),
+            elapsed_time=registration_time,
         )
 
     def quick_apply(

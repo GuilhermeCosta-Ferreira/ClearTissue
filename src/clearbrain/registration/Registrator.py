@@ -14,7 +14,6 @@ from .methods import RegistratorResampler
 from .RegistrationResult import RegistrationResult
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -25,9 +24,7 @@ class Registrator:
     config: RegistrationConfig
 
     def register(
-        self,
-        fixed: sitk.Image | np.ndarray,
-        moving: sitk.Image | np.ndarray
+        self, fixed: sitk.Image | np.ndarray, moving: sitk.Image | np.ndarray
     ) -> RegistrationResult:
         # 1. Converts the input
         fixed = convert_input(fixed)
@@ -48,16 +45,21 @@ class Registrator:
         registered_image = sitk.GetArrayFromImage(resampled_image)
 
         result = RegistrationResult(
-            registered_image = registered_image,
-            transform = transform,
-            final_metric = method.GetMetricValue(),
-            stop_condition = method.GetOptimizerStopConditionDescription(),
-            elapsed_time = registration_time
+            registered_image=registered_image,
+            transform=transform,
+            final_metric=method.GetMetricValue(),
+            stop_condition=method.GetOptimizerStopConditionDescription(),
+            elapsed_time=registration_time,
         )
 
         return result
 
-    def apply(self, fixed: sitk.Image | np.ndarray, moving: sitk.Image | np.ndarray, transform: sitk.Transform) -> sitk.Image:
+    def apply(
+        self,
+        fixed: sitk.Image | np.ndarray,
+        moving: sitk.Image | np.ndarray,
+        transform: sitk.Transform,
+    ) -> sitk.Image:
         fixed = convert_input(fixed)
         moving = convert_input(moving)
 

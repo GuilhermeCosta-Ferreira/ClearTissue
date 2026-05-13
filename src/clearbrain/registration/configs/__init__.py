@@ -3,12 +3,9 @@ from .config import (
     MetricConfig,
     OptimizerConfig,
     InterpolationConfig,
-    MultipleResolutionConfig
+    MultipleResolutionConfig,
 )
-from .default_configs import(
-    UNTWISTING_REGISTRATION,
-    TEMPLATE_WARP_REGISTRATION
-)
+from .default_configs import UNTWISTING_REGISTRATION, TEMPLATE_WARP_REGISTRATION
 
 __all__ = [
     "RegistrationConfig",
@@ -17,5 +14,5 @@ __all__ = [
     "InterpolationConfig",
     "MultipleResolutionConfig",
     "UNTWISTING_REGISTRATION",
-    "TEMPLATE_WARP_REGISTRATION"
+    "TEMPLATE_WARP_REGISTRATION",
 ]

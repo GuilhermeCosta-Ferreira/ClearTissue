@@ -1,8 +1,7 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from dataclasses import dataclass#, field
-
+from dataclasses import dataclass  # , field
 
 
 # ================================================================
@@ -15,7 +14,7 @@ class PlotSettings:
     fig_size: tuple = (8, 8)
     ylim: tuple | None = None
     show_rects: bool = True
-    #colors: list[str] = field(default_factory=lambda: ["NR_GREY", "NR_RED"])
+    # colors: list[str] = field(default_factory=lambda: ["NR_GREY", "NR_RED"])
     width: float = 0.25
     gap: float = 0.0
     vertical_offset: float = 0.0
@@ -32,4 +31,4 @@ class PlotSettings:
     nr_cols: int = 5
     nr_rows: int = 5
     show_imshow_data_center: bool = False
-    imshow_cmap: str = 'hot'
+    imshow_cmap: str = "hot"

@@ -9,14 +9,11 @@ from ..tissue import ClearVolume
 from ..registration import Registrator
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 def untwist_spinal_coord(
-    tissue_volume: ClearVolume,
-    registrator: Registrator,
-    window_size: int = 75
+    tissue_volume: ClearVolume, registrator: Registrator, window_size: int = 75
 ) -> tuple[ClearVolume, list]:
     # 0. Get the needed data
     volume = tissue_volume.volume
@@ -54,9 +51,7 @@ def untwist_spinal_coord(
 
     # 3. Saves the untwisted as a volume
     tissue_volume = ClearVolume(
-        untwisted_volume,
-        tissue_volume.metadata,
-        tissue_volume.sample_factor
+        untwisted_volume, tissue_volume.metadata, tissue_volume.sample_factor
     )
 
     return tissue_volume, twisting_data
@@ -66,9 +61,7 @@ def untwist_spinal_coord(
 # 1.1 Subsection: Helper Functions
 # ──────────────────────────────────────────────────────
 def get_reference_slices(
-    untwisted_volume: np.ndarray,
-    current_slice: int,
-    window_size: int
+    untwisted_volume: np.ndarray, current_slice: int, window_size: int
 ) -> np.ndarray | None:
     start = max(0, current_slice - window_size)
     previous_slices = untwisted_volume[:, start:current_slice, :].astype(np.float32)
@@ -84,7 +77,6 @@ def get_reference_slices(
         return None
     else:
         return np.mean(valid_refs, axis=0).astype(np.float32)
-
 
 
 """

@@ -7,7 +7,6 @@ from ..tissue import ClearVolume
 from ..plots.interactive import plot_interactive_circle_on_image
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -26,9 +25,9 @@ def clear_external_points(tissue: ClearVolume, margin: int = -1) -> ClearVolume:
 
     # 4. Apply the mask
     cleaned_volume = np.where(
-            circular_mask[:, None, :],
-            volume,
-            0,
+        circular_mask[:, None, :],
+        volume,
+        0,
     )
 
     return ClearVolume(cleaned_volume, tissue.metadata, tissue.sample_factor)
@@ -40,7 +39,7 @@ def clear_external_points(tissue: ClearVolume, margin: int = -1) -> ClearVolume:
 def get_biggest_slice(volume: np.ndarray) -> np.ndarray:
     nr_slices = volume.shape[1]
 
-    biggest_slice = np.zeros_like(volume[:,0,:])
+    biggest_slice = np.zeros_like(volume[:, 0, :])
     for sl in range(nr_slices):
         coronal = volume[:, sl, :]
 
@@ -48,6 +47,7 @@ def get_biggest_slice(volume: np.ndarray) -> np.ndarray:
             biggest_slice = coronal.copy()
 
     return biggest_slice
+
 
 def get_minimum_circle_params(coronal: np.ndarray) -> tuple[tuple, float]:
     best_mask = np.where(coronal > 0, 1, 0)
@@ -62,6 +62,7 @@ def get_minimum_circle_params(coronal: np.ndarray) -> tuple[tuple, float]:
 
     return (cx, cy), data_radius
 
+
 def get_circlular_mask(biggest_slice: np.ndarray, margin: int) -> np.ndarray:
     # 1. init the shapes
     height, width = biggest_slice.shape
@@ -72,23 +73,16 @@ def get_circlular_mask(biggest_slice: np.ndarray, margin: int) -> np.ndarray:
     radius += margin
 
     # 3. Build the mask
-    circular_mask = (
-        (xx - center_x) ** 2
-        + (yy - center_y) ** 2
-        <= radius ** 2
-    )
+    circular_mask = (xx - center_x) ** 2 + (yy - center_y) ** 2 <= radius**2
 
     return circular_mask
+
 
 def select_circle_margin_interactive(
     best_slice: np.ndarray,
 ) -> int:
     center, data_radius = get_minimum_circle_params(best_slice)
 
-    selected_margin = plot_interactive_circle_on_image(
-        best_slice,
-        data_radius,
-        center
-    )
+    selected_margin = plot_interactive_circle_on_image(best_slice, data_radius, center)
 
     return selected_margin

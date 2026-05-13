@@ -9,7 +9,6 @@ from .RegistratorStrategy import RegistratorStrategy
 from ..configs import RegistrationConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -21,7 +20,6 @@ class BSplineRegistration(RegistratorStrategy):
         moving: sitk.Image,
         config: RegistrationConfig,
     ) -> sitk.Transform:
-        return  sitk.BSplineTransformInitializer(
-            fixed,
-            [config.optimizer.grid_size] * fixed.GetDimension()
+        return sitk.BSplineTransformInitializer(
+            fixed, [config.optimizer.grid_size] * fixed.GetDimension()
         )

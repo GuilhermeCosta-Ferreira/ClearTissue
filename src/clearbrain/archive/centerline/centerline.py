@@ -6,7 +6,6 @@ import numpy as np
 from scipy.interpolate import splev, splprep
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -29,6 +28,7 @@ def get_centerline(
             centerline.append([pts[:, 0].mean(), yc, pts[:, 2].mean()])
 
     return np.array(centerline)
+
 
 def smooth_centerline(
     centerline: np.ndarray,

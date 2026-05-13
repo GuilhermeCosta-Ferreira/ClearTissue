@@ -5,13 +5,12 @@ import numpy as np
 from tqdm import tqdm
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 def get_symmetry_axis(img):
-    center = (img.shape[0] // 2, img.shape[1]// 2)
-    length = int(np.sqrt(img.shape[0]**2 + img.shape[1]**2))
+    center = (img.shape[0] // 2, img.shape[1] // 2)
+    length = int(np.sqrt(img.shape[0] ** 2 + img.shape[1] ** 2))
 
     angle_list = np.linspace(0, 180, 90, endpoint=False)
 
@@ -31,9 +30,8 @@ def get_symmetry_axis(img):
     diffs = np.abs(np.asarray(separability) - 0.5)
     best_symmetry_angle = angle_list[np.argmin(diffs)]
 
-    angle=best_symmetry_angle
+    angle = best_symmetry_angle
     return add_line(img, angle, center, length, value=-10)
-
 
 
 # ──────────────────────────────────────────────────────
@@ -57,10 +55,11 @@ def add_line(img, angle_deg, center, length, value=1):
     valid = (x >= 0) & (x < w) & (y >= 0) & (y < h)
 
     line = np.zeros_like(img)
-    #line = img
+    # line = img
     line[y[valid], x[valid]] = value
 
     return line
+
 
 def side_mask(shape, angle_deg, center, eps=0.5):
     h, w = shape

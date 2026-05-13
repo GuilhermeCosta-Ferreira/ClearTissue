@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from ..data.Metadata import Metadata
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -36,6 +35,7 @@ def get_coord_derivative(coords: np.ndarray) -> np.ndarray:
     derivative[0] = derivative[1]
 
     return derivative
+
 
 def get_smooth_derivative(coords: np.ndarray, window_size) -> np.ndarray:
     if window_size % 2 == 0:

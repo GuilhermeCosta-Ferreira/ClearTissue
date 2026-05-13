@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -16,9 +15,8 @@ def get_symmetry_axis(img):
     data = np.where(img > 0, 1, 0)
 
     center = np.mean(np.argwhere(data), axis=0)
-    #center = (img.shape[0] // 2, img.shape[1]// 2)
-    length = int(np.sqrt(img.shape[0]**2 + img.shape[1]**2))
-
+    # center = (img.shape[0] // 2, img.shape[1]// 2)
+    length = int(np.sqrt(img.shape[0] ** 2 + img.shape[1] ** 2))
 
     separability = []
     for angle in tqdm(angle_list):
@@ -30,13 +28,12 @@ def get_symmetry_axis(img):
     """
     best_symmetry_angle = angle_list[np.argmax(separability)]
 
-    angle=best_symmetry_angle
+    angle = best_symmetry_angle
     return add_line(img, angle, center, length, value=-10)
 
 
-
 def get_symmetry_rate(img: np.ndarray, angle: float) -> float:
-    center = (img.shape[0] // 2, img.shape[1]// 2)
+    center = (img.shape[0] // 2, img.shape[1] // 2)
     line_m, line_b = get_line_eq(angle, center)
 
     mask = side_mask(img.shape, angle)
@@ -70,17 +67,14 @@ def get_symmetry_rate(img: np.ndarray, angle: float) -> float:
         plt.plot(x, y, color="red", linewidth=2, alpha=0.5)
         """
 
-        intercept = get_line_intercept(
-            (line_m, line_b),
-            (point_m, point_b)
-        )
+        intercept = get_line_intercept((line_m, line_b), (point_m, point_b))
 
-        displacement_vector = np.array([intercept[0] - point[0], intercept[1] - point[1]])
+        displacement_vector = np.array(
+            [intercept[0] - point[0], intercept[1] - point[1]]
+        )
 
         sym_point = (np.array(intercept)) + displacement_vector
         sym_point = np.round(sym_point, 0).astype(int)
-
-
 
         """
         print(f"point: {point}")
@@ -105,10 +99,10 @@ def get_symmetry_rate(img: np.ndarray, angle: float) -> float:
         plt.show()
         """
 
-
-
-        if not (0 <= sym_point[0] < img.shape[0]) or not (0<= sym_point[1] < img.shape[1]):
-            #print(f"Failed the sym for point {point}, got {sym_point}")
+        if not (0 <= sym_point[0] < img.shape[0]) or not (
+            0 <= sym_point[1] < img.shape[1]
+        ):
+            # print(f"Failed the sym for point {point}, got {sym_point}")
             continue
 
         """
@@ -121,18 +115,18 @@ def get_symmetry_rate(img: np.ndarray, angle: float) -> float:
             plt.scatter(sym_point[0], sym_point[1], color='blue', label="sym_point")
         """
 
-
-        sym_value = 1 if img[point[0], point[1]] == img[sym_point[0], sym_point[1]] else 0
+        sym_value = (
+            1 if img[point[0], point[1]] == img[sym_point[0], sym_point[1]] else 0
+        )
         sym_scores.append(sym_value)
-
-
 
     max_sym_value = len(points)
     sym_rate = np.sum(sym_scores) / max_sym_value
-    #print(sym_rate)
-    #plt.show()
+    # print(sym_rate)
+    # plt.show()
 
     return sym_rate
+
 
 def add_line(img, angle_deg, center, length, value=1):
     h, w = img.shape
@@ -168,16 +162,18 @@ def get_line_eq(angle: float, center: tuple | np.ndarray) -> tuple[float, float]
 
     return m, b
 
+
 def get_point_line(point: tuple | np.ndarray, line_m: float) -> tuple[float, float]:
     m = (-1) / line_m if line_m != 0 else 10e18
     b = point[1] - m * point[0]
 
     return m, b
 
+
 def get_line_intercept(line_eq: tuple, point_eq: tuple) -> tuple[float, float]:
 
     x = (point_eq[1] - line_eq[1]) / (line_eq[0] - point_eq[0])
-    if(line_eq[0] > 1e5):
+    if line_eq[0] > 1e5:
         y = point_eq[0] * x + point_eq[1]
     else:
         y = line_eq[0] * x + line_eq[1]
@@ -187,13 +183,18 @@ def get_line_intercept(line_eq: tuple, point_eq: tuple) -> tuple[float, float]:
 
 def alpha_to_theta(alpha: float) -> float:
     if alpha > 180 or alpha < 0:
-        raise ValueError(f"Alha can not be outside [0, 180], currently is {np.round(alpha, 2)}")
+        raise ValueError(
+            f"Alha can not be outside [0, 180], currently is {np.round(alpha, 2)}"
+        )
     if 0 <= alpha <= 90:
         return alpha
     else:
         return alpha - 180
 
-def side_mask(shape: tuple | np.ndarray, angle_deg: float, eps: float = 0.5) -> np.ndarray:
+
+def side_mask(
+    shape: tuple | np.ndarray, angle_deg: float, eps: float = 0.5
+) -> np.ndarray:
     w, h = shape
     x0, y0 = (w // 2, h // 2)
 

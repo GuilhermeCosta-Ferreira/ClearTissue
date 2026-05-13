@@ -5,7 +5,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -18,10 +17,10 @@ def plot_3d_clear_points(points: np.ndarray, plot_subsample: int = 80) -> tuple:
 
     # 2. Instantiates the Plot
     fig_3d = plt.figure(figsize=(10, 6))
-    ax = fig_3d.add_subplot(111, projection='3d')
+    ax = fig_3d.add_subplot(111, projection="3d")
 
     # 3. Does the ploting of the points
-    ax.scatter(x, y, z, s=1, label="High-density cFos cells") # type: ignore
+    ax.scatter(x, y, z, s=1, label="High-density cFos cells")  # type: ignore
 
     # 4. Makes sure everything is proportional
     ax.set_box_aspect((np.ptp(x), np.ptp(y), np.ptp(z)))

@@ -7,7 +7,6 @@ import plotly.graph_objects as go
 from pathlib import Path
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================

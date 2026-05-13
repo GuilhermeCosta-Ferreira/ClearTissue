@@ -11,7 +11,6 @@ from ...plots import PlotSettings, plot_imshow_grid
 from ...save import SaveSettings
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -19,7 +18,7 @@ def plot_volume_overview(
     volume_tissue: ClearVolume,
     nr_cuts: int,
     is_save: bool = False,
-    save_settings: SaveSettings | None = None
+    save_settings: SaveSettings | None = None,
 ) -> tuple[Figure, np.ndarray]:
     # 1. Extract the data
     volume = volume_tissue.volume
@@ -40,7 +39,7 @@ def plot_volume_overview(
             imgs.append(img)
             titles.append(f"{cut_names[i]} | fixed {axis_names[col]}")
 
-     # 4. Makes the config
+    # 4. Makes the config
     titles = np.asarray(titles)
     nr_rows = nr_cuts
     plt_cfg = PlotSettings(nr_cols=3, nr_rows=nr_rows)
@@ -51,7 +50,7 @@ def plot_volume_overview(
     if save_settings is None:
         save_settings = SaveSettings(
             name=f"overview_slices_{nr_cuts-1}_cuts",
-            out_path=Path(f"out/{volume_tissue.metadata.mouse}")
+            out_path=Path(f"out/{volume_tissue.metadata.mouse}"),
         )
 
     # 7. Save if needed

@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from copy import deepcopy
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..data import Metadata
-
 
 
 # ================================================================

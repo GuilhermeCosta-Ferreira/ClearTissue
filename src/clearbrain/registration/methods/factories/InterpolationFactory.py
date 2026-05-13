@@ -9,7 +9,6 @@ from typing import ClassVar
 from ...configs import InterpolationConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -18,7 +17,7 @@ class InterpolationFactory:
     interpolation_names: ClassVar[dict[str, list[str]]] = {
         "Linear": ["Linear"],
         "Nearest": ["NN", "Nearest", "Nearest Neighbour"],
-        "BSpline": ["BSpline", "Spline"]
+        "BSpline": ["BSpline", "Spline"],
     }
 
     def apply_registration(
@@ -58,7 +57,6 @@ class InterpolationFactory:
                 f"The '{interpolation_config.resampling}' interpolation is not "
                 f"implemented. Please select one of: {self.interpolation_names.keys()}"
             )
-
 
     # ──────────────────────────────────────────────────────
     # 1.1 Subsection: Helper Functions

@@ -7,15 +7,18 @@ from ..tissue import ClearVolume, TissueType
 from ..tissue import SpinalCenterline
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> SpinalCenterline:
+def get_centerline(
+    tissue_volume: ClearVolume, momentum: float = 0.25
+) -> SpinalCenterline:
     # A. Makes sure we only apply this to a spinal coord
     if tissue_volume.metadata.tissue_type != TissueType.SPINAL_COORD:
-        raise TypeError("This function is only for Spinal Coord, "
-            f"not {tissue_volume.metadata.tissue_type}")
+        raise TypeError(
+            "This function is only for Spinal Coord, "
+            f"not {tissue_volume.metadata.tissue_type}"
+        )
 
     # 1. We don't care about the densities, only the mask
     volume = np.where(tissue_volume.volume > 0, 1, 0)
@@ -32,10 +35,12 @@ def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> Spinal
         mean_center = get_img_center(coronal)
 
         # 3.2 Apply only when there is previous data the moment shift (make more smooth)
-        if sl == 0 or np.isnan(centerline_centers[sl-1]).any():
+        if sl == 0 or np.isnan(centerline_centers[sl - 1]).any():
             center = np.round(mean_center)
         else:
-            center = np.round(mean_center * (1 - momentum) + centerline_centers[sl-1] * momentum)
+            center = np.round(
+                mean_center * (1 - momentum) + centerline_centers[sl - 1] * momentum
+            )
 
         # 3.3 Save the data, avoiding storing nan on the volume
         if not np.isnan(center).any():
@@ -55,8 +60,9 @@ def get_centerline(tissue_volume: ClearVolume, momentum: float = 0.25) -> Spinal
     # 5. Extend the coord where is nan
     centerline_centers = fill_nan_coords(centerline_centers)
 
-    return SpinalCenterline(centerline_volume, centerline_centers, tissue_volume.metadata)
-
+    return SpinalCenterline(
+        centerline_volume, centerline_centers, tissue_volume.metadata
+    )
 
 
 # ──────────────────────────────────────────────────────
@@ -71,6 +77,7 @@ def get_img_center(img: np.ndarray) -> np.ndarray:
 
     return center
 
+
 def fill_nan_coords(centerline_centers: np.ndarray) -> np.ndarray:
     filled = centerline_centers.copy()
 
@@ -81,12 +88,16 @@ def fill_nan_coords(centerline_centers: np.ndarray) -> np.ndarray:
         valid = ~np.isnan(values)
 
         if valid.sum() == 0:
-            raise ValueError(f"Column {col} is fully NaN; cannot interpolate centerline.")
+            raise ValueError(
+                f"Column {col} is fully NaN; cannot interpolate centerline."
+            )
 
-        filled[:, col] = np.round(np.interp(
-            slice_ids,
-            slice_ids[valid],
-            values[valid],
-        ))
+        filled[:, col] = np.round(
+            np.interp(
+                slice_ids,
+                slice_ids[valid],
+                values[valid],
+            )
+        )
 
     return filled

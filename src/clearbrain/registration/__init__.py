@@ -10,5 +10,5 @@ __all__ = [
     "RotationRigidRegistration",
     "RegistratorResampler",
     "RegistrationConfig",
-    "RegistrationResult"
+    "RegistrationResult",
 ]

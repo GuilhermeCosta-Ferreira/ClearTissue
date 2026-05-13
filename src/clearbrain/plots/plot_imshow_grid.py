@@ -7,14 +7,11 @@ from matplotlib import pyplot as plt
 from ..plots import PlotSettings
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 def plot_imshow_grid(
-    imgs: np.ndarray | list,
-    titles: np.ndarray,
-    plt_cfg: PlotSettings = PlotSettings()
+    imgs: np.ndarray | list, titles: np.ndarray, plt_cfg: PlotSettings = PlotSettings()
 ):
     # 1. Start the grid
     fig, axes = plt.subplots(
@@ -34,7 +31,7 @@ def plot_imshow_grid(
         # 2.2 Plot the center of the data
         if plt_cfg.show_imshow_data_center:
             center = get_img_center(img)
-            ax.scatter(center[1], center[0], marker='x', color='white')
+            ax.scatter(center[1], center[0], marker="x", color="white")
 
         # 2.3 Formating
         ax.set_title(titles[i])
