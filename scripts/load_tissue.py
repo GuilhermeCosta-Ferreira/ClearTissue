@@ -12,13 +12,13 @@ from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
 from clearbrain.tissue.view import (
     plot_spinal_direction,
     plot_volume_coronal,
-    plot_volume_overview
+    plot_volume_overview,
 )
 from clearbrain.registration import (
     RegistrationConfig,
     Registrator,
     RegistratorResampler,
-    RigidRegistration
+    RigidRegistration,
 )
 
 from clearbrain.processing import (
@@ -26,10 +26,8 @@ from clearbrain.processing import (
     scale_tissue,
     compress_to_volume,
     stretch_tissue,
-    untwist_spinal_coord
+    untwist_spinal_coord,
 )
-
-
 
 # ================================================================
 # 1. Section: INPUTS
@@ -46,17 +44,12 @@ SMOOTH_WINDOW_SIZE: int = 25
 TO_SAVE: bool = False
 
 
-
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 1. Load the tissue
-    source = TissueSource(
-        mouse = MOUSE,
-        tissue_type = TISSUE_TYPE,
-        base_path=DATA_FOLDER
-    )
+    source = TissueSource(mouse=MOUSE, tissue_type=TISSUE_TYPE, base_path=DATA_FOLDER)
     loader = TissueLoader(source)
     tissue = loader.load_points()
 
@@ -77,7 +70,9 @@ if __name__ == '__main__':
 
     # 3.Compress into a volume (instead a list of points)
     vol_tissue = compress_to_volume(tissue, WINDOW_SIZE)
-    print(f"Volume has now shape: {vol_tissue.volume.shape}, thanks to a window of size: {WINDOW_SIZE}\n")
+    print(
+        f"Volume has now shape: {vol_tissue.volume.shape}, thanks to a window of size: {WINDOW_SIZE}\n"
+    )
 
     plot_volume_coronal(vol_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(vol_tissue, 3, is_save=TO_SAVE)
@@ -90,7 +85,9 @@ if __name__ == '__main__':
     print("Centerline with spinal direction assessed\n")
 
     # 5. Applies the stretching of the coord
-    stretch_tissue = stretch_tissue(vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE)
+    stretch_tissue = stretch_tissue(
+        vol_tissue, centerline, smooth_window=SMOOTH_WINDOW_SIZE
+    )
     plot_volume_coronal(stretch_tissue, 10, show_centers=True, is_save=TO_SAVE)
     plot_volume_overview(stretch_tissue, 3, is_save=TO_SAVE)
     plt.show(block=True)
@@ -137,5 +134,7 @@ if __name__ == '__main__':
     p = downloader.download_twisting_data(twisting_data, to_update=True)
     print(f"Downloaded at {p}")
 
-    p = downloader.download_volume(untwisted_tissue, suffix="_untwisted", to_update=False)
+    p = downloader.download_volume(
+        untwisted_tissue, suffix="_untwisted", to_update=False
+    )
     print(f"Downloaded at {p}")
