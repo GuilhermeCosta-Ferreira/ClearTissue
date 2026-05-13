@@ -28,6 +28,6 @@ class Metadata:
     def dict(self) -> dict:
         return {
             "mouse": self.mouse,
-            "tissue_type": self.tissue_type.str,
+            "tissue_type": self.tissue_type.as_str,
             "description": self.description,
         }

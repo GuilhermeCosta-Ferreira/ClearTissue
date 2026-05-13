@@ -27,4 +27,4 @@ class TissueSource:
         if self.alt_source:
             return self.folder_path / self.alt_source
 
-        return self.folder_path / f"tissue_{self.tissue_type.str}.json"
+        return self.folder_path / f"tissue_{self.tissue_type.as_str}.json"

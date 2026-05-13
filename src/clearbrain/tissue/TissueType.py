@@ -19,7 +19,7 @@ class TissueType(Enum):
             return TissueType.BRAIN
 
     @property
-    def str(self) -> str:
+    def as_str(self) -> str:
         if TissueType.SPINAL_COORD:
             return "sc"
         else:
