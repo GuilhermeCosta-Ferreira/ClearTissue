@@ -69,7 +69,7 @@ class Registrator:
         return resampled_image
 
 
-def convert_input(input: sitk.Image | np.ndarray) -> sitk.Image:
-    if isinstance(input, np.ndarray):
-        return sitk.GetImageFromArray(input.astype(np.float32))
-    return input
+def convert_input(input_image: sitk.Image | np.ndarray) -> sitk.Image:
+    if isinstance(input_image, np.ndarray):
+        return sitk.GetImageFromArray(input_image.astype(np.float32))
+    return input_image

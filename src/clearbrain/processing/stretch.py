@@ -2,7 +2,6 @@
 # 0. Section: IMPORTS
 # ================================================================
 import numpy as np
-from matplotlib import pyplot as plt
 
 from scipy.ndimage import map_coordinates
 
@@ -18,7 +17,7 @@ def stretch_tissue(
     volume = tissue_volume.volume
     spinal_centers = centerline.points
     spinal_direction = centerline.smooth_derivative(smooth_window)
-    height, nr_slices, width = volume.shape
+    _, nr_slices, _ = volume.shape
 
     stretch_volume = np.zeros_like(volume)
     for sl in range(nr_slices):

@@ -30,10 +30,10 @@ class SaveSettings:
             fig.savefig(out_path, bbox_inches="tight")
 
     def save_data(
-        self, data: pd.DataFrame | list[pd.DataFrame], sheet_names: list[str] = []
+        self, data: pd.DataFrame | list[pd.DataFrame], sheet_names: list[str] | None = None
     ) -> None:
         # 0. Initialize the sheet_names properly
-        if len(sheet_names) < 1 and isinstance(data, list):
+        if sheet_names is None or (len(sheet_names) < 1 and isinstance(data, list)):
             sheet_names = [f"data_{str(p)}" for p in range(len(data))]
 
         # A. Make sure that it agrees with the size of data
