@@ -12,7 +12,6 @@ from .configs import RegistrationConfig
 from .strategies import RegistratorStrategy
 from .methods import RegistratorResampler
 from .RegistrationResult import RegistrationResult
-from .Registrator import convert_input
 
 
 # ================================================================
@@ -24,7 +23,7 @@ class QuickRegistrator:
     resampler: RegistratorResampler
     config: RegistrationConfig
 
-    def quick_registration(
+    def register(
         self, fixed: sitk.Image | np.ndarray, moving: sitk.Image | np.ndarray
     ) -> RegistrationResult:
         """No resampling applied, registered image is empty"""
@@ -64,3 +63,9 @@ class QuickRegistrator:
         result.registered_image = resampled_image
 
         return result
+
+
+def convert_input(input_image: sitk.Image | np.ndarray) -> sitk.Image:
+    if isinstance(input_image, np.ndarray):
+        return sitk.GetImageFromArray(input_image.astype(np.float32))
+    return input_image

@@ -75,5 +75,5 @@ def get_reference_slices(
 
     if len(valid_refs) == 0:
         return None
-    else:
-        return np.mean(valid_refs, axis=0).astype(np.float32)
+
+    return np.mean(valid_refs, axis=0).astype(np.float32)

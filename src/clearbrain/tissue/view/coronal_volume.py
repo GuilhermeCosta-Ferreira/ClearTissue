@@ -32,15 +32,14 @@ def plot_volume_coronal(
     imgs, titles = [], []
     for frac in cut_fractions:
         cut = int(shape[1] * frac)
-        img = volume[:, cut, :]
-        imgs.append(img)
+        imgs.append(volume[:, cut, :])
         titles.append(f"Coronal {frac * 100:.0f}%")
 
     # 3. Makes the config
-    nr_cols = 5
-    nr_rows = math.ceil((nr_cuts) / nr_cols)
     plt_config = PlotSettings(
-        nr_cols=5, nr_rows=nr_rows, show_imshow_data_center=show_centers
+        nr_cols=5,
+        nr_rows=math.ceil((nr_cuts) / 5),
+        show_imshow_data_center=show_centers,
     )
 
     # 5. Generates the plot

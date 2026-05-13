@@ -8,7 +8,7 @@ from dataclasses import dataclass  # , field
 # 1. Section: Functions
 # ================================================================
 @dataclass
-class PlotSettings:
+class PlotSettings:  # pylint: disable=too-many-instance-attributes
     ylabel: str = "Metric"
     title: str = "Title of the Plot"
     fig_size: tuple = (8, 8)

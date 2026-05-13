@@ -15,7 +15,7 @@ class MetricConfig:
 
 
 @dataclass
-class OptimizerConfig:
+class OptimizerConfig:  # pylint: disable=too-many-instance-attributes
     name: str = "GD"
     iterations: int = 5000
     learning_rate: float = 0.01

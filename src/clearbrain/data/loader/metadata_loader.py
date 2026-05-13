@@ -26,15 +26,14 @@ def load_metadata(source_filepath: Path) -> Metadata:
             file_path=metadata_path,
         )
 
-    else:
-        print("No metadata file found, instantiating a new one")
-        tissue_type = metadata_path.stem.rsplit("_", 2)[-2]
+    print("No metadata file found, instantiating a new one")
+    tissue_type = metadata_path.stem.rsplit("_", 2)[-2]
 
-        return Metadata(
-            mouse=str(metadata_path.parent.name),
-            tissue_type=TissueType.from_str(tissue_type),
-            file_path=metadata_path,
-        )
+    return Metadata(
+        mouse=str(metadata_path.parent.name),
+        tissue_type=TissueType.from_str(tissue_type),
+        file_path=metadata_path,
+    )
 
 
 # ──────────────────────────────────────────────────────

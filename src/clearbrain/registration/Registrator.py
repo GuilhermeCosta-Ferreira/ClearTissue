@@ -1,8 +1,6 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-import time
-
 import numpy as np
 import SimpleITK as sitk
 
@@ -12,13 +10,14 @@ from .configs import RegistrationConfig
 from .strategies import RegistratorStrategy
 from .methods import RegistratorResampler
 from .RegistrationResult import RegistrationResult
+from .QuickRegistrator import QuickRegistrator, convert_input
 
 
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 @dataclass
-class Registrator:
+class Registrator(QuickRegistrator):
     strategy: RegistratorStrategy
     resampler: RegistratorResampler
     config: RegistrationConfig
@@ -26,31 +25,15 @@ class Registrator:
     def register(
         self, fixed: sitk.Image | np.ndarray, moving: sitk.Image | np.ndarray
     ) -> RegistrationResult:
-        # 1. Converts the input
-        fixed = convert_input(fixed)
-        moving = convert_input(moving)
+        # 1. Applies quick registration (without resampling)
+        result = super().register(fixed, moving)
 
-        # 2. Applies the strategy to get the method
-        method = self.strategy.configure(fixed, moving, self.config)
+        # 2. Resample the output
+        resampled_image = self.apply(fixed, moving, result.transform)
 
-        # 3. Applies the registration
-        start_time = time.time()
-        transform = method.Execute(fixed, moving)
-        registration_time = time.time() - start_time
-
-        # 4. Resample the output
-        resampled_image = self.apply(fixed, moving, transform)
-
-        # 5. Convert the output to array
+        # 3. Convert the output to array
         registered_image = sitk.GetArrayFromImage(resampled_image)
-
-        result = RegistrationResult(
-            registered_image=registered_image,
-            transform=transform,
-            final_metric=method.GetMetricValue(),
-            stop_condition=method.GetOptimizerStopConditionDescription(),
-            elapsed_time=registration_time,
-        )
+        result.registered_image = registered_image
 
         return result
 
@@ -67,9 +50,3 @@ class Registrator:
         resampled_image = resampler.Execute(moving)
 
         return resampled_image
-
-
-def convert_input(input_image: sitk.Image | np.ndarray) -> sitk.Image:
-    if isinstance(input_image, np.ndarray):
-        return sitk.GetImageFromArray(input_image.astype(np.float32))
-    return input_image
