@@ -9,19 +9,17 @@ from .factories import InterpolationFactory
 from ..configs import RegistrationConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 @dataclass
 class RegistratorResampler:
-    interpolation_factory: InterpolationFactory = field(default_factory=InterpolationFactory)
+    interpolation_factory: InterpolationFactory = field(
+        default_factory=InterpolationFactory
+    )
 
     def configure(
-        self,
-        fixed: sitk.Image,
-        transform: sitk.Transform,
-        config: RegistrationConfig
+        self, fixed: sitk.Image, transform: sitk.Transform, config: RegistrationConfig
     ) -> sitk.ResampleImageFilter:
         resampler = sitk.ResampleImageFilter()
         resampler.SetReferenceImage(fixed)

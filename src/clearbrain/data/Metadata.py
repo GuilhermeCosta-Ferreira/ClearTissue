@@ -7,7 +7,6 @@ from pathlib import Path
 from ..tissue.TissueType import TissueType
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -20,13 +19,15 @@ class Metadata:
 
     def __post_init__(self):
         if not isinstance(self.tissue_type, TissueType):
-            raise TypeError("Tissue Type needs to be of type TissueType, "
-                f"not {type(self.tissue_type)}")
+            raise TypeError(
+                "Tissue Type needs to be of type TissueType, "
+                f"not {type(self.tissue_type)}"
+            )
 
     @property
     def dict(self) -> dict:
         return {
             "mouse": self.mouse,
-            "tissue_type": self.tissue_type.str,
-            "description": self.description
+            "tissue_type": self.tissue_type.as_str,
+            "description": self.description,
         }

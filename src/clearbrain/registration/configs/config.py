@@ -4,7 +4,6 @@
 from dataclasses import dataclass, field
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -14,8 +13,9 @@ class MetricConfig:
     sampling_percentage: float = 1
     histogram_bins: int = 32
 
+
 @dataclass
-class OptimizerConfig:
+class OptimizerConfig:  # pylint: disable=too-many-instance-attributes
     name: str = "GD"
     iterations: int = 5000
     learning_rate: float = 0.01
@@ -23,17 +23,19 @@ class OptimizerConfig:
     convergence_window_size: int = 10
     gradient_convergence_tolerance: float = 1e-8
     maximum_number_corrections: int = 5
-    estimate_learning_rate: int = 2 # 0, 1 or 2
+    estimate_learning_rate: int = 2  # 0, 1 or 2
     max_step_size_physical_units: float = 1.0
     grid_size: int = 2
     constrains: list = field(default_factory=lambda: [])
     scales: list = field(default_factory=lambda: [])
     initial_angle: float | None = None
 
+
 @dataclass
 class InterpolationConfig:
     registration: str = "bspline"
     resampling: str = "linear"
+
 
 @dataclass
 class MultipleResolutionConfig:

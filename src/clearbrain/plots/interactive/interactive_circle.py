@@ -8,7 +8,6 @@ from matplotlib.widgets import Slider
 from matplotlib.patches import Circle
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -23,18 +22,11 @@ def plot_interactive_circle_on_image(
     plt.subplots_adjust(bottom=0.25)
 
     ax.imshow(image, cmap="gray")
-    ax.set_title(
-        f"Data radius={min_radius:.1f}px"
-    )
+    ax.set_title(f"Data radius={min_radius:.1f}px")
     ax.axis("off")
 
-
     circle = Circle(
-        center,
-        min_radius + initial_margin,
-        fill=False,
-        linewidth=2,
-        color="yellow"
+        center, min_radius + initial_margin, fill=False, linewidth=2, color="yellow"
     )
     ax.add_patch(circle)
 

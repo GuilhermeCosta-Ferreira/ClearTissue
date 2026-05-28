@@ -9,7 +9,6 @@ from .RegistratorStrategy import RegistratorStrategy
 from ..configs import RegistrationConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -22,13 +21,11 @@ class RigidRegistration(RegistratorStrategy):
         config: RegistrationConfig,
     ) -> sitk.Transform:
         initial_transform = sitk.CenteredTransformInitializer(
-            fixed,
-            moving,
-            get_dim(fixed),
-            config.transform_center
+            fixed, moving, get_dim(fixed), config.transform_center
         )
 
         return initial_transform
+
 
 def get_dim(image: sitk.Image) -> sitk.Transform:
     dim = image.GetDimension()

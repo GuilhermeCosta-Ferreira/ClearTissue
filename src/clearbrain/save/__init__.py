@@ -1,5 +1,3 @@
 from .SaveSettings import SaveSettings
 
-__all__ = [
-    "SaveSettings"
-]
+__all__ = ["SaveSettings"]

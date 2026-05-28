@@ -13,8 +13,6 @@ from clearbrain.registration import Registrator, RegistratorResampler
 from clearbrain.registration.configs import TEMPLATE_WARP_REGISTRATION
 from clearbrain.registration.strategies import BSplineRegistration
 
-
-
 # ================================================================
 # 1. Section: INPUTS
 # ================================================================
@@ -23,23 +21,20 @@ MOUSE: str = "32B"
 TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 
-
-
 # ================================================================
 # 2. Section: FUNCTIONS
 # ================================================================
 
 
-
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
     atlas = BrainGlobeAtlas("allen_cord_20um", check_latest=False)
 
     tree = atlas.hierarchy
-    reference = atlas.reference      # 3D anatomical image
-    annotation = atlas.annotation    # 3D label image / region IDs
+    reference = atlas.reference  # 3D anatomical image
+    annotation = atlas.annotation  # 3D label image / region IDs
     metadata = atlas.metadata
 
     print(reference.shape)
@@ -49,24 +44,29 @@ if __name__ == '__main__':
     print(tree)
 
     plt.figure()
-    plt.imshow(annotation[500,:,:])
+    plt.imshow(annotation[600, :, :])
     plt.show(block=False)
+    plt.figure()
+    plt.imshow(annotation[500, :, :])
+    plt.show(block=False)
+    plt.figure()
+    plt.imshow(annotation[250, :, :])
+    plt.show(block=False)
+    plt.figure()
+    plt.imshow(annotation[50, :, :])
+    plt.show(block=True)
 
-    source = TissueSource(
-        mouse = MOUSE,
-        tissue_type = TISSUE_TYPE,
-        base_path = DATA_FOLDER
-    )
+    source = TissueSource(mouse=MOUSE, tissue_type=TISSUE_TYPE, base_path=DATA_FOLDER)
     loader = TissueLoader(source)
 
     tissue = loader.load_volume(suffix="_untwisted", sample_factor=25)
 
     plt.figure()
-    plt.imshow(tissue.volume[:,250,:])
+    plt.imshow(tissue.volume[:, 250, :])
     plt.show(block=False)
 
-    sample_tissue = np.where(tissue.volume[:,250,:] > 0, 1, 0)
-    sample_template = np.where(annotation[500,:,:] > 0, 1, 0)
+    sample_tissue = np.where(tissue.volume[:, 250, :] > 0, 1, 0)
+    sample_template = np.where(annotation[500, :, :] > 0, 1, 0)
 
     registrator = Registrator(
         strategy=BSplineRegistration(),

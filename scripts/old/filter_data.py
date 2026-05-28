@@ -5,17 +5,12 @@ from matplotlib import pyplot as plt
 
 from pathlib import Path
 
-from clearbrain import (
-    load_points,
-    plot_3d_clear_points
-)
-from clearbrain.preprocess import(
+from clearbrain import load_points, plot_3d_clear_points
+from clearbrain.preprocess import (
     scale_points,
     filter_low_density_points,
 )
 from clearbrain.save import save_to_json
-
-
 
 # ================================================================
 # 1. Section: INPUTS
@@ -32,11 +27,10 @@ SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
 
 # Filtering Settings
 DENSITY_RADIUS: int = 50
-MIN_DENSITY: int = 25 #20 [20, 50[, [20, 30]
+MIN_DENSITY: int = 25  # 20 [20, 50[, [20, 30]
 
 # Plotting Settings
 PLOT_SUBSAMPLE: int = 80  # Get's every X points
-
 
 
 # ================================================================
@@ -58,5 +52,7 @@ if __name__ == "__main__":
         plt.show()
 
         # 5. Saved the data
-        out_path = save_to_json(points.tolist(), filepath.parent, "filtered_points_sc.json")
+        out_path = save_to_json(
+            points.tolist(), filepath.parent, "filtered_points_sc.json"
+        )
         print(f"Saved filtered data from {mouse} into {out_path}")

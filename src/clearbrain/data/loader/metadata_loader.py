@@ -10,7 +10,6 @@ from ...tissue import TissueType
 from ..Metadata import Metadata
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -21,21 +20,20 @@ def load_metadata(source_filepath: Path) -> Metadata:
         meta = load_meta_dict(metadata_path)
 
         return Metadata(
-            mouse = meta["mouse"],
-            tissue_type = TissueType.from_str(meta["tissue_type"]),
-            description = meta["description"],
-            file_path=metadata_path
+            mouse=meta["mouse"],
+            tissue_type=TissueType.from_str(meta["tissue_type"]),
+            description=meta["description"],
+            file_path=metadata_path,
         )
 
-    else:
-        print("No metadata file found, instantiating a new one")
-        tissue_type = metadata_path.stem.rsplit("_", 2)[-2]
+    print("No metadata file found, instantiating a new one")
+    tissue_type = metadata_path.stem.rsplit("_", 2)[-2]
 
-        return Metadata(
-            mouse = str(metadata_path.parent.name),
-            tissue_type=TissueType.from_str(tissue_type),
-            file_path=metadata_path
-        )
+    return Metadata(
+        mouse=str(metadata_path.parent.name),
+        tissue_type=TissueType.from_str(tissue_type),
+        file_path=metadata_path,
+    )
 
 
 # ──────────────────────────────────────────────────────

@@ -10,9 +10,8 @@ from .factories import (
     MetricFactory,
     OptimizerFactory,
     InterpolationFactory,
-    MultipleResolutionFactory
+    MultipleResolutionFactory,
 )
-
 
 
 # ================================================================
@@ -22,8 +21,12 @@ from .factories import (
 class RegistrationMethodBuilder:
     metric_factory: MetricFactory = field(default_factory=MetricFactory)
     optimizer_factory: OptimizerFactory = field(default_factory=OptimizerFactory)
-    interpolator_factory: InterpolationFactory = field(default_factory=InterpolationFactory)
-    resolution_factory: MultipleResolutionFactory = field(default_factory=MultipleResolutionFactory)
+    interpolator_factory: InterpolationFactory = field(
+        default_factory=InterpolationFactory
+    )
+    resolution_factory: MultipleResolutionFactory = field(
+        default_factory=MultipleResolutionFactory
+    )
 
     def build(self, config: RegistrationConfig) -> sitk.ImageRegistrationMethod:
         method = sitk.ImageRegistrationMethod()
@@ -32,6 +35,5 @@ class RegistrationMethodBuilder:
         self.optimizer_factory.apply(method, config.optimizer)
         self.interpolator_factory.apply_registration(method, config.interpolator)
         self.resolution_factory.apply(method, config.multiple_res)
-
 
         return method

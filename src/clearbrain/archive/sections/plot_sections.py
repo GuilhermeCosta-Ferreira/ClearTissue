@@ -8,7 +8,6 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.axes import Axes
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -38,6 +37,7 @@ def plot_spinal_sections(
     ax.set_box_aspect((np.ptp(x), np.ptp(y), np.ptp(z)))
 
     return fig, ax
+
 
 def add_spinal_sections(
     ax: Axes,

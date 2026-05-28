@@ -9,14 +9,11 @@ from ..tissue import ClearVolume
 from ..registration import Registrator
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 def untwist_spinal_coord(
-    tissue_volume: ClearVolume,
-    registrator: Registrator,
-    window_size: int = 75
+    tissue_volume: ClearVolume, registrator: Registrator, window_size: int = 75
 ) -> tuple[ClearVolume, list]:
     # 0. Get the needed data
     volume = tissue_volume.volume
@@ -54,9 +51,7 @@ def untwist_spinal_coord(
 
     # 3. Saves the untwisted as a volume
     tissue_volume = ClearVolume(
-        untwisted_volume,
-        tissue_volume.metadata,
-        tissue_volume.sample_factor
+        untwisted_volume, tissue_volume.metadata, tissue_volume.sample_factor
     )
 
     return tissue_volume, twisting_data
@@ -66,9 +61,7 @@ def untwist_spinal_coord(
 # 1.1 Subsection: Helper Functions
 # ──────────────────────────────────────────────────────
 def get_reference_slices(
-    untwisted_volume: np.ndarray,
-    current_slice: int,
-    window_size: int
+    untwisted_volume: np.ndarray, current_slice: int, window_size: int
 ) -> np.ndarray | None:
     start = max(0, current_slice - window_size)
     previous_slices = untwisted_volume[:, start:current_slice, :].astype(np.float32)
@@ -82,80 +75,5 @@ def get_reference_slices(
 
     if len(valid_refs) == 0:
         return None
-    else:
-        return np.mean(valid_refs, axis=0).astype(np.float32)
 
-
-
-"""
-fig, axes = plt.subplots(2,2)
-imgs = [fixed, moving, fixed, result.registered_image]
-titles = ["fixed", "moving", "fixed", "registered_image"]
-axes = axes.ravel()
-
-for idx, ax in enumerate(axes):
-    ax.imshow(imgs[idx], cmap="hot")
-    ax.set_title(titles[idx])
-
-plt.tight_layout()
-plt.show()
-
-if(sl % 10 == 0):
-    plt.figure()
-    angles = []
-    for result in twisting_data:
-        a = result.transform.GetParameters()[0]
-        angles.append(math.degrees(a))
-    plt.plot(angles)
-    plt.show()
-
-plt.figure()
-angles = []
-for result in twisting_data:
-    a = result.transform.GetParameters()[0]
-    angles.append(math.degrees(a))
-plt.plot(angles)
-plt.show(block=False)
-plt.figure()
-
-angles = []
-for result in twisting_data:
-    a = result.elapsed_time
-    angles.append(a)
-plt.plot(angles)
-plt.title("elapsed time per frame")
-plt.show(block=False)
-
-
-#if (30 <= sl <= 50) or (330 <= sl <= 350):
-#if (330 <= sl <= 340):
-if False:
-    print("fixed sum:", np.sum(fixed))
-    print("untwisted previous sum:", np.sum(untwisted_volume[:, sl-1, :]))
-    print("moving sum:", np.sum(moving))
-
-    print(volume.dtype)
-    print(untwisted_volume.dtype)
-    print(result.registered_image.dtype)
-
-    fig, axes = plt.subplots(2,2)
-    imgs = [fixed, moving, fixed, result.registered_image]
-    titles = [f"fixed{np.sum(fixed)}", f"moving{np.sum(moving)}", f"fixed{np.sum(fixed) - np.sum(moving)}", f"registered_image{np.sum(result.registered_image)}"]
-    axes = axes.ravel()
-
-    for idx, ax in enumerate(axes):
-        ax.imshow(imgs[idx], cmap="hot")
-        ax.set_title(titles[idx])
-
-    plt.tight_layout()
-    plt.show(block=False)
-
-    plt.figure()
-    angles = []
-    for result in twisting_data:
-        a = result.transform.GetParameters()[0]
-        angles.append(math.degrees(a))
-    plt.plot(angles)
-    plt.show()
-
-"""
+    return np.mean(valid_refs, axis=0).astype(np.float32)

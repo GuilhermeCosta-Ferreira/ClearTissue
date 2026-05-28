@@ -9,7 +9,6 @@ import numpy as np
 from pathlib import Path
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -20,7 +19,7 @@ def load_points(filepath: Path) -> np.ndarray:
 
     # 1. Extracts the data from the JSON
     with open(filepath, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = json.load(f)
 
     try:
         points = np.array(data, dtype=float)

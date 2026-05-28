@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from copy import deepcopy
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from ..data import Metadata
-
 
 
 # ================================================================
@@ -27,5 +27,5 @@ class ClearVolume:
         return ClearVolume(
             volume=self.volume.copy() if deep else self.volume,
             metadata=deepcopy(self.metadata) if deep else self.metadata,
-            sample_factor=self.sample_factor
+            sample_factor=self.sample_factor,
         )

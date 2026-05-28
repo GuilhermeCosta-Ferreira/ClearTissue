@@ -10,12 +10,13 @@ from .file_loader import load_npy
 from .metadata_loader import load_metadata
 
 
-
 # ================================================================
 # 2. Section: Volume
 # ================================================================
 def load_volume(source_filepath: Path, suffix: str, sample_factor: int) -> ClearVolume:
-    volume_path = source_filepath.parent / f"{source_filepath.stem}{suffix}_SF{sample_factor}.npy"
+    volume_path = (
+        source_filepath.parent / f"{source_filepath.stem}{suffix}_SF{sample_factor}.npy"
+    )
 
     data = load_volume_data(volume_path)
     metadata = load_metadata(source_filepath)
@@ -31,9 +32,12 @@ def load_volume_data(path: Path):
     volume = load_npy(path)
 
     if volume.ndim != 3:
-        raise ValueError(f"The loaded volume need to be of shape (L, W, H) ({volume.shape})")
+        raise ValueError(
+            f"The loaded volume need to be of shape (L, W, H) ({volume.shape})"
+        )
 
     return volume
+
 
 def find_file_path(path: Path) -> Path:
     pattern = re.compile(rf"^{re.escape(path.stem)}\d+\.json$")
@@ -56,6 +60,7 @@ def find_file_path(path: Path) -> Path:
         )
 
     return matches[0]
+
 
 def load_scale_factor(path: Path) -> int:
     sf = int(str(path.stem).rsplit("SF")[-1])

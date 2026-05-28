@@ -7,7 +7,6 @@ from typing import cast
 from .sections import get_basis_vector, get_tangent_vector
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -21,6 +20,7 @@ def get_2d_sections(section_points, section_centers, centerline):
         projs.append(img)
 
     return projs
+
 
 def prism_to_image(local_u: np.ndarray, local_v: np.ndarray, pixel_size: float = 10):
     u_min, u_max = local_u.min(), local_u.max()
@@ -38,6 +38,7 @@ def prism_to_image(local_u: np.ndarray, local_v: np.ndarray, pixel_size: float =
     extent = [u_edges[0], u_edges[-1], v_edges[0], v_edges[-1]]
     return img, extent
 
+
 def project_prims_2d(centerline_pos, centerline, prism_points):
     idx = cast(int, np.argmin(np.linalg.norm(centerline - centerline_pos, axis=1)))
 
@@ -52,6 +53,7 @@ def project_prims_2d(centerline_pos, centerline, prism_points):
     local_v = np.dot(prism_points - centerline_pos, v)
 
     return local_u, local_v
+
 
 # ──────────────────────────────────────────────────────
 # 1.1 Subsection: Helper Functions

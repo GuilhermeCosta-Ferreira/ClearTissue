@@ -6,18 +6,9 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 
 from clearbrain.save import save_to_json
-from clearbrain.centerline import (
-    get_centerline,
-    smooth_centerline,
-    add_centerline
-)
+from clearbrain.centerline import get_centerline, smooth_centerline, add_centerline
 
-from clearbrain import (
-    load_points,
-    plot_3d_clear_points
-)
-
-
+from clearbrain import load_points, plot_3d_clear_points
 
 # ================================================================
 # 1. Section: INPUTS
@@ -29,13 +20,12 @@ FILE_TARGET: str = "filtered_points_sc.json"
 
 # Cenetrline Settings
 BIN_WIDTH: int = 500
-HIGHLIGHT_CENTERLINE: bool = True # makes sure the line is drawn on top of it
+HIGHLIGHT_CENTERLINE: bool = True  # makes sure the line is drawn on top of it
 
 # Centerline Smoothing Settings
 SPLINE_SMOOTHING: float = 5000.0  # ← extremely smooth (as requested)
 N_POINTS_ON_LINE: float = 4000  # more points = perfectly smooth visual
 PLOT_SUBSAMPLE: int = 80  # Get's every X points
-
 
 
 # ================================================================
@@ -58,5 +48,7 @@ if __name__ == "__main__":
         plt.show()
 
         # 4. Saved the data
-        out_path = save_to_json(centerline.tolist(), filepath.parent, "centerline_sc.json")
+        out_path = save_to_json(
+            centerline.tolist(), filepath.parent, "centerline_sc.json"
+        )
         print(f"Saved filtered data from {mouse} into {out_path}")

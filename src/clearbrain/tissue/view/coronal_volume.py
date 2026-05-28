@@ -4,14 +4,12 @@
 import math
 from pathlib import Path
 import numpy as np
-import pandas as pd
 
 from matplotlib.figure import Figure
 
 from ..ClearVolume import ClearVolume
 from ...plots import PlotSettings, plot_imshow_grid
 from ...save import SaveSettings
-
 
 
 # ================================================================
@@ -22,7 +20,7 @@ def plot_volume_coronal(
     nr_cuts: int,
     show_centers: bool = False,
     is_save: bool = False,
-    save_settings: SaveSettings | None = None
+    save_settings: SaveSettings | None = None,
 ) -> tuple[Figure, np.ndarray]:
     # 1. Extract the data
     volume = volume_tissue.volume
@@ -34,14 +32,15 @@ def plot_volume_coronal(
     imgs, titles = [], []
     for frac in cut_fractions:
         cut = int(shape[1] * frac)
-        img = volume[:, cut, :]
-        imgs.append(img)
+        imgs.append(volume[:, cut, :])
         titles.append(f"Coronal {frac * 100:.0f}%")
 
     # 3. Makes the config
-    nr_cols = 5
-    nr_rows = math.ceil((nr_cuts) / nr_cols)
-    plt_config = PlotSettings(nr_cols=5, nr_rows=nr_rows, show_imshow_data_center=show_centers)
+    plt_config = PlotSettings(
+        nr_cols=5,
+        nr_rows=math.ceil((nr_cuts) / 5),
+        show_imshow_data_center=show_centers,
+    )
 
     # 5. Generates the plot
     fig, axes = plot_imshow_grid(np.asarray(imgs), np.asarray(titles), plt_config)
@@ -50,7 +49,7 @@ def plot_volume_coronal(
     if save_settings is None:
         save_settings = SaveSettings(
             name=f"coronal_slices_{nr_cuts-1}_cuts",
-            out_path=Path(f"out/{volume_tissue.metadata.mouse}")
+            out_path=Path(f"out/{volume_tissue.metadata.mouse}"),
         )
 
     # 7. Save if needed

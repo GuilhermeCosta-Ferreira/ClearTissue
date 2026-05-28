@@ -11,8 +11,6 @@ from pathlib import Path
 from matplotlib.figure import Figure
 
 
-
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -31,14 +29,20 @@ class SaveSettings:
             out_path = base_path.with_suffix(f".{form}")
             fig.savefig(out_path, bbox_inches="tight")
 
-    def save_data(self, data: pd.DataFrame | list[pd.DataFrame], sheet_names: list[str] = []) -> None:
+    def save_data(
+        self,
+        data: pd.DataFrame | list[pd.DataFrame],
+        sheet_names: list[str] | None = None,
+    ) -> None:
         # 0. Initialize the sheet_names properly
-        if len(sheet_names) < 1 and isinstance(data, list):
+        if sheet_names is None or (len(sheet_names) < 1 and isinstance(data, list)):
             sheet_names = [f"data_{str(p)}" for p in range(len(data))]
 
         # A. Make sure that it agrees with the size of data
         if isinstance(data, list) and len(data) != len(sheet_names):
-            raise IndexError("The sheet names and the amount of data need to be of same length")
+            raise IndexError(
+                "The sheet names and the amount of data need to be of same length"
+            )
 
         # 1. Initialize the path
         base_path = self.out_path / f"{self.name}_data.xlsx"

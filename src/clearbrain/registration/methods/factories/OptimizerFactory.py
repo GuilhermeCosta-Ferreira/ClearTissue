@@ -9,7 +9,6 @@ from typing import ClassVar
 from ...configs import OptimizerConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -18,7 +17,7 @@ class OptimizerFactory:
     optimizer_names: ClassVar[dict[str, list[str]]] = {
         "Gradient Descent": ["GD", "Gradient Descent"],
         "LBFGS": ["LBFGS", "Mask"],
-        "Exhaustive": ["Exhaustive", "Constrained"]
+        "Exhaustive": ["Exhaustive", "Constrained"],
     }
 
     def apply(
@@ -32,7 +31,7 @@ class OptimizerFactory:
             method.SetOptimizerAsLBFGSB(
                 gradientConvergenceTolerance=optimizer_config.gradient_convergence_tolerance,
                 numberOfIterations=optimizer_config.iterations,
-                maximumNumberOfCorrections=optimizer_config.maximum_number_corrections
+                maximumNumberOfCorrections=optimizer_config.maximum_number_corrections,
             )
             method.SetOptimizerScalesFromPhysicalShift()
         elif self._matches(optimizer_name, "Gradient Descent"):
@@ -42,7 +41,7 @@ class OptimizerFactory:
                 convergenceMinimumValue=optimizer_config.convergence_minimum_value,
                 convergenceWindowSize=optimizer_config.convergence_window_size,
                 estimateLearningRate=optimizer_config.estimate_learning_rate,
-                maximumStepSizeInPhysicalUnits=optimizer_config.max_step_size_physical_units
+                maximumStepSizeInPhysicalUnits=optimizer_config.max_step_size_physical_units,
             )
             method.SetOptimizerScalesFromPhysicalShift()
         elif self._matches(optimizer_name, "Exhaustive"):
@@ -53,7 +52,6 @@ class OptimizerFactory:
                 f"The '{optimizer_config.name}' loss is not implemented. "
                 f"Please select one of: {self.optimizer_names.keys()}"
             )
-
 
     # ──────────────────────────────────────────────────────
     # 1.1 Subsection: Helper Functions

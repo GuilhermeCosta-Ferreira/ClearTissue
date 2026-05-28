@@ -10,5 +10,5 @@ __all__ = [
     "RigidRegistration",
     "AffineRegistration",
     "BSplineRegistration",
-    "RotationRigidRegistration"
+    "RotationRigidRegistration",
 ]

@@ -11,7 +11,6 @@ from ..tissue import ClearVolume
 from .noise import get_biggest_slice
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -38,6 +37,7 @@ def select_angle_interactive(
 
     return selected_angle
 
+
 def plot_interactive_rotate_image(
     image: np.ndarray,
     initial_angle: int = 0,
@@ -58,7 +58,7 @@ def plot_interactive_rotate_image(
         cval=0,
     )
 
-    im = ax.imshow(rotated_image, cmap="gray", origin='lower')
+    im = ax.imshow(rotated_image, cmap="gray", origin="lower")
     ax.set_title(f"Rotation angle = {selected_angle}°")
     ax.axis("off")
 
@@ -97,6 +97,7 @@ def plot_interactive_rotate_image(
     plt.show(block=True)
 
     return selected_angle
+
 
 def rotate_volume_xy(
     volume: np.ndarray,

@@ -9,7 +9,6 @@ from .RegistratorStrategy import RegistratorStrategy
 from ..configs import RegistrationConfig
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -21,9 +20,9 @@ class AffineRegistration(RegistratorStrategy):
         moving: sitk.Image,
         config: RegistrationConfig,
     ) -> sitk.Transform:
-        return  sitk.CenteredTransformInitializer(
+        return sitk.CenteredTransformInitializer(
             fixed,
             moving,
             sitk.AffineTransform(fixed.GetDimension()),
-            config.transform_center
+            config.transform_center,
         )

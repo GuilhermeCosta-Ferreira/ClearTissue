@@ -10,8 +10,6 @@ from clearbrain.sections.projection import get_2d_sections
 from clearbrain.sections.plot_projections import plot_section_2d
 from clearbrain import load_points
 
-
-
 # ================================================================
 # 1. Section: INPUTS
 # ================================================================
@@ -22,15 +20,14 @@ FILE_TARGET: str = "raw_points_sc.json"
 
 DENSITY_RADIUS: int = 40
 
-HIGHLIGHT_CENTERLINE: bool = True # makes sure the line is drawn on top of it
+HIGHLIGHT_CENTERLINE: bool = True  # makes sure the line is drawn on top of it
 PLOT_SUBSAMPLE: int = 80  # Get's every X points
-
 
 
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
     for mouse in MICE:
         filepath = DATA_FOLDER / mouse / FILE_TARGET
         centerline_path = DATA_FOLDER / mouse / "centerline_sc.json"

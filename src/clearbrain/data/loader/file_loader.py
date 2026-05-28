@@ -9,7 +9,6 @@ import numpy as np
 from pathlib import Path
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -22,6 +21,7 @@ def load_json(path: Path) -> dict | list:
         payload = json.load(f)
 
     return payload
+
 
 def load_npy(path: Path) -> np.ndarray:
     # A. Makes sure there is a file

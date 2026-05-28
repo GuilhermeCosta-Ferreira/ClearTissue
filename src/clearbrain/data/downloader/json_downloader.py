@@ -2,25 +2,16 @@
 # 0. Section: IMPORTS
 # ================================================================
 import os
-
-import numpy as np
+import json
 
 from pathlib import Path
-from ...tissue import ClearVolume
 
 
 # ================================================================
 # 1. Section: Functions
 # ================================================================
-def download_volume(
-    source_filepath: Path, volume: ClearVolume, to_update: bool, suffix: str
-) -> Path:
-    # 1. Load the needed variables
-    volume_data = volume.volume
-    sample_factor = volume.sample_factor
-    file_path = (
-        source_filepath.parent / f"{source_filepath.stem}{suffix}_SF{sample_factor}.npy"
-    )
+def download_json(data: dict, source_filepath: Path, to_update: bool, suffix: str):
+    file_path = source_filepath.parent / f"{source_filepath.stem}{suffix}.json"
 
     # 1.A Handles update edge-cases to avoid unwanted overwrite
     if os.path.exists(file_path) and not to_update:
@@ -30,5 +21,6 @@ def download_volume(
         )
 
     # 2. Saves the file
-    np.save(file_path, volume_data)
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
     return file_path

@@ -1,7 +1,6 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from typing import cast
 import numpy as np
 
 from functools import singledispatch
@@ -9,14 +8,12 @@ from functools import singledispatch
 from ..tissue import ClearTissue
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 @singledispatch
-def scale_tissue(obj, scale: tuple[float, float, float])-> np.ndarray | ClearTissue:
+def scale_tissue(obj, scale: tuple[float, float, float]) -> np.ndarray | ClearTissue:
     raise TypeError(f"Unsupported type: {type(obj).__name__}")
-
 
 
 @scale_tissue.register
@@ -42,6 +39,7 @@ def _(points: np.ndarray, scale: tuple[float, float, float]) -> np.ndarray:
 
     return points
 
+
 @scale_tissue.register
 def _(tissue: ClearTissue, scale: tuple[float, float, float]) -> ClearTissue:
     # 1. Applies the scalling on the tissue points
@@ -50,8 +48,10 @@ def _(tissue: ClearTissue, scale: tuple[float, float, float]) -> ClearTissue:
 
     # 1.A Makes sure we are working with points as array
     if isinstance(scaled_points, ClearTissue):
-        raise TypeError("Some unexpected error, points hsould be returned as an "
-            "array, not as an ClearTissue")
+        raise TypeError(
+            "Some unexpected error, points hsould be returned as an "
+            "array, not as an ClearTissue"
+        )
 
     # 2. Creates a tissue copy
     scaled_tissue = tissue.copy()

@@ -7,16 +7,19 @@ from .config import (
     MetricConfig,
     OptimizerConfig,
     InterpolationConfig,
-    MultipleResolutionConfig
+    MultipleResolutionConfig,
 )
+
 
 # ================================================================
 # 1. Section: Functions
 # ================================================================
 @dataclass
 class RegistrationConfig:
-    transform_center: int = 1 # 1 is Moments
+    transform_center: int = 1  # 1 is Moments
     metric: MetricConfig = field(default_factory=MetricConfig)
     optimizer: OptimizerConfig = field(default_factory=OptimizerConfig)
     interpolator: InterpolationConfig = field(default_factory=InterpolationConfig)
-    multiple_res: MultipleResolutionConfig = field(default_factory=MultipleResolutionConfig)
+    multiple_res: MultipleResolutionConfig = field(
+        default_factory=MultipleResolutionConfig
+    )

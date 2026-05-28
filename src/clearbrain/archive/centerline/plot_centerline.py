@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
 
-
 # ================================================================
 # 1. Section: Functions
 # ================================================================
@@ -18,7 +17,7 @@ def plot_centerline(
 
     # 1. Instantiates the Plot
     fig_3d = plt.figure(figsize=(10, 6))
-    ax = fig_3d.add_subplot(projection='3d', computed_zorder= not highlight_centerline)
+    ax = fig_3d.add_subplot(projection="3d", computed_zorder=not highlight_centerline)
 
     # 3. Loads Plots the centerline
     if highlight_centerline:
@@ -29,7 +28,7 @@ def plot_centerline(
     x = centerline[:, 0]
     y = centerline[:, 1]
     z = centerline[:, 2]
-    ax.scatter(x, y, z, s=1, color='red', label="Centerline", zorder=centerline_z_order) # type: ignore
+    ax.scatter(x, y, z, s=1, color="red", label="Centerline", zorder=centerline_z_order)  # type: ignore
     ax.set_box_aspect((np.ptp(x), np.ptp(y), np.ptp(z)))
 
     # 4. Remove extra visual clutter
@@ -37,6 +36,7 @@ def plot_centerline(
     ax.set_axis_off()
 
     return fig_3d, ax
+
 
 def add_centerline(
     ax: Axes,
