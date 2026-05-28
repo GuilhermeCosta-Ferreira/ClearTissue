@@ -32,5 +32,14 @@ dev = [
     "pylint (>=4.0.5,<5.0.0)",
     "bandit (>=1.9.4,<2.0.0)",
     "coverage (>=7.14.0,<8.0.0)",
-    "marimo (>=0.23.6,<0.24.0)"
+    "marimo (>=0.23.6,<0.24.0)",
+    "pytest (>=9.0.3,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)"
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
 ]
