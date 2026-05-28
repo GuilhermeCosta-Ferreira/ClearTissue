@@ -44,8 +44,17 @@ if __name__ == "__main__":
     print(tree)
 
     plt.figure()
+    plt.imshow(annotation[600, :, :])
+    plt.show(block=False)
+    plt.figure()
     plt.imshow(annotation[500, :, :])
     plt.show(block=False)
+    plt.figure()
+    plt.imshow(annotation[250, :, :])
+    plt.show(block=False)
+    plt.figure()
+    plt.imshow(annotation[50, :, :])
+    plt.show(block=True)
 
     source = TissueSource(mouse=MOUSE, tissue_type=TISSUE_TYPE, base_path=DATA_FOLDER)
     loader = TissueLoader(source)
