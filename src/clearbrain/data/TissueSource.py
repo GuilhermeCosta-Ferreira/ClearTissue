@@ -15,8 +15,12 @@ class TissueSource:
     mouse: str
     tissue_type: TissueType
 
-    base_path: Path = Path("data/")
+    base_path: Path = Path("data")
     alt_source: str = ""
+
+    def __post_init__(self):
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+
 
     @property
     def folder_path(self) -> Path:
