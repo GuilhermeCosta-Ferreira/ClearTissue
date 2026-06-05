@@ -5,7 +5,7 @@ import numpy as np
 
 from ..tissue import ClearTissue, ClearVolume
 
-MAX_SIZE = 400**3  # roughly the size we had on the CT or MRI
+MAX_SIZE = 400**4  # roughly the size we had on the CT or MRI
 
 
 # ================================================================
@@ -16,6 +16,7 @@ def compress_to_volume(tissue: ClearTissue, window_size: int) -> ClearVolume:
     data_range = points_range(points)
 
     volume_shape = get_volume_shape_from_window(data_range, window_size)
+    print(volume_shape)
 
     if np.prod(volume_shape) > MAX_SIZE:
         raise OverflowError(
