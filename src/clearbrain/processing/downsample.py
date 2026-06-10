@@ -37,7 +37,6 @@ def points_range(points: np.ndarray) -> np.ndarray:
         [np.max(points[:, 0]), np.max(points[:, 1]), np.max(points[:, 2])], dtype=int
     )
 
-
 def get_volume_shape_from_window(
     data_range: np.ndarray, window_size: int
 ) -> np.ndarray:
@@ -53,13 +52,25 @@ def get_volume_shape_from_window(
 
     return shape
 
-
 def build_volume(
-    points: np.ndarray, volume_shape: np.ndarray, window_size: int
+    points: np.ndarray,
+    volume_shape: tuple[int, int, int] | np.ndarray,
+    window_size: int,
 ) -> np.ndarray:
     downsampled_points = (points // window_size).astype(int)
 
+    volume_shape = np.asarray(volume_shape, dtype=int)
+
+    valid_mask = np.all(
+        (downsampled_points >= 0) & (downsampled_points < volume_shape),
+        axis=1,
+    )
+
+    valid_points = downsampled_points[valid_mask]
+
     volume = np.zeros(volume_shape, dtype=int)
-    for p in downsampled_points:
+
+    for p in valid_points:
         volume[p[0], p[1], p[2]] += 1
+
     return volume
