@@ -45,16 +45,45 @@ UNTWISTING_REGISTRATION = RegistrationConfig(
 # ================================================================
 TEMPLATE_WARP_REGISTRATION = RegistrationConfig(
     transform_center=1,
-    metric=MetricConfig(name="MI", sampling_percentage=1, histogram_bins=32),
+    metric=MetricConfig(name="MI", sampling_percentage=1, histogram_bins=50),
+    optimizer=OptimizerConfig(
+        name="GD",
+        iterations=500,
+        learning_rate=0.01,
+        convergence_minimum_value=1e-12,
+        convergence_window_size=50,
+        gradient_convergence_tolerance=1e-8,
+        maximum_number_corrections=5,
+        estimate_learning_rate=1,
+        max_step_size_physical_units=1.0,
+        grid_size=2,
+        constrains=[],
+        scales=[],
+        initial_angle=None,
+    ),
+    interpolator=InterpolationConfig(
+        registration="linear",
+        resampling="nearest",
+    ),
+    multiple_res=MultipleResolutionConfig(
+        enabled=True,
+        shrink_factors=[4, 2, 1],
+        smoothing_sigmas=[2, 1, 0],
+    ),
+)
+
+TEMPLATE_AFFINE_REGISTRATION = RegistrationConfig(
+    transform_center=1,
+    metric=MetricConfig(name="MI", sampling_percentage=1, histogram_bins=50),
     optimizer=OptimizerConfig(
         name="GD",
         iterations=5000,
         learning_rate=0.01,
-        convergence_minimum_value=1e-5,
-        convergence_window_size=10,
+        convergence_minimum_value=1e-8,
+        convergence_window_size=25,
         gradient_convergence_tolerance=1e-8,
         maximum_number_corrections=5,
-        estimate_learning_rate=2,
+        estimate_learning_rate=0,
         max_step_size_physical_units=1.0,
         grid_size=2,
         constrains=[],
@@ -66,7 +95,7 @@ TEMPLATE_WARP_REGISTRATION = RegistrationConfig(
         resampling="nearest",
     ),
     multiple_res=MultipleResolutionConfig(
-        enabled=True,
+        enabled=False,
         shrink_factors=[4, 2, 1],
         smoothing_sigmas=[2, 1, 0],
     ),
