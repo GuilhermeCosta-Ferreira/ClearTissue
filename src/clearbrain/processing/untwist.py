@@ -4,10 +4,12 @@
 import numpy as np
 
 from tqdm import tqdm
+from typing import cast
 from copy import deepcopy
 
 from ..tissue import ClearVolume
-from ..registration import Registrator
+from ..registration import Registrator, RegistrationResult
+
 
 
 # ================================================================
@@ -65,6 +67,24 @@ def untwist_spinal_coord(
 
     return tissue_volume, twisting_data
 
+def apply_know_untwisting(
+    tissue_volume: ClearVolume, registrator: Registrator, registrator_result: list[RegistrationResult]
+) -> ClearVolume:
+    volume = tissue_volume.volume
+    nr_slices = volume.shape[1]
+
+    untwisted_volume = volume.astype(np.float32).copy()
+
+    for i in range(nr_slices):
+        if i == 0:
+            continue
+        transform = registrator_result[i-1].transform
+        untwisted_slice = cast(np.ndarray, registrator.apply(volume[:, i, :], untwisted_volume[:, i, :], transform, as_array=True))
+        untwisted_volume[:, i, :] = untwisted_slice
+
+    tissue_volume.volume = untwisted_volume
+
+    return tissue_volume
 
 # ──────────────────────────────────────────────────────
 # 1.1 Subsection: Helper Functions
