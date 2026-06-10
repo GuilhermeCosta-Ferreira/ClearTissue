@@ -20,8 +20,17 @@ TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 TO_UPDATE: bool = True
 VOLUME_MODALITIES: list[str] = [
-    "_volume",
-    "_untwisted",
+    #"_volume",
+    #"_tissue_untwisted",
+    #"_tissue_stretched",
+    #"_cells_untwisted",
+    #"_cells_stretched",
+    #"_cells_scaled",
+    #"_tissue_untwisted_cleaned",
+    #"_cells_untwisted_cleaned",
+    #"_registered_atlas",
+    #"_registered_hemisphere",
+    "_atlas",
 ]
 
 
@@ -64,8 +73,9 @@ if __name__ == "__main__":
 
     for suffix in VOLUME_MODALITIES:
         tissue = loader.load_volume(suffix=suffix)
+        print(f"Volume sum for {suffix}: {tissue.volume.sum()}")
 
         p = save_volume_as_nifty(
-            source.source_filepath, tissue, to_update=TO_UPDATE, suffix="_untwisted"
+            source.source_filepath, tissue, to_update=TO_UPDATE, suffix=suffix, data_type=tissue.volume.dtype
         )
         print(f"Downloaded at {p}")
