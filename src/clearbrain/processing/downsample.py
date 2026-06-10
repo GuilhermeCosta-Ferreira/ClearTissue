@@ -5,7 +5,7 @@ import numpy as np
 
 from ..tissue import ClearTissue, ClearVolume
 
-MAX_SIZE = 400**3  # roughly the size we had on the CT or MRI
+MAX_SIZE = 400**4  # roughly the size we had on the CT or MRI
 
 
 # ================================================================
@@ -16,6 +16,7 @@ def compress_to_volume(tissue: ClearTissue, window_size: int) -> ClearVolume:
     data_range = points_range(points)
 
     volume_shape = get_volume_shape_from_window(data_range, window_size)
+    print(volume_shape)
 
     if np.prod(volume_shape) > MAX_SIZE:
         raise OverflowError(
@@ -36,7 +37,6 @@ def points_range(points: np.ndarray) -> np.ndarray:
         [np.max(points[:, 0]), np.max(points[:, 1]), np.max(points[:, 2])], dtype=int
     )
 
-
 def get_volume_shape_from_window(
     data_range: np.ndarray, window_size: int
 ) -> np.ndarray:
@@ -52,13 +52,25 @@ def get_volume_shape_from_window(
 
     return shape
 
-
 def build_volume(
-    points: np.ndarray, volume_shape: np.ndarray, window_size: int
+    points: np.ndarray,
+    volume_shape: tuple[int, int, int] | np.ndarray,
+    window_size: int,
 ) -> np.ndarray:
     downsampled_points = (points // window_size).astype(int)
 
+    volume_shape = np.asarray(volume_shape, dtype=int)
+
+    valid_mask = np.all(
+        (downsampled_points >= 0) & (downsampled_points < volume_shape),
+        axis=1,
+    )
+
+    valid_points = downsampled_points[valid_mask]
+
     volume = np.zeros(volume_shape, dtype=int)
-    for p in downsampled_points:
+
+    for p in valid_points:
         volume[p[0], p[1], p[2]] += 1
+
     return volume

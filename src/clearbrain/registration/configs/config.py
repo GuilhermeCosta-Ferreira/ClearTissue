@@ -1,7 +1,10 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+import SimpleITK as sitk
+
 from dataclasses import dataclass, field
+
 
 
 # ================================================================
@@ -29,6 +32,8 @@ class OptimizerConfig:  # pylint: disable=too-many-instance-attributes
     constrains: list = field(default_factory=lambda: [])
     scales: list = field(default_factory=lambda: [])
     initial_angle: float | None = None
+    initial_fixed_parameters: tuple[float, ...] | None = None
+    initial_parameters: tuple[float, ...] | None = None
 
 
 @dataclass

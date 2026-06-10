@@ -33,6 +33,10 @@ class RegistratorStrategy(ABC):
         initial_transform = self.build_initial_transform(fixed, moving, config)
         if config.optimizer.initial_angle is not None:
             configure_angle(fixed, initial_transform, config.optimizer.initial_angle)
+        if config.optimizer.initial_fixed_parameters is not None:
+            initial_transform.SetFixedParameters(config.optimizer.initial_fixed_parameters)
+        if config.optimizer.initial_parameters is not None:
+            initial_transform.SetParameters(config.optimizer.initial_parameters)
 
         method.SetInitialTransform(initial_transform, inPlace=False)
 

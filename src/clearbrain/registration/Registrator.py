@@ -42,11 +42,15 @@ class Registrator(QuickRegistrator):
         fixed: sitk.Image | np.ndarray,
         moving: sitk.Image | np.ndarray,
         transform: sitk.Transform,
-    ) -> sitk.Image:
+        as_array: bool = False,
+    ) -> sitk.Image | np.ndarray:
         fixed = convert_input(fixed)
         moving = convert_input(moving)
 
         resampler = self.resampler.configure(fixed, transform, self.config)
         resampled_image = resampler.Execute(moving)
+
+        if as_array:
+            resampled_image = sitk.GetArrayFromImage(resampled_image)
 
         return resampled_image
