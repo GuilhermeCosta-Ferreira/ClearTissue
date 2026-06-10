@@ -40,7 +40,7 @@ from clearbrain.registration import (
 ZARR_PATH: Path = Path("/Volumes/GuiNR/Transfer/561_CFos_raw.zarr")
 
 DATA_FOLDER: Path = Path("data")
-MOUSE: str = "32B"
+MOUSE: str = "32B_old"
 TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
 SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
@@ -167,6 +167,7 @@ if __name__ == "__main__":
         metadata=vol_tissue.metadata,
         sample_factor=vol_tissue.sample_factor,
     )
+    plot_volume_overview(template, 3, is_save=TO_SAVE)
 
     centerline = get_centerline(template)
     plot_spinal_direction(template, centerline)

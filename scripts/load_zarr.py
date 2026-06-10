@@ -55,7 +55,7 @@ def print_resolution_metadata(root: zarr.Group) -> None:
         if isinstance(level_data, zarr.Group):
             raise TypeError(f"Level {level} is a group, not an array")
 
-        scale = np.round(np.asarray(level_data.shape) / np.asarray(first_level.shape), 2)
+        scale = np.round(np.asarray(level_data.shape) / np.asarray(first_level.shape), 5)
         print(f"For {level} shape is: {level_data.shape} with scale factor of {scale}")
 
 def get_scale_factor_to_high_resolution(root: zarr.Group, level: str) -> NDArray:
@@ -70,7 +70,7 @@ def get_scale_factor_to_high_resolution(root: zarr.Group, level: str) -> NDArray
     if isinstance(level_data, zarr.Group):
         raise TypeError(f"Level {level} is a group, not an array")
 
-    scale = np.round(np.asarray(level_data.shape) / np.asarray(first_level.shape), 2)
+    scale = np.round(np.asarray(level_data.shape) / np.asarray(first_level.shape), 5)
 
     return scale
 
@@ -100,8 +100,10 @@ if __name__ == '__main__':
         description = STUDY_DESCRIPTION
     )
 
+    arr = cast(np.ndarray, root["level_03"])
+    tissue_volume = np.where(arr[:, :, :] > 20, arr[:, :, :], 0).astype(np.uint16)
     tissue_raw = ClearVolume(
-        volume = np.asarray(cast(np.ndarray, root["level_03"])[:]),
+        volume = tissue_volume,
         metadata = metadata,
         sample_factor = 1
     )

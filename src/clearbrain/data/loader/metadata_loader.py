@@ -24,6 +24,7 @@ def load_metadata(source_filepath: Path) -> Metadata:
             tissue_type=TissueType.from_str(meta["tissue_type"]),
             description=meta["description"],
             file_path=metadata_path,
+            scale_factor=meta.get("scale_factor", (1.0, 1.0, 1.0))
         )
 
     print("No metadata file found, instantiating a new one")
@@ -33,6 +34,7 @@ def load_metadata(source_filepath: Path) -> Metadata:
         mouse=str(metadata_path.parent.name),
         tissue_type=TissueType.from_str(tissue_type),
         file_path=metadata_path,
+        scale_factor=(1.0, 1.0, 1.0),
     )
 
 

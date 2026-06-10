@@ -21,7 +21,7 @@ class TissueLoader:
         return load_points(self.source.source_filepath, suffix)
 
     def load_volume(
-        self, suffix: str = "_volume", sample_factor: int = 25
+        self, suffix: str = "_volume", sample_factor: int = 1
     ) -> ClearVolume:
         return load_volume(self.source.source_filepath, suffix, sample_factor)
 
