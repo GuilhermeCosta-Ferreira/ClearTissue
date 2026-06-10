@@ -1,10 +1,6 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from copy import deepcopy
-
-import zarr
-
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -17,10 +13,10 @@ from clearbrain.data import TissueLoader, TissueDownloader, TissueSource
 from clearbrain.processing import (
     get_centerline,
     scale_tissue,
-    compress_to_volume,
+    build_volume,
     stretch_tissue,
     untwist_spinal_coord,
-    clear_external_points
+    apply_know_untwisting,
 )
 from clearbrain.tissue.view import (
     plot_spinal_direction,
@@ -39,173 +35,125 @@ from clearbrain.registration import (
 # ================================================================
 # 1. Section: INPUTS
 # ================================================================
-ZARR_PATH: Path = Path("/Volumes/GuiNR/Transfer/561_CFos_raw.zarr")
-
 DATA_FOLDER: Path = Path("data")
 MOUSE: str = "32B"
 TISSUE_TYPE: TissueType = TissueType.SPINAL_COORD
 
-SCALING: tuple[float, float, float] = (2.22, 1.0, 1.0)
-WINDOW_SIZE: int = 14
+TO_SAVE: bool = False
 
 SMOOTH_WINDOW_SIZE: int = 25
-
-TO_SAVE: bool = False
 
 
 
 # ================================================================
 # 2. Section: FUNCTIONS
 # ================================================================
-def print_zarr_tree(group, prefix: str = "") -> None:
-    for key in group.keys():
-        item = group[key]
-        path = f"{prefix}/{key}" if prefix else key
-
-        if hasattr(item, "shape"):
-            print(f"ARRAY: {path}")
-            print(f"  shape:  {item.shape}")
-            print(f"  dtype:  {item.dtype}")
-            print(f"  chunks: {item.chunks}")
-            print()
-
-        else:
-            print(f"GROUP: {path}")
-            print_zarr_tree(item, path)
-
-def build_volume(
-    points: np.ndarray,
-    volume_shape: tuple[int, int, int] | np.ndarray,
-    window_size: int,
-) -> np.ndarray:
-    downsampled_points = (points // window_size).astype(int)
-
-    volume_shape = np.asarray(volume_shape, dtype=int)
-
-    valid_mask = np.all(
-        (downsampled_points >= 0) & (downsampled_points < volume_shape),
-        axis=1,
+def evaluate_loss(initial_volume: ClearVolume, followed_by: ClearVolume) -> None:
+    density_before = float(np.sum(initial_volume.volume))
+    density_after = float(np.sum(followed_by.volume))
+    percentage_change = (density_after - density_before) / density_before * 100
+    print(
+        "Tissue has been stretched, with stable density:\n"
+        f"  Sum Density before: {density_before}\n"
+        f"  Sum Density after:  {density_after}\n"
+        f"  Percentage change:  {percentage_change:.2f}%\n"
     )
 
-    valid_points = downsampled_points[valid_mask]
-
-    volume = np.zeros(volume_shape, dtype=int)
-
-    for p in valid_points:
-        volume[p[0], p[1], p[2]] += 1
-
-    return volume
 
 
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
 if __name__ == "__main__":
+    # 1. Loads the main data points
     source = TissueSource(mouse=MOUSE, tissue_type=TISSUE_TYPE, base_path=DATA_FOLDER)
     loader = TissueLoader(source)
-    tissue = loader.load_points(suffix="_scaled_full")
+    downloader = TissueDownloader(source)
+    cell_detection = loader.load_points(suffix="_cells")
+    metadata = loader.load_metadata()
+    tissue = loader.load_volume()
 
     print("================================================================")
-    print(f"Working with tissue from file: {str(source.source_filepath)}")
+    print(f"Working with cell detection from file: {str(source.source_filepath)}")
     print("================================================================")
-    print(f"Range of X: {np.min(tissue.points[:,0])} - {np.max(tissue.points[:,0])}")
-    print(f"Range of Y: {np.min(tissue.points[:,1])} - {np.max(tissue.points[:,1])}")
-    print(f"Range of Z: {np.min(tissue.points[:,2])} - {np.max(tissue.points[:,2])}\n")
+    print(f"Range of X: {np.min(cell_detection.points[:,0])} - {np.max(cell_detection.points[:,0])}")
+    print(f"Range of Y: {np.min(cell_detection.points[:,1])} - {np.max(cell_detection.points[:,1])}")
+    print(f"Range of Z: {np.min(cell_detection.points[:,2])} - {np.max(cell_detection.points[:,2])}\n")
 
-    stretch_tissue = loader.load_volume(suffix="_stretch_full", sample_factor=1)
+    # 2. Scales the tissue points according to the metadata scale factor
+    cell_detection = cast(ClearTissue, scale_tissue(cell_detection, metadata.scale_factor))
+    print(f"Scaling applied with scaling of: {metadata.scale_factor}")
+    print(f"Range of X: {np.min(cell_detection.points[:,0])} - {np.max(cell_detection.points[:,0])}")
+    print(f"Range of Y: {np.min(cell_detection.points[:,1])} - {np.max(cell_detection.points[:,1])}")
+    print(f"Range of Z: {np.min(cell_detection.points[:,2])} - {np.max(cell_detection.points[:,2])}")
+    p = downloader.download_points(cell_detection, suffix="_cells_scaled", to_update=True)
+    print(f"Cell detection points saved to: {p}\n")
 
-    temp_vol = stretch_tissue.volume
-    #temp_vol[:, :16, :] = 0
-    stretch_tissue.volume = temp_vol
+    # 3. Builds the tissue volume from the scaled points
+    cell_detection_arr = build_volume(cell_detection.points, tissue.volume.shape, 1)
+    cell_volume = ClearVolume(cell_detection_arr, metadata, 1)
+    print(f"Volume has now shape: {cell_volume.volume.shape}")
+    p = downloader.download_volume(cell_volume, suffix="_cells_scaled", to_update=True)
+    print(f"Cell volume saved to: {p}\n")
 
-    cleaned_tissue = deepcopy(stretch_tissue)
-    """ cleaned_tissue = clear_external_points(stretch_tissue)
-    plot_volume_coronal(cleaned_tissue, 20)
-    plt.show() """
-
-    # 6. Applies the untwisting of the coord
-    registrator = Registrator(
-        strategy=RigidRegistration(),
-        resampler=RegistratorResampler(),
-        config=RegistrationConfig(),
-    )
-
-    registrator.config.metric.name = "CC"
-    registrator.config.metric.sampling_percentage = 1
-    registrator.config.metric.histogram_bins = 50
-
-    registrator.config.optimizer.iterations = 500
-    registrator.config.optimizer.convergence_minimum_value = 1e-8
-    registrator.config.optimizer.convergence_window_size = 30
-
-    #registrator.config.multiple_res.enabled = True
-    #cleaned_tissue.volume = cleaned_tissue.volume[:, :100, :]
-
-    untwisted_tissue, twisting_data = untwist_spinal_coord(cleaned_tissue, registrator, window_size=250, gap=0)
-    plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
-    plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
-    density_before = np.sum(cleaned_tissue.volume)
-    density_after = np.sum(untwisted_tissue.volume)
-    percentage_change = (density_after - density_before) / density_before * 100
-    print(
-        "Tissue has been untwisted, with stable density:\n"
-        f"  Sum Density before: {density_before}\n"
-        f"  Sum Density after:  {density_after}\n"
-        f"  Percentage change:  {percentage_change:.2f}%\n"
-    )
-    plt.show(block=True)
-
-    angles = np.asarray([result.transform.GetParameters()[0] for result in twisting_data])
-    timesteps = np.asarray([result.elapsed_time for result in twisting_data])
-    images = np.asarray([result.registered_image for result in twisting_data])
-
-    plt.figure()
-    plt.plot(angles)
-    #plt.plot(timesteps)
-    plt.xlabel("Coronal Axis")
-    plt.ylabel("Angle")
+    # 4. Gets the centerline and plots the spinal direction
+    centerline = get_centerline(tissue)
+    plot_spinal_direction(tissue, centerline)
     plt.show(block=False)
+    print("Centerline with spinal direction assessed")
 
-    plt.figure()
-    plt.plot(timesteps)
-    plt.xlabel("Coronal Axis")
-    plt.ylabel("Time")
-    plt.show(block=False)
+    # 5. Stretch the tissue and apply the same transformation to the cell volume
+    stretched_tissue = stretch_tissue(tissue, centerline, SMOOTH_WINDOW_SIZE)
+    stretched_cell_volume = stretch_tissue(cell_volume, centerline, SMOOTH_WINDOW_SIZE)
+    p = downloader.download_volume(stretched_tissue, suffix="_tissue_stretched", to_update=True)
+    print(f"Stretched tissue saved to: {p}")
+    p = downloader.download_volume(stretched_cell_volume, suffix="_cells_stretched", to_update=True)
+    print(f"Stretched cell volume saved to: {p}\n")
 
-    # gradient
-    plt.figure()
-    plt.plot(angles[1:] - angles[:-1])
-    plt.show(block=False)
-
-    plt.figure()
-    plt.subplot(2, 3, 1)
-    plt.imshow(images[13])
-    plt.subplot(2, 3, 2)
-    plt.imshow(images[14])
-    plt.subplot(2, 3, 3)
-    plt.imshow(images[15])
-    plt.subplot(2, 3, 4)
-    plt.imshow(images[16])
-    plt.subplot(2, 3, 5)
-    plt.imshow(images[17])
-    plt.subplot(2, 3, 6)
-    plt.imshow(images[18])
+    # 6. Plot the stretched tissue and cell volume
+    plot_volume_coronal(stretched_tissue, 10, show_centers=True)
+    plot_volume_overview(stretched_tissue, 3)
+    plot_volume_coronal(stretched_cell_volume, 10, show_centers=True)
+    plot_volume_overview(stretched_cell_volume, 3)
+    evaluate_loss(tissue, stretched_tissue)
     plt.show(block=False)
 
     input("Press Enter to close...")
     plt.close('all')
 
-    downloader = TissueDownloader(source)
-    p = downloader.download_points(tissue, suffix="_scaled_full", to_update=True)
-    print(f"Downloaded at {p}")
-    p = downloader.download_metadata(tissue.metadata, to_update=True)
-    print(f"Downloaded at {p}")
-    p = downloader.download_volume(stretch_tissue, suffix="_stretch_full", to_update=True)
-    print(f"Downloaded at {p}")
-    p = downloader.download_twisting_data(twisting_data, to_update=True)
-    print(f"Downloaded at {p}")
-
-    p = downloader.download_volume(
-        untwisted_tissue, suffix="_untwisted_full", to_update=True
+    # 7. Builds the registrator for the untwisting of the coord
+    registrator = Registrator(
+        strategy=RigidRegistration(),
+        resampler=RegistratorResampler(),
+        config=RegistrationConfig(),
     )
-    print(f"Downloaded at {p}")
+    registrator.config.metric.name = "CC"
+    registrator.config.metric.sampling_percentage = 1
+    registrator.config.metric.histogram_bins = 50
+    registrator.config.optimizer.iterations = 500
+    registrator.config.optimizer.convergence_minimum_value = 1e-8
+    registrator.config.optimizer.convergence_window_size = 30
+
+    # 8. Finds the untwisting of the coord
+    untwisted_tissue, twisting_data = untwist_spinal_coord(stretched_tissue, registrator, window_size=250)
+    plot_volume_coronal(untwisted_tissue, 10, show_centers=True, is_save=TO_SAVE)
+    plot_volume_overview(untwisted_tissue, 3, is_save=TO_SAVE)
+    evaluate_loss(tissue, untwisted_tissue)
+    p = downloader.download_volume(untwisted_tissue, suffix="_tissue_untwisted", to_update=True)
+    print(f"Downloaded untwisted tissue at {p}")
+    p = downloader.download_twisting_data(twisting_data, suffix="_twisting_data", to_update=True)
+    print(f"Downloaded twisting data at {p}")
+    plt.show(block=False)
+
+    # 9. Applies the known untwisting
+    registrator.config.interpolator.resampling = "nearest"
+    untwisted_cell = apply_know_untwisting(stretched_cell_volume, registrator, twisting_data)
+    plot_volume_coronal(untwisted_cell, 10, show_centers=True, is_save=TO_SAVE)
+    plot_volume_overview(untwisted_cell, 3, is_save=TO_SAVE)
+    evaluate_loss(stretched_cell_volume, untwisted_cell)
+    p = downloader.download_volume(untwisted_cell, suffix="_cells_untwisted", to_update=True)
+    print(f"Downloaded untwisted cells at {p}")
+    plt.show(block=False)
+
+    input("Press Enter to close...")
+    plt.close('all')
