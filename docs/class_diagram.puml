@@ -1,42 +1,72 @@
 @startuml
 left to right direction
 skinparam linetype ortho
+skinparam class {
+    BackgroundColor<<implemented>> #D5F5D5
+    BorderColor<<implemented>> #2E7D32
+    FontColor<<implemented>> #1B5E20
 
+    BackgroundColor<<partial>> #FFF3CD
+    BorderColor<<partial>> #B8860B
+    FontColor<<partial>> #7A5600
+
+    BackgroundColor<<planned>> #F2F2F2
+    BorderColor<<planned>> #888888
+    FontColor<<planned>> #555555
+
+    BackgroundColor<<external>> #E3F2FD
+    BorderColor<<external>> #1565C0
+    FontColor<<external>> #0D47A1
+}
+
+legend right
+|= Colour |
+|<#D5F5D5> Implemented |
+|<#FFF3CD> Partially implemented |
+|<#F2F2F2> Planned / not implemented |
+|<#E3F2FD> External dependency |
+endlegend
 
 package "Domain Model" {
     package "Data Containers" {
-        class SampleBatch{
+        class SampleBatch <<implemented>>{
             + tissue: ClearVolume
             + cells: ClearVolume | ClearPoints
             + atlas: Atlas
+
+            + copy_with(): SampleBatch
         }
 
-        class ClearVolume {
+        class ClearVolume <<implemented>>{
             + shape: tuple[int, int, int]
         }
 
-        class ClearPoints {
+        class ClearPoints <<implemented>>{
             + estimated_shape: tuple[int, int, int]
         }
 
-        class Atlas {
+        class Atlas <<implemented>>{
             + hemisphere: NDArray
             + look_up: pd.DataFrame
+
+            + copy_with(): Atlas
         }
 
-        abstract class ClearData {
+        abstract class ClearData <<implemented>>{
             + data: NDArray
             + resolution: tuple[float, float, float]
             + unit: tuple[str, str, str]
             + orientation: str
             + tissue_type: TissueType
+
+            + copy_with(): ClearData
         }
 
-        class SpinalCenterline {
+        class SpinalCenterline <<implemented>>{
             + smooth_derivative(smooth_factor: int): NDArray
         }
 
-        enum TissueType {
+        enum TissueType <<implemented>>{
             + SPINAL_CORD
             + BRAIN
         }
@@ -45,10 +75,10 @@ package "Domain Model" {
 
 
     package "Transformations"{
-        interface Transformation {
+        interface Transformation <<implemented>>{
             + apply(batch: SampleBatch): SampleBatch
         }
-        class RegularizeSample {
+        class RegularizeSample <<implemented>>{
             + target_resolution: int
             - convert_points(points: ClearPoints): ClearVolume
             - convert_atlas(atlas: ClearVolume): ClearVolume
