@@ -1,0 +1,220 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+
+
+package "Domain Model" {
+    package "Data Containers" {
+        class SampleBatch{
+            + tissue: ClearVolume
+            + cells: ClearVolume | ClearPoints
+            + atlas: Atlas
+        }
+
+        class ClearVolume {
+            + shape: tuple[int, int, int]
+        }
+
+        class ClearPoints {
+            + estimated_shape: tuple[int, int, int]
+        }
+
+        class Atlas {
+            + hemisphere: NDArray
+            + look_up: pd.DataFrame
+        }
+
+        abstract class ClearData {
+            + data: NDArray
+            + resolution: tuple[float, float, float]
+            + unit: tuple[str, str, str]
+            + orientation: str
+            + tissue_type: TissueType
+        }
+
+        class SpinalCenterline {
+            + derivative: NDArray
+            + smooth_derivative(window_size: int): NDArray
+        }
+
+        enum TissueType {
+            + SPINAL_CORD
+            + BRAIN
+        }
+    }
+
+
+
+    package "Transformations"{
+        interface Transformation {
+            + apply(batch: SampleBatch): SampleBatch
+        }
+        class RegularizeSample {
+            + target_resolution: int
+            - convert_points(points: ClearPoints): ClearVolume
+            - convert_atlas(atlas: ClearVolume): ClearVolume
+            - conevrt_orientation(data: ClearVolume): ClearVolume
+        }
+
+        class StretchSample {
+            + smooth_centerline_window: int
+            - get_centerline(tissue: ClearVolume): SpinalCenterline
+            - stretch_volume(data: ClearVolume): ClearVolume
+        }
+
+        class UntwistSample {
+            + untwist_registrator: Registrator
+            + window_size: int
+            + gap_size: int
+            - untwist_spinal_coord(tissue: ClearVolume): ClearVolume
+            - apply_know_untwisting(cells: ClearVolume): ClearVolume
+        }
+
+        class RotateSample {
+            + rotation_angle: float
+            - rotate_spinal_cord(data: ClearVolume)
+        }
+
+        class CylindricalMaskSample {
+            + margin: int
+            - clear_external_points(data: ClearVolume)
+        }
+
+        class EmptySpaceTrimSample {
+            + crop_params: CropParams
+            - crop_excess(data: ClearVolume)
+        }
+
+        class AxisCropSample {
+            + start_slice: int
+            + end_slice: int
+            + axis: int
+            - crop_excess(data: ClearVolume)
+        }
+
+        class RegisterAtlasToSample {
+            + max_retries: int
+            + affine_registrator: Registrator
+            + warp_registrator: Registrator
+            - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
+        }
+    }
+
+    class CropParams {
+        + z_crop: tuple
+        + y_crop: tuple
+        + x_crop: tuple
+        + source_shape: tuple[int, int, int]
+    }
+
+    note "<b>RegularizeSample:</b> Responsible to make sure everything\nhas the same resolution and orientation" as N1
+
+    package "Registration module" <<external>> {
+        class Registrator <<external>>
+    }
+}
+
+package "Adapters" {
+    class Source{
+        + mouse: str
+        + tissue_type: TissueType
+        + folder_path: str
+        - name: str
+        + init_repository(): None
+        + init_empty_pipeline(): int
+    }
+
+    class DataLoader {
+        + source: Source
+        + load_raw(): SampleBatch
+        + load_batch(pipeline_id: int, step_id: int): SampleBatch
+    }
+
+    class DataDownloader {
+        + source: Source
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
+    }
+
+    class DataConverter {
+        + source: Source
+        + pipeline_id: int
+        + step_id: int
+        + file_type: str
+        - batch_path: Path
+        + convert_batch() -> Path
+    }
+
+    class BatchStore {
+        + source: Source
+        - loader: DataLoader
+        - downloader: DataDownloader
+    }
+}
+
+package "Service Layer" {
+    class PipelineSpec {
+        + pipeline_id: int
+        + steps: list[Transformation]
+        + add_step(step: Transformation): None
+        + insert_step(index: int, step: Transformation): None
+        + remove_step(index: int): None
+        + clear(): None
+    }
+
+    class PipelineRunner {
+        + store: BatchStore
+        + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
+    }
+
+    class ClearTissueProject {
+        + mouse: str
+        + tissue_type: TissueType
+        + folder_path: str
+        - source: Source
+        - store: BatchStore
+        - runner: PipelineRunner
+        + load_raw(): SampleBatch
+        + new_pipeline(): PipelineSpec
+        + run_pipeline(pipeline: PipelineSpec, batch: SampleBatch, save_intermediate: bool): SampleBatch
+    }
+}
+
+SampleBatch --> ClearVolume
+SampleBatch --> ClearPoints
+SampleBatch --> Atlas
+ClearData --> TissueType
+UntwistSample --> Registrator
+EmptySpaceTrimSample --> CropParams
+
+Source --> TissueType
+DataLoader --> Source
+DataDownloader --> Source
+DataConverter --> Source
+BatchStore --> Source
+BatchStore --> DataLoader
+BatchStore --> DataDownloader
+
+PipelineRunner --> BatchStore
+
+PipelineSpec o-- Transformation
+
+RegularizeSample ..|> Transformation
+StretchSample ..|> Transformation
+UntwistSample ..|> Transformation
+RotateSample ..|> Transformation
+CylindricalMaskSample ..|> Transformation
+EmptySpaceTrimSample ..|> Transformation
+AxisCropSample ..|> Transformation
+RegisterAtlasToSample ..|> Transformation
+ClearVolume --|> ClearData
+ClearPoints --|> ClearData
+Atlas ..|> ClearData
+
+Transformation ..> SampleBatch
+
+PipelineRunner ..> PipelineSpec
+PipelineRunner ..> SampleBatch
+
+DataLoader ..> SampleBatch
+DataDownloader ..> SampleBatch
+@enduml

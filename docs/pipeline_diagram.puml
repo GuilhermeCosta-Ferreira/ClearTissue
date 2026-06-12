@@ -1,0 +1,14 @@
+@startuml
+start
+
+switch (Data)
+case ()
+    :Zarr File;
+case ()
+    :Cell Detection;
+case ()
+    :BrainGlobeAtlas;
+endswitch
+
+stop
+@enduml
