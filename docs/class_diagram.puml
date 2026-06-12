@@ -33,8 +33,7 @@ package "Domain Model" {
         }
 
         class SpinalCenterline {
-            + derivative: NDArray
-            + smooth_derivative(window_size: int): NDArray
+            + smooth_derivative(smooth_factor: int): NDArray
         }
 
         enum TissueType {
@@ -115,13 +114,14 @@ package "Domain Model" {
 }
 
 package "Adapters" {
-    class Source{
+    class Source {
         + mouse: str
         + tissue_type: TissueType
-        + folder_path: str
-        - name: str
-        + init_repository(): None
-        + init_empty_pipeline(): int
+        + base_path: Path
+
+        + __post_init__(): None
+        + folder_path: Path
+        + file_base_name: str
     }
 
     class DataLoader {
@@ -208,6 +208,7 @@ AxisCropSample ..|> Transformation
 RegisterAtlasToSample ..|> Transformation
 ClearVolume --|> ClearData
 ClearPoints --|> ClearData
+SpinalCenterline --|> ClearPoints
 Atlas ..|> ClearData
 
 Transformation ..> SampleBatch
