@@ -1,8 +1,6 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-import SimpleITK as sitk
-
 from dataclasses import dataclass, field
 
 

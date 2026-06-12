@@ -1,6 +1,7 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+from rich.pretty import pprint
 import zarr
 
 import numpy as np
@@ -102,6 +103,10 @@ if __name__ == "__main__":
     print(f"Zarr version: {zarr.__version__}")
 
     root = zarr.open_group(ZARR_PATH, mode="r")
+    pprint(root.attrs)
+    pprint(root.info)
+    pprint(root.metadata)
+
 
     print(root)
     print()
@@ -112,6 +117,7 @@ if __name__ == "__main__":
     print(arr.shape)
     print(arr.dtype)
     print(arr.chunks)
+    breakpoint()
 
     source = TissueSource(mouse=MOUSE, tissue_type=TISSUE_TYPE, base_path=DATA_FOLDER)
     loader = TissueLoader(source)
