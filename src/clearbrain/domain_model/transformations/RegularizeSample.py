@@ -20,7 +20,7 @@ class RegularizeSample(AbstractTransformations):
         if np.unique(batch.tissue.resolution).size != 1:
             raise ValueError(f"Tissue should be isotropic, right now it is {batch.tissue.resolution}")
 
-        if batch.tissue.unit != batch.cells.unit:
+        if tuple(batch.tissue.unit) != tuple(batch.cells.unit):
             raise ValueError(f"Tissue unit {batch.tissue.unit} does not match cells unit {batch.cells.unit}")
 
         atlas = self.convert_atlas(batch.tissue, batch.atlas)

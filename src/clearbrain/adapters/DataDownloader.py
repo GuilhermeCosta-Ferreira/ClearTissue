@@ -21,6 +21,9 @@ class DataDownloader:
 
 
     def download_batch(self, batch: SampleBatch, pipeline_id: int, step: int) -> Path:
+        step_path = self.source.step_path(pipeline_id, step)
+        step_path.mkdir(parents=True, exist_ok=True)
+
         self._download_tissue(batch.tissue, pipeline_id, step)
         self._download_atlas(batch.atlas, pipeline_id, step)
         self._download_cells(batch.cells, pipeline_id, step)

@@ -17,8 +17,8 @@ from .utils import standard_numeric_id
 class Source:
     mouse: str
     tissue_type: TissueType
-    base_path: Path = Path("data")
-    atlas_name: AtlasName = "allen_cord_20um"
+    base_path: Path
+    atlas_name: AtlasName
 
     @property
     def folder_path(self) -> Path:

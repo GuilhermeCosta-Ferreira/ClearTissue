@@ -19,15 +19,15 @@ def get_raw_tissue_path(raw_path: Path, tissue_filename: str) -> Path:
     # 3. If there is only one:
     if len(raw_files) == 1:
         # 3.1 if it has the correct name just load
-        if raw_files[0].name == tissue_filename:
+        if raw_files[0].stem == tissue_filename:
             return raw_files[0]
 
         # 3.2 if does not load it anyways, present a warning and rename it (controllable)
         else:
             print(f"Warning: loaded {raw_files[0]} instead of {tissue_filename}")
             print(f"Renamed {raw_files[0]} to {raw_path / tissue_filename}")
-            raw_files[0].rename(raw_path / tissue_filename)
-            return raw_files[0]
+            new_name = raw_files[0].rename(raw_path / f"{tissue_filename}.hdf5")
+            return new_name
 
     # 4. If there are multiple
     if tissue_filename in [f.name for f in raw_files]:

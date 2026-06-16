@@ -40,9 +40,14 @@ class Repository:
         metadata_path = self.source.folder_path / "metadata.json"
         download_json(metadata, metadata_path, False)
 
-    def init_new_pipeline(self, pipeline_id: int, pipeline_name: str = "") -> None:
+    def init_new_pipeline(self, pipeline_id: int, pipeline_name: str = "") -> str:
         # 1. Creates the folder for the pipeline
         pipeline_id_str = standard_numeric_id(pipeline_id, 2)
+        pipeline_name = (
+            pipeline_name
+            if pipeline_name
+            else f"{self._pipeline_base_name}_{pipeline_id_str}"
+        )
         path = self.source.folder_path / f"{self._pipeline_base_name}_{pipeline_id_str}"
         path.mkdir(parents=True, exist_ok=True)
 
@@ -59,15 +64,22 @@ class Repository:
         config["mouse"] = self.source.mouse
         config["tissue_type"] = self.source.tissue_type.as_str
         config["pipeline_id"] = pipeline_id
-        config["pipeline_name"] = (
-            pipeline_name
-            if pipeline_name
-            else f"{self._pipeline_base_name}_{pipeline_id_str}"
-        )
+        config["pipeline_name"] = pipeline_name
 
         # 5. Saves the updated config to the pipeline folder
         with open(path / "config.yaml", "w") as f:
             yaml.dump(config, f)
+
+        return pipeline_name
+
+    def get_built_pipeline_ids(self) -> list[int]:
+        project_dir = self.source.folder_path
+        pipeline_dirs = project_dir.glob(f"{self._pipeline_base_name}_*")
+        return [int(dir.name.split("_")[-1]) for dir in pipeline_dirs]
+
+    def get_available_id(self) -> int:
+        used_ids = self.get_built_pipeline_ids()
+        return max(used_ids) + 1 if used_ids else 1
 
 def build_metadata(source: Source) -> dict:
     metadata = source.as_dict
