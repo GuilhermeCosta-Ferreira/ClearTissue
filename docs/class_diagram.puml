@@ -102,7 +102,6 @@ package "Domain Model" {
 
 
         class RegularizeSample <<implemented>>{
-            + target_resolution: int
             - convert_points(points: ClearPoints): ClearVolume
             - convert_atlas(atlas: ClearVolume): ClearVolume
             - conevrt_orientation(data: ClearVolume): ClearVolume
@@ -290,7 +289,7 @@ package "Adapters" {
 }
 
 package "Service Layer" {
-    class PipelineSpec {
+    class PipelineSpec <<implemented>>{
         + pipeline_id: int
         + steps: list[Transformation]
         + add_step(step: Transformation): None
@@ -301,7 +300,7 @@ package "Service Layer" {
     PipelineSpec o-- Transformation
 
 
-    class PipelineRunner {
+    class PipelineRunner <<partial>>{
         + io: ClearIO
         + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
     }
@@ -312,15 +311,14 @@ package "Service Layer" {
     !endif
 
 
-    class ClearTissueProject {
-        + mouse: str
-        + tissue_type: TissueType
-        + folder_path: str
-        - source: Source
-        - io: ClearIO
-        - runner: PipelineRunner
+    class ClearTissueProject <<partial>>{
+        + source: Source,
+        + clear_io: ClearIO,
+        + runner: PipelineRunner,
+
+        + init(mouse: str, tissue_type: TissueType, folder_path: Path, atlas_name: AtlasName: ClearTissueProject
         + load_raw(): SampleBatch
-        + new_pipeline(): PipelineSpec
+        + init_pipeline(): PipelineSpec
         + run_pipeline(pipeline: PipelineSpec, batch: SampleBatch, save_intermediate: bool): SampleBatch
     }
     ClearTissueProject --> PipelineRunner
