@@ -1,8 +1,9 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from clearbrain.adapters import Source, Repository
 from clearbrain.domain_model.data import TissueType
+from clearbrain.domain_model.transformations import RegularizeSample
+from clearbrain.service.ClearTissueProject import ClearTissueProject
 
 
 
@@ -10,11 +11,18 @@ from clearbrain.domain_model.data import TissueType
 # 3. Section: MAIN
 # ================================================================
 if __name__ == '__main__':
-    source = Source(
+    """ project = ClearTissueProject.init(
+        mouse="32B",
+        tissue_type=TissueType.SPINAL_CORD,
+    ) """
+    project = ClearTissueProject.load(
         mouse="32B",
         tissue_type=TissueType.SPINAL_CORD,
     )
+    raw_batch = project.load_raw()
 
-    repository = Repository(source)
-    repository.init_project()
-    repository.init_new_pipeline(pipeline_id=1, pipeline_name="test_pipeline")
+    pipeline = project.init_pipeline()
+
+    pipeline.add_step(RegularizeSample())
+
+    final_batch = project.run_pipeline(pipeline, raw_batch)
