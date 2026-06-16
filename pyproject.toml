@@ -21,6 +21,8 @@ dependencies = [
     "reportlab (>=4.5.1,<5.0.0)",
     "brainreg (>=1.0.15,<2.0.0)",
     "polars (>=1.41.2,<2.0.0)",
+    "ruamel-yaml (>=0.19.1,<0.20.0)",
+    "h5py (>=3.16.0,<4.0.0)",
 ]
 
 [tool.poetry]
