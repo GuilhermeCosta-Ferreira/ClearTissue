@@ -10,9 +10,9 @@ skinparam class {
     BorderColor<<partial>> #B8860B
     FontColor<<partial>> #7A5600
 
-    BackgroundColor<<planned>> #F2F2F2
-    BorderColor<<planned>> #888888
-    FontColor<<planned>> #555555
+    BackgroundColor<<planned>> #F8D7DA
+    BorderColor<<planned>> #B02A37
+    FontColor<<planned>> #842029
 
     BackgroundColor<<external>> #E3F2FD
     BorderColor<<external>> #1565C0
@@ -23,9 +23,13 @@ legend right
 |= Colour |
 |<#D5F5D5> Implemented |
 |<#FFF3CD> Partially implemented |
-|<#F2F2F2> Planned / not implemented |
+|<#F8D7DA> Planned / not implemented |
 |<#E3F2FD> External dependency |
 endlegend
+
+' 0 = hide dependency lines
+' 1 = show dependency lines
+!$SHOW_DEPENDENCIES = 0
 
 package "Domain Model" {
     package "Data Containers" {
@@ -36,14 +40,22 @@ package "Domain Model" {
 
             + copy_with(): SampleBatch
         }
+        SampleBatch --> ClearVolume
+        SampleBatch --> ClearPoints
+        SampleBatch --> Atlas
+
 
         class ClearVolume <<implemented>>{
             + shape: tuple[int, int, int]
         }
+        ClearVolume --|> ClearData
+
 
         class ClearPoints <<implemented>>{
             + estimated_shape: tuple[int, int, int]
         }
+        ClearPoints --|> ClearData
+
 
         class Atlas <<implemented>>{
             + hemisphere: NDArray
@@ -51,6 +63,8 @@ package "Domain Model" {
 
             + copy_with(): Atlas
         }
+        Atlas --|> ClearData
+
 
         abstract class ClearData <<implemented>>{
             + data: NDArray
@@ -61,10 +75,14 @@ package "Domain Model" {
 
             + copy_with(): ClearData
         }
+        ClearData --> TissueType
+
 
         class SpinalCenterline <<implemented>>{
             + smooth_derivative(smooth_factor: int): NDArray
         }
+        SpinalCenterline --|> ClearPoints
+
 
         enum TissueType <<implemented>>{
             + SPINAL_CORD
@@ -78,18 +96,27 @@ package "Domain Model" {
         interface Transformation <<implemented>>{
             + apply(batch: SampleBatch): SampleBatch
         }
+        !if ($SHOW_DEPENDENCIES == 1)
+        Transformation ..> SampleBatch
+        !endif
+
+
         class RegularizeSample <<implemented>>{
             + target_resolution: int
             - convert_points(points: ClearPoints): ClearVolume
             - convert_atlas(atlas: ClearVolume): ClearVolume
             - conevrt_orientation(data: ClearVolume): ClearVolume
         }
+        RegularizeSample ..|> Transformation
+
 
         class StretchSample {
             + smooth_centerline_window: int
             - get_centerline(tissue: ClearVolume): SpinalCenterline
             - stretch_volume(data: ClearVolume): ClearVolume
         }
+        StretchSample ..|> Transformation
+
 
         class UntwistSample {
             + untwist_registrator: Registrator
@@ -98,21 +125,31 @@ package "Domain Model" {
             - untwist_spinal_coord(tissue: ClearVolume): ClearVolume
             - apply_know_untwisting(cells: ClearVolume): ClearVolume
         }
+        UntwistSample ..|> Transformation
+        UntwistSample --> Registrator
+
 
         class RotateSample {
             + rotation_angle: float
             - rotate_spinal_cord(data: ClearVolume)
         }
+        RotateSample ..|> Transformation
+
 
         class CylindricalMaskSample {
             + margin: int
             - clear_external_points(data: ClearVolume)
         }
+        CylindricalMaskSample ..|> Transformation
+
 
         class EmptySpaceTrimSample {
             + crop_params: CropParams
             - crop_excess(data: ClearVolume)
         }
+        EmptySpaceTrimSample ..|> Transformation
+        EmptySpaceTrimSample --> CropParams
+
 
         class AxisCropSample {
             + start_slice: int
@@ -120,6 +157,8 @@ package "Domain Model" {
             + axis: int
             - crop_excess(data: ClearVolume)
         }
+        AxisCropSample ..|> Transformation
+
 
         class RegisterAtlasToSample {
             + max_retries: int
@@ -127,6 +166,7 @@ package "Domain Model" {
             + warp_registrator: Registrator
             - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
         }
+        RegisterAtlasToSample ..|> Transformation
     }
 
     class CropParams {
@@ -144,26 +184,84 @@ package "Domain Model" {
 }
 
 package "Adapters" {
-    class Source {
+    class Source <<implemented>> {
         + mouse: str
         + tissue_type: TissueType
         + base_path: Path
+        + atlas_name: str
 
-        + __post_init__(): None
         + folder_path: Path
         + file_base_name: str
+        + raw_path: Path
     }
+    Source --> TissueType
 
-    class DataLoader {
+
+    class Repository <<implemented>> {
         + source: Source
+
+        - _pipeline_base_name: str
+        - _config_path: Path
+
+        + init_project(): None
+        + init_new_pipleine(pipeline_id: int): None
+    }
+    Repository --> Source
+
+
+    class DataLoader <<implemented>>{
+        + source: Source
+
+        + load_metadata() -> dict
         + load_raw(): SampleBatch
         + load_batch(pipeline_id: int, step_id: int): SampleBatch
     }
+    DataLoader --> Source
+    DataLoader --> RawDataLoader
+    DataLoader --> StepDataLoader
+    !if ($SHOW_DEPENDENCIES == 1)
+    DataLoader ..> SampleBatch
+    !endif
 
-    class DataDownloader {
-        + source: Source
-        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
+
+    class RawDataLoader <<implemented>>{
+        + load_cells(): ClearPoints
+        + load_atlas(): Atlas
+        + load_tissue(): ClearVolume
     }
+    !if ($SHOW_DEPENDENCIES == 1)
+    RawDataLoader ..> ClearPoints
+    RawDataLoader ..> ClearVolume
+    RawDataLoader ..> Atlas
+    !endif
+
+
+    class StepDataLoader <<implemented>>{
+        + load_cells(paths: list[Path]): ClearPoints | ClearVolume
+        + load_atlas(paths: list[Path]): Atlas
+        + load_tissue(paths: list[Path]): ClearVolume
+    }
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepDataLoader ..> ClearPoints
+    StepDataLoader ..> ClearVolume
+    StepDataLoader ..> Atlas
+    !endif
+
+
+    class DataDownloader <<implemented>>{
+        + source: Source
+
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
+
+        - _download_tissue(tissue: ClearVolume, pipeline_id: int, step_id: int) -> Path
+        - _download_cells(cells: ClearPoints, pipeline_id: int, step_id: int) -> Path
+        - _download_atlas(atlas: Atlas, pipeline_id: int, step_id: int) -> Path
+    }
+    DataDownloader --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    DataDownloader ..> SampleBatch
+    !endif
+
 
     class DataConverter {
         + source: Source
@@ -173,12 +271,22 @@ package "Adapters" {
         - batch_path: Path
         + convert_batch() -> Path
     }
+    DataConverter --> Source
 
-    class BatchStore {
+
+    class ClearIO <<implemented>> {
         + source: Source
+
         - loader: DataLoader
         - downloader: DataDownloader
+
+        + load_raw() -> SampleBatch
+        + load_batch(pipeline_id: int, step_id: int) -> SampleBatch
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
     }
+    ClearIO --> Source
+    ClearIO --> DataLoader
+    ClearIO --> DataDownloader
 }
 
 package "Service Layer" {
@@ -190,62 +298,36 @@ package "Service Layer" {
         + remove_step(index: int): None
         + clear(): None
     }
+    PipelineSpec o-- Transformation
+
 
     class PipelineRunner {
-        + store: BatchStore
+        + io: ClearIO
         + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
     }
+    PipelineRunner --> ClearIO
+    !if ($SHOW_DEPENDENCIES == 1)
+    PipelineRunner ..> PipelineSpec
+    PipelineRunner ..> SampleBatch
+    !endif
+
 
     class ClearTissueProject {
         + mouse: str
         + tissue_type: TissueType
         + folder_path: str
         - source: Source
-        - store: BatchStore
+        - io: ClearIO
         - runner: PipelineRunner
         + load_raw(): SampleBatch
         + new_pipeline(): PipelineSpec
         + run_pipeline(pipeline: PipelineSpec, batch: SampleBatch, save_intermediate: bool): SampleBatch
     }
+    ClearTissueProject --> PipelineRunner
+    ClearTissueProject --> ClearIO
+    !if ($SHOW_DEPENDENCIES == 1)
+    ClearTissueProject ..> SampleBatch
+    ClearTissueProject ..> PipelineSpec
+    !endif
 }
-
-SampleBatch --> ClearVolume
-SampleBatch --> ClearPoints
-SampleBatch --> Atlas
-ClearData --> TissueType
-UntwistSample --> Registrator
-EmptySpaceTrimSample --> CropParams
-
-Source --> TissueType
-DataLoader --> Source
-DataDownloader --> Source
-DataConverter --> Source
-BatchStore --> Source
-BatchStore --> DataLoader
-BatchStore --> DataDownloader
-
-PipelineRunner --> BatchStore
-
-PipelineSpec o-- Transformation
-
-RegularizeSample ..|> Transformation
-StretchSample ..|> Transformation
-UntwistSample ..|> Transformation
-RotateSample ..|> Transformation
-CylindricalMaskSample ..|> Transformation
-EmptySpaceTrimSample ..|> Transformation
-AxisCropSample ..|> Transformation
-RegisterAtlasToSample ..|> Transformation
-ClearVolume --|> ClearData
-ClearPoints --|> ClearData
-SpinalCenterline --|> ClearPoints
-Atlas ..|> ClearData
-
-Transformation ..> SampleBatch
-
-PipelineRunner ..> PipelineSpec
-PipelineRunner ..> SampleBatch
-
-DataLoader ..> SampleBatch
-DataDownloader ..> SampleBatch
 @enduml
