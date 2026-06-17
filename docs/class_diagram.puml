@@ -262,15 +262,26 @@ package "Adapters" {
     !endif
 
 
-    class DataConverter {
+    class DataConverter <<implemented>> {
         + source: Source
-        + pipeline_id: int
-        + step_id: int
-        + file_type: str
-        - batch_path: Path
-        + convert_batch() -> Path
+
+        + convert_batch(pipeline_id: int, step_id: int, out_file_type: str) -> Path
     }
     DataConverter --> Source
+
+    class HDF5_to_Nii <<implemented>> {
+        + source: Source
+
+        + convert_batch(batch: SampleBatch, step_path: Path) -> list[Path]
+        - _convert_volume(volume: ClearVolume, step_path: Path) -> Path
+        - convert_atlas(atlas: Atlas, step_path: Path) -> Path
+    }
+    HDF5_to_Nii --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    HDF5_to_Nii ..> SampleBatch
+    HDF5_to_Nii ..> Atlas
+    HDF5_to_Nii ..> ClearVolume
+    !endif
 
 
     class ClearIO <<implemented>> {
