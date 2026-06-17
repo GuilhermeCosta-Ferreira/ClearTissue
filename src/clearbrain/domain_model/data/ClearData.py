@@ -1,6 +1,7 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+from typing import Self
 from numpy.typing import NDArray
 from dataclasses import dataclass, replace
 
@@ -27,7 +28,7 @@ class ClearData:
             unit: tuple[str, str, str] | None = None,
             orientation: str | None = None,
             tissue_type: TissueType | None = None,
-        ) -> "ClearData":
+        ) -> Self:
             return replace(
                 self,
                 data=self.data if data is None else data,
