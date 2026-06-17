@@ -114,7 +114,7 @@ package "Domain Model" {
         OrientSample ..|> Transformation
 
 
-        class StretchSample <<planned>>{
+        class StretchSample <<implemented>>{
             + smooth_centerline_window: int
             - get_centerline(tissue: ClearVolume): SpinalCenterline
             - stretch_volume(data: ClearVolume): ClearVolume
