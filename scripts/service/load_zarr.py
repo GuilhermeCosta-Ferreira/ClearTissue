@@ -87,7 +87,7 @@ if __name__ == '__main__':
     resolution = root.metadata.attributes["multiscales"][0]["datasets"][TARGET_RESOLUTION_POSITION]['coordinateTransformations'][0]["scale"]
 
     arr = cast(np.ndarray, root["level_03"])
-    tissue_volume = np.where(arr[:, :, :] > 20, arr[:, :, :], 0).astype(np.uint16)
+    tissue_volume = np.where(arr[:, :, :] > 50, arr[:, :, :], 0).astype(np.uint16)
     tissue_raw = ClearVolume(
         data = tissue_volume,
         resolution = resolution,

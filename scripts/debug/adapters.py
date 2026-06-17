@@ -1,9 +1,12 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+import numpy as np
+from matplotlib import pyplot as plt
+
 from clearbrain.domain_model.data import TissueType
 from clearbrain.service.ClearTissueProject import ClearTissueProject
-from clearbrain.domain_model.transformations import RegularizeSample, OrientSample
+from clearbrain.domain_model.transformations import RegularizeSample, OrientSample, StretchSample
 
 
 
@@ -26,6 +29,7 @@ if __name__ == '__main__':
     pipeline.add_list([
         RegularizeSample(),
         OrientSample(),
+        StretchSample(smooth_window_size=35),
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
