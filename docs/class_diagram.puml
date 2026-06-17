@@ -104,12 +104,17 @@ package "Domain Model" {
         class RegularizeSample <<implemented>>{
             - convert_points(points: ClearPoints): ClearVolume
             - convert_atlas(atlas: ClearVolume): ClearVolume
-            - conevrt_orientation(data: ClearVolume): ClearVolume
         }
         RegularizeSample ..|> Transformation
 
 
-        class StretchSample {
+        class OrientSample <<implemented>>{
+            - orient_volume(clear_volume: ClearVolume, orientation: str): ClearVolume
+        }
+        OrientSample ..|> Transformation
+
+
+        class StretchSample <<planned>>{
             + smooth_centerline_window: int
             - get_centerline(tissue: ClearVolume): SpinalCenterline
             - stretch_volume(data: ClearVolume): ClearVolume
@@ -117,7 +122,7 @@ package "Domain Model" {
         StretchSample ..|> Transformation
 
 
-        class UntwistSample {
+        class UntwistSample <<planned>>{
             + untwist_registrator: Registrator
             + window_size: int
             + gap_size: int
@@ -128,21 +133,21 @@ package "Domain Model" {
         UntwistSample --> Registrator
 
 
-        class RotateSample {
+        class RotateSample <<planned>>{
             + rotation_angle: float
             - rotate_spinal_cord(data: ClearVolume)
         }
         RotateSample ..|> Transformation
 
 
-        class CylindricalMaskSample {
+        class CylindricalMaskSample <<planned>>{
             + margin: int
             - clear_external_points(data: ClearVolume)
         }
         CylindricalMaskSample ..|> Transformation
 
 
-        class EmptySpaceTrimSample {
+        class EmptySpaceTrimSample <<planned>>{
             + crop_params: CropParams
             - crop_excess(data: ClearVolume)
         }
@@ -150,7 +155,7 @@ package "Domain Model" {
         EmptySpaceTrimSample --> CropParams
 
 
-        class AxisCropSample {
+        class AxisCropSample <<planned>>{
             + start_slice: int
             + end_slice: int
             + axis: int
@@ -159,7 +164,7 @@ package "Domain Model" {
         AxisCropSample ..|> Transformation
 
 
-        class RegisterAtlasToSample {
+        class RegisterAtlasToSample <<planned>>{
             + max_retries: int
             + affine_registrator: Registrator
             + warp_registrator: Registrator
@@ -311,7 +316,7 @@ package "Service Layer" {
     PipelineSpec o-- Transformation
 
 
-    class PipelineRunner <<partial>>{
+    class PipelineRunner <<implemented>>{
         + io: ClearIO
         + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
     }
@@ -322,7 +327,7 @@ package "Service Layer" {
     !endif
 
 
-    class ClearTissueProject <<partial>>{
+    class ClearTissueProject <<implemented>>{
         + source: Source,
         + clear_io: ClearIO,
         + runner: PipelineRunner,
