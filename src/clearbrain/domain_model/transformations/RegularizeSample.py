@@ -5,7 +5,7 @@ import numpy as np
 
 from dataclasses import dataclass
 
-from .AbstractTransformations import AbstractTransformations
+from .AbstractTransformations import AbstractTransformation
 from ..data import ClearVolume, SampleBatch, Atlas, ClearPoints
 from .utils import scale_points, get_points_as_volume, resample_to_isotropic
 
@@ -15,7 +15,7 @@ from .utils import scale_points, get_points_as_volume, resample_to_isotropic
 # 1. Section: Functions
 # ================================================================
 @dataclass
-class RegularizeSample(AbstractTransformations):
+class RegularizeSample(AbstractTransformation):
     def apply(self, batch: SampleBatch) -> SampleBatch:
         if np.unique(batch.tissue.resolution).size != 1:
             raise ValueError(f"Tissue should be isotropic, right now it is {batch.tissue.resolution}")

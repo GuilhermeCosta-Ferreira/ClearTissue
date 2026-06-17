@@ -11,7 +11,7 @@ from ...data import ClearVolume, TissueType, SpinalCenterline
 # 1. Section: Functions
 # ================================================================
 def get_centerline(
-    tissue: ClearVolume, momentum: float = 0.0
+    tissue: ClearVolume, momentum: float = 0.25
 ) -> SpinalCenterline:
     # A. Makes sure we only apply this to a spinal coord
     if tissue.tissue_type != TissueType.SPINAL_CORD:

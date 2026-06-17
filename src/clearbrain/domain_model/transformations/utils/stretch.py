@@ -56,7 +56,7 @@ def _perpendicular_plane_basis(direction: np.ndarray):
         return None, None
 
     # Prefer x-axis as one in-plane axis
-    ref = np.array([1.0, 0.0, 0.0])
+    ref = np.array([0.0, 1.0, 0.0])
 
     # Project ref onto the plane perpendicular to normal
     u = ref - np.dot(ref, normal) * normal

@@ -1,11 +1,11 @@
-from .AbstractTransformations import AbstractTransformations
+from .AbstractTransformations import AbstractTransformation
 from .RegularizeSample import RegularizeSample
 from .OrientSample import OrientSample
 from .StretchSample import StretchSample
 
 
 __all__ = [
-    "AbstractTransformations",
+    "AbstractTransformation",
     "RegularizeSample",
     "OrientSample",
     "StretchSample",

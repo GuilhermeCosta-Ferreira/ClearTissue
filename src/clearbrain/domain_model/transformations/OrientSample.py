@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 
 from ..data import SampleBatch, ClearVolume
-from .AbstractTransformations import AbstractTransformations
+from .AbstractTransformations import AbstractTransformation
 from .utils import reorient_array, reorient_tuple
 
 
@@ -13,7 +13,7 @@ from .utils import reorient_array, reorient_tuple
 # 1. Section: Functions
 # ================================================================
 @dataclass
-class OrientSample(AbstractTransformations):
+class OrientSample(AbstractTransformation):
     def apply(self, batch: SampleBatch) -> SampleBatch:
         target_orientation = batch.atlas.orientation
 

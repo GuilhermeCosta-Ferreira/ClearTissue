@@ -12,6 +12,6 @@ from ..data import SampleBatch
 # 1. Section: Functions
 # ================================================================
 @dataclass
-class AbstractTransformations(ABC):
+class AbstractTransformation(ABC):
     def apply(self, batch: SampleBatch) -> SampleBatch:
         raise NotImplementedError()
