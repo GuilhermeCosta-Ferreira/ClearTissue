@@ -49,7 +49,7 @@ class RegularizeSample(AbstractTransformations):
         return ClearVolume(
             data=points_as_volume,
             resolution=tissue.resolution,
-            unit=tissue.unit,
-            orientation=tissue.orientation,
-            tissue_type=tissue.tissue_type,
+            unit=points.unit,
+            orientation=points.orientation,
+            tissue_type=points.tissue_type,
         )
