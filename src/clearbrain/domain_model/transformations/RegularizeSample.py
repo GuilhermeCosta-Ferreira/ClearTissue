@@ -42,7 +42,7 @@ class RegularizeSample(AbstractTransformations):
         if isinstance(points, ClearVolume):
             return points
 
-        scaling_factor = np.round(np.asarray(tissue.resolution) / np.asarray(points.resolution), 5)
+        scaling_factor = np.round(np.asarray(points.resolution) / np.asarray(tissue.resolution), 5)
         scaled_points = scale_points(points.data, scaling_factor)
         points_as_volume = get_points_as_volume(scaled_points, tissue.shape)
 
