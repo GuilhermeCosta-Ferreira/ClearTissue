@@ -29,7 +29,7 @@ TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 TARGET_RESOLUTION: str = "level_03"
 TARGET_RESOLUTION_POSITION: int = -1
 UNIT: str = "um"
-ORIENTATION: str = "psl"
+ORIENTATION: str = "sal"
 
 
 

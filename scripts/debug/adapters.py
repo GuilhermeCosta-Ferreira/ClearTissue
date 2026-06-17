@@ -2,8 +2,8 @@
 # 0. Section: IMPORTS
 # ================================================================
 from clearbrain.domain_model.data import TissueType
-from clearbrain.domain_model.transformations import RegularizeSample
 from clearbrain.service.ClearTissueProject import ClearTissueProject
+from clearbrain.domain_model.transformations import RegularizeSample, OrientSample
 
 
 
@@ -23,6 +23,9 @@ if __name__ == '__main__':
 
     pipeline = project.init_pipeline()
 
-    pipeline.add_step(RegularizeSample())
+    pipeline.add_list([
+        RegularizeSample(),
+        OrientSample(),
+    ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
