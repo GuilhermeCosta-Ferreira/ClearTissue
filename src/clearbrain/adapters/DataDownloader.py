@@ -50,6 +50,7 @@ class DataDownloader:
             f.attrs["unit"] = json.dumps(tissue.unit)
             f.attrs["orientation"] = tissue.orientation
             f.attrs["tissue_type"] = tissue.tissue_type.name
+            f.attrs["class_name"] = tissue.__class__.__name__
 
         return file_path
 
@@ -87,7 +88,7 @@ class DataDownloader:
             f.attrs["unit"] = json.dumps(atlas.unit)
             f.attrs["orientation"] = atlas.orientation
             f.attrs["tissue_type"] = atlas.tissue_type.name
-            f.attrs["class"] = atlas.__class__.__name__
+            f.attrs["class_name"] = atlas.__class__.__name__
             f.attrs["look_up_format"] = "json_records"
 
         return file_path
@@ -111,6 +112,6 @@ class DataDownloader:
             f.attrs["unit"] = json.dumps(cells.unit)
             f.attrs["orientation"] = cells.orientation
             f.attrs["tissue_type"] = cells.tissue_type.name
-            f.attrs["class"] = cells.__class__.__name__
+            f.attrs["class_name"] = cells.__class__.__name__
 
         return file_path

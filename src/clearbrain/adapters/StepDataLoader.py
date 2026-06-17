@@ -81,10 +81,7 @@ class StepDataLoader:
         step_path = self.source.step_path(pipeline_id, step_id)
         file_path = step_path / f"{self.source.atlas_name}.hdf5"
         with h5py.File(file_path, "r") as f:
-            look_up_json = f["look_up"]
-
-            if isinstance(look_up_json, bytes):
-                look_up_json = f["look_up"].asstr()[()]  # type: ignore
+            look_up_json = f["look_up"].asstr()[()]  # type: ignore
 
             return Atlas(
                 data = np.asarray(f["data"]),
