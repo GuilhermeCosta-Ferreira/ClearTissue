@@ -2,6 +2,8 @@ from .scale_points import scale_points
 from .points_to_volume import get_points_as_volume
 from .resample_volume import resample_to_isotropic
 from .orientation import reorient_array, reorient_tuple
+from .centerline import get_centerline
+from .stretch import stretch_tissue
 
 
 __all__ = [
@@ -10,4 +12,6 @@ __all__ = [
     "resample_to_isotropic",
     "reorient_array",
     "reorient_tuple",
+    "get_centerline",
+    "stretch_tissue",
 ]

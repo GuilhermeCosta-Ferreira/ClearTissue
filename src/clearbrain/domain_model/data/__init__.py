@@ -4,6 +4,7 @@ from .ClearVolume import ClearVolume
 from .ClearPoints import ClearPoints
 from .Atlas import Atlas
 from .TissueType import TissueType
+from .SpinalCenterline import SpinalCenterline
 
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "Atlas",
     "ClearPoints",
     "TissueType",
+    "SpinalCenterline",
 ]
