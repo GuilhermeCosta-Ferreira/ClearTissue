@@ -222,6 +222,32 @@ package "Domain Model" {
             class Registrator <<external>>
         }
     }
+
+    package "Execution Metadata"{
+        class StepSignature <<implemented>> {
+            + step_name: str
+            + params_hash: str
+            + input_hash: str
+            + code_hash: str
+            + value: str
+        }
+
+        class StepManifest <<implemented>> {
+            + pipeline_id: int
+            + step_id: int
+            + step_name: str
+            + signature: str
+            + status: StepStatus
+            + source_pipeline_id: int | None
+            + source_step_id: int | None
+        }
+        StepManifest --> StepStatus
+
+        enum StepStatus <<implemented>> {
+            + MATERIALIZED
+            + REDIRECT
+        }
+    }
 }
 
 package "Adapters" {
@@ -292,11 +318,11 @@ package "Adapters" {
     class DataDownloader <<implemented>>{
         + source: Source
 
-        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int): Path
 
-        - _download_tissue(tissue: ClearVolume, pipeline_id: int, step_id: int) -> Path
-        - _download_cells(cells: ClearPoints, pipeline_id: int, step_id: int) -> Path
-        - _download_atlas(atlas: Atlas, pipeline_id: int, step_id: int) -> Path
+        - _download_tissue(tissue: ClearVolume, pipeline_id: int, step_id: int): Path
+        - _download_cells(cells: ClearPoints, pipeline_id: int, step_id: int): Path
+        - _download_atlas(atlas: Atlas, pipeline_id: int, step_id: int): Path
     }
     DataDownloader --> Source
     !if ($SHOW_DEPENDENCIES == 1)
@@ -314,9 +340,9 @@ package "Adapters" {
     class HDF5_to_Nii <<implemented>> {
         + source: Source
 
-        + convert_batch(batch: SampleBatch, step_path: Path) -> list[Path]
-        - _convert_volume(volume: ClearVolume, step_path: Path) -> Path
-        - convert_atlas(atlas: Atlas, step_path: Path) -> Path
+        + convert_batch(batch: SampleBatch, step_path: Path): list[Path]
+        - _convert_volume(volume: ClearVolume, step_path: Path): Path
+        - convert_atlas(atlas: Atlas, step_path: Path): Path
     }
     HDF5_to_Nii --> Source
     !if ($SHOW_DEPENDENCIES == 1)
@@ -329,14 +355,18 @@ package "Adapters" {
     class ClearIO <<implemented>> {
         + source: Source
 
-        - loader: DataLoader
-        - downloader: DataDownloader
-        - pipeline_repo: PipelineConfigRepository
+        - _loader: DataLoader
+        - _downloader: DataDownloader
+        - _pipeline_repo: PipelineConfigRepository
+        - _step_manifest_repo: StepManifestRepository
 
-        + load_raw() -> SampleBatch
-        + load_batch(pipeline_id: int, step_id: int) -> SampleBatch
-        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
-        + load_config(pipeline_id: int) -> PipelineConfig
+        + load_raw(): SampleBatch
+        + load_batch(pipeline_id: int, step_id: int): SampleBatch
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int): Path
+        + load_config(pipeline_id: int): PipelineConfig
+        + find_reusable_step(signature: StepSignature): StepManifest | None
+        + save_step_manifest(pipeline_id: int, step_id: int, step_name: str, signature: str, status: str): None
+        + save_redirect(pipeline_id: int, step_id: int, source_pipeline_id: int, source_step_id: int, signature: str): None
     }
     ClearIO --> Source
     ClearIO --> DataLoader
@@ -358,6 +388,19 @@ package "Adapters" {
     !if ($SHOW_DEPENDENCIES == 1)
     PipelineConfigRepository ..> PipelineConfig
     !endif
+
+    class StepManifestRepository <<implemented>> {
+        + source: Source
+
+        + load_manifest(pipeline_id: int, step_id: int): StepManifest
+        + save_manifest(manifest: StepManifest): None
+        + find_by_signature(signature: str): StepManifest | None
+        + resolve_redirect(pipeline_id: int, step_id: int): StepManifest
+    }
+    StepManifestRepository --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepManifestRepository ..> StepStatus
+    !endif
 }
 
 package "Service Layer" {
@@ -378,9 +421,11 @@ package "Service Layer" {
 
     class PipelineRunner <<implemented>>{
         + io: ClearIO
+        + signature_builder: StepSignatureBuilder
         + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
     }
     PipelineRunner --> ClearIO
+    PipelineRunner --> StepSignatureBuilder
     !if ($SHOW_DEPENDENCIES == 1)
     PipelineRunner ..> PipelineSpec
     PipelineRunner ..> SampleBatch
@@ -402,6 +447,15 @@ package "Service Layer" {
     !if ($SHOW_DEPENDENCIES == 1)
     ClearTissueProject ..> SampleBatch
     ClearTissueProject ..> PipelineSpec
+    !endif
+
+    class StepSignatureBuilder <<implemented>> {
+        + build(step: Type[Transformation], params: dict, input_batch: SampleBatch): StepSignature
+    }
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepSignatureBuilder ..> SampleBatch
+    StepSignatureBuilder ..> Transformation
+    StepSignatureBuilder ..> StepSignature
     !endif
 }
 @enduml
