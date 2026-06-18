@@ -22,7 +22,7 @@ if __name__ == '__main__':
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("debug the new config")
+    pipeline = project.init_pipeline("Cache versions")
 
     input("Setup the config. Press enter when ready")
 
