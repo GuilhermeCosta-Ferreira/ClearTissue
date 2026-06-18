@@ -5,7 +5,7 @@ from .orientation import reorient_array, reorient_tuple
 from .centerline import get_centerline
 from .stretch import stretch_tissue
 from .untwist import untwist_spinal_coord, apply_know_untwisting
-
+from .rotate import rotate_spinal_cord
 
 __all__ = [
     "scale_points",
@@ -17,4 +17,5 @@ __all__ = [
     "stretch_tissue",
     "untwist_spinal_coord",
     "apply_know_untwisting",
+    "rotate_spinal_cord",
 ]

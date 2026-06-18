@@ -20,6 +20,7 @@ _UNSET = object()
 # ================================================================
 @dataclass
 class RegistrationConfig:
+    seed: int = 7
     transform_center: int = 1  # 1 is Moments
     metric: MetricConfig = field(default_factory=MetricConfig)
     optimizer: OptimizerConfig = field(default_factory=OptimizerConfig)
@@ -31,6 +32,7 @@ class RegistrationConfig:
     @classmethod
     def from_dict(cls, data: dict) -> "RegistrationConfig":
         return cls(
+            seed=data.get("seed", 7),
             transform_center=data.get("transform_center", 1),
             metric=MetricConfig.from_dict(data.get("MetricConfig", {})),
             optimizer=OptimizerConfig.from_dict(data.get("OptimizerConfig", {})),
@@ -41,6 +43,7 @@ class RegistrationConfig:
     def copy_with(
         self,
         *,
+        seed: int | object = _UNSET,
         transform_center: int | object = _UNSET,
         metric: MetricConfig | object = _UNSET,
         optimizer: OptimizerConfig | object = _UNSET,
@@ -49,6 +52,7 @@ class RegistrationConfig:
     ) -> Self:
         return replace(
             self,
+            seed=self.seed if seed is _UNSET else seed,
             transform_center=(
                 self.transform_center
                 if transform_center is _UNSET
@@ -69,6 +73,7 @@ class RegistrationConfig:
         )
 
     def with_overrides(self, data: dict[str, Any]) -> Self:
+        seed = data.get("seed", _UNSET)
         transform_center = data.get("transform_center", _UNSET)
 
         metric = (
@@ -96,6 +101,7 @@ class RegistrationConfig:
         )
 
         return self.copy_with(
+            seed=seed,
             transform_center=transform_center,
             metric=metric,
             optimizer=optimizer,

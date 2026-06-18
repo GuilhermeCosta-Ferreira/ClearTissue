@@ -27,6 +27,7 @@ UntwistSample:
   window_size: 250
   gap_size: 0
   tissue_registrator_params:
+    seed: 7
     MetricConfig:
       name: CC
       sampling_percentage: 1
