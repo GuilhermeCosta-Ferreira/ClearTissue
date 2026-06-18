@@ -122,8 +122,9 @@ package "Domain Model" {
         StretchSample ..|> Transformation
 
 
-        class UntwistSample <<planned>>{
-            + untwist_registrator: Registrator
+        class UntwistSample <<implemented>>{
+            + tissue_registrator: Registrator
+            + cell_registrator: Registrator
             + window_size: int
             + gap_size: int
             - untwist_spinal_coord(tissue: ClearVolume): ClearVolume
