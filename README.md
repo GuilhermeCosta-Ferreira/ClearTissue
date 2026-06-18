@@ -12,4 +12,4 @@ This is a tool box to help with your clear tissue analysis, making whole tissue 
 ## Architecture
 The current architecture of this package is described in the following claqss UML:
 
-![image](images/class_uml.png)
+![image](docs/class_diagram.png)
