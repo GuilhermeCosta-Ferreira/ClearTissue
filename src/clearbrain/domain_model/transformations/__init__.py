@@ -2,6 +2,7 @@ from .AbstractTransformations import AbstractTransformation
 from .RegularizeSample import RegularizeSample
 from .OrientSample import OrientSample
 from .StretchSample import StretchSample
+from .UntwistSample import UntwistSample
 
 
 __all__ = [
@@ -9,4 +10,5 @@ __all__ = [
     "RegularizeSample",
     "OrientSample",
     "StretchSample",
+    "UntwistSample",
 ]

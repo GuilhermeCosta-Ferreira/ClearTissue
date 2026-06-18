@@ -4,6 +4,7 @@ from .resample_volume import resample_to_isotropic
 from .orientation import reorient_array, reorient_tuple
 from .centerline import get_centerline
 from .stretch import stretch_tissue
+from .untwist import untwist_spinal_coord, apply_know_untwisting
 
 
 __all__ = [
@@ -14,4 +15,6 @@ __all__ = [
     "reorient_tuple",
     "get_centerline",
     "stretch_tissue",
+    "untwist_spinal_coord",
+    "apply_know_untwisting",
 ]
