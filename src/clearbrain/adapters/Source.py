@@ -54,5 +54,8 @@ class Source:
     def pipeline_path(self, pipeline_id: int) -> Path:
         return self.folder_path / f"pipeline_{standard_numeric_id(pipeline_id, 2)}"
 
+    def pipeline_config_path(self, pipeline_id: int) -> Path:
+        return self.pipeline_path(pipeline_id) / "config.yaml"
+
     def step_path(self, pipeline_id: int, step: int) -> Path:
         return self.pipeline_path(pipeline_id) / f"step_{step}"

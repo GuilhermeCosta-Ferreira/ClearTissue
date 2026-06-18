@@ -90,8 +90,11 @@ class ClearTissueProject:
         return PipelineSpecs(pipeline_name=pipeline_name, pipeline_id=pipeline_id)
 
     def run_pipeline(self, pipeline: PipelineSpecs, batch: SampleBatch, save_intermediates: bool = True) -> SampleBatch:
+        pipeline_config = self.io.load_pipeline_config(pipeline.pipeline_id)
+
         return self.runner.run(
             batch=batch,
             pipeline=pipeline,
+            config=pipeline_config,
             save_intermediates=save_intermediates,
         )

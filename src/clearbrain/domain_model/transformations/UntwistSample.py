@@ -3,10 +3,10 @@
 # ================================================================
 from dataclasses import dataclass
 
-from ...registration import Registrator
 from ..data import SampleBatch, ClearVolume
 from .AbstractTransformations import AbstractTransformation
 from .utils import untwist_spinal_coord, apply_know_untwisting
+from ...registration import Registrator, RegistrationConfig, RigidRegistration, RegistratorResampler
 
 
 
@@ -15,10 +15,27 @@ from .utils import untwist_spinal_coord, apply_know_untwisting
 # ================================================================
 @dataclass
 class UntwistSample(AbstractTransformation):
-    tissue_registrator: Registrator
-    cell_registrator: Registrator
+    tissue_registrator_params: dict
+    cell_registrator_params: dict
     window_size: int
     gap_size: int
+
+    def __post_init__(self):
+        self.tissue_registrator_config = RegistrationConfig.from_dict(self.tissue_registrator_params)
+        self.cell_registrator_config = self.tissue_registrator_config.with_overrides(self.cell_registrator_params)
+
+        self.tissue_registrator = Registrator(
+            strategy = RigidRegistration(),
+            resampler=RegistratorResampler(),
+            config = self.tissue_registrator_config,
+        )
+        self.cell_registrator = Registrator(
+            strategy = RigidRegistration(),
+            resampler=RegistratorResampler(),
+            config = self.cell_registrator_config,
+        )
+
+
 
     def apply(self, batch: SampleBatch) -> SampleBatch:
         untwisted_tissue, twisting_data = untwist_spinal_coord(
