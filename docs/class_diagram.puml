@@ -90,6 +90,42 @@ package "Domain Model" {
         }
     }
 
+    package "Config" {
+    class PipelineConfig <<implemented>> {
+        + config: Mapping[str, Any]
+        {static} + RESERVED_KEYS: set[str]
+
+        + mouse: str
+        + tissue_type: str
+        + pipeline_id: int
+        + pipeline_name: str
+
+        + drive_root: str
+        + zarr_path: str
+
+        + step_names: list[str]
+
+        + __post_init__(): None
+        + validate(): None
+
+        + has_step(step_name: str): bool
+        + step_params(step_name: str): dict[str, Any]
+        + step_config(step_name: str): StepConfig
+        + step_configs(ordered_step_names: list[str]): list[StepConfig]
+        + to_dict(): dict[str, Any]
+
+        - _require_key(key: str): None
+    }
+    PipelineConfig o-- StepConfig
+
+    class StepConfig <<implemented>> {
+        + name: str
+        + enabled: bool
+        + parameters: dict
+    }
+}
+
+
 
 
     package "Transformations"{
@@ -172,19 +208,19 @@ package "Domain Model" {
             - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
         }
         RegisterAtlasToSample ..|> Transformation
-    }
 
-    class CropParams {
-        + z_crop: tuple
-        + y_crop: tuple
-        + x_crop: tuple
-        + source_shape: tuple[int, int, int]
-    }
+        class CropParams <<planned>>{
+            + z_crop: tuple
+            + y_crop: tuple
+            + x_crop: tuple
+            + source_shape: tuple[int, int, int]
+        }
 
-    note "<b>RegularizeSample:</b> Responsible to make sure everything\nhas the same resolution and orientation" as N1
+        note "<b>RegularizeSample:</b> Responsible to make sure everything\nhas the same resolution and orientation" as N1
 
-    package "Registration module" <<external>> {
-        class Registrator <<external>>
+        package "Registrator" <<external>> {
+            class Registrator <<external>>
+        }
     }
 }
 
@@ -295,26 +331,49 @@ package "Adapters" {
 
         - loader: DataLoader
         - downloader: DataDownloader
+        - pipeline_repo: PipelineConfigRepository
 
         + load_raw() -> SampleBatch
         + load_batch(pipeline_id: int, step_id: int) -> SampleBatch
         + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int) -> Path
+        + load_config(pipeline_id: int) -> PipelineConfig
     }
     ClearIO --> Source
     ClearIO --> DataLoader
     ClearIO --> DataDownloader
+    ClearIO --> PipelineConfigRepository
+    !if ($SHOW_DEPENDENCIES == 1)
+    ClearIO ..> PipelineConfig
+    ClearIO ..> SampleBatch
+    !endif
+
+
+    class PipelineConfigRepository <<partial>> {
+        + source: Source
+
+        + load_config(pipeline_id: int): PipelineConfig
+        + update_config(pipeline_id: int, config: PipelineConfig): None
+    }
+    PipelineConfigRepository --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    PipelineConfigRepository ..> PipelineConfig
+    !endif
 }
 
 package "Service Layer" {
     class PipelineSpec <<implemented>>{
         + pipeline_id: int
-        + steps: list[Transformation]
-        + add_step(step: Transformation): None
-        + insert_step(index: int, step: Transformation): None
+        + pipeline_name: str
+        + steps: list[Type[AbstractTransformation]]
+        + config: PipelineConfig
+
+        + add_step(step: Type[AbstractTransformation]): None
+        + insert_step(index: int, step: Type[AbstractTransformation]): None
         + remove_step(index: int): None
         + clear(): None
     }
     PipelineSpec o-- Transformation
+    PipelineSpec --> PipelineConfig
 
 
     class PipelineRunner <<implemented>>{
