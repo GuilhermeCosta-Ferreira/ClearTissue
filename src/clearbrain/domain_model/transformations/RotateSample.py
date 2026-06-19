@@ -15,10 +15,10 @@ from .AbstractTransformations import AbstractTransformation
 @dataclass
 class RotateSample(AbstractTransformation):
     def apply(self, batch: SampleBatch) -> SampleBatch:
-        rotated_tissue, angle = rotate_spinal_cord(batch.tissue)
+        rotated_tissue, angle = rotate_spinal_cord(batch.tissue, batch.atlas)
 
         if isinstance(batch.cells, ClearVolume):
-            rotated_cells, _ = rotate_spinal_cord(batch.cells, angle)
+            rotated_cells, _ = rotate_spinal_cord(batch.cells, angle=angle)
         else:
             raise TypeError(f"Expected ClearVolume, got {type(batch.cells)}")
 

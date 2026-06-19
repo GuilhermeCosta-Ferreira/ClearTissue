@@ -3,6 +3,7 @@ from .RegularizeSample import RegularizeSample
 from .OrientSample import OrientSample
 from .StretchSample import StretchSample
 from .UntwistSample import UntwistSample
+from .RotateSample import RotateSample
 
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "OrientSample",
     "StretchSample",
     "UntwistSample",
+    "RotateSample",
 ]
