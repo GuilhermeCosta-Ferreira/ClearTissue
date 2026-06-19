@@ -5,6 +5,7 @@ from .StretchSample import StretchSample
 from .UntwistSample import UntwistSample
 from .RotateSample import RotateSample
 from .CylindricalMaskSample import CylindricalMaskSample
+from .EmptySpaceTrimSample import EmptySpaceTrimSample
 
 
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "UntwistSample",
     "RotateSample",
     "CylindricalMaskSample",
+    "EmptySpaceTrimSample",
 ]

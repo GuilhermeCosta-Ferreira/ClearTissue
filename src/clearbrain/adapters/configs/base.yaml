@@ -64,6 +64,8 @@ RotateSample: {}
 
 CylindricalMaskSample: {}
 
+EmptySpaceTrimSample: {}
+
 # ================================================================
 # 4. Section: ATLAS REGISTRATION
 # ================================================================
