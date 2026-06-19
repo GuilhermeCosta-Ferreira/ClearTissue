@@ -208,6 +208,14 @@ package "Domain Model" {
         }
         NaiveAtlasRegistration ..|> Transformation
 
+        class SizeMatchedAtlasRegistration <<partial>> {
+            + max_retries: int
+            + affine_registrator: Registrator
+            + warp_registrator: Registrator
+            - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
+        }
+        SizeMatchedAtlasRegistration ..|> Transformation
+
         class CropParams <<implemented>>{
             + z_crop: tuple
             + y_crop: tuple
