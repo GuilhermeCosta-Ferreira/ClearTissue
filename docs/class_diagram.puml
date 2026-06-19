@@ -208,7 +208,8 @@ package "Domain Model" {
         }
         NaiveAtlasRegistration ..|> Transformation
 
-        class SizeMatchedAtlasRegistration <<partial>> {
+        class SizeMatchedAtlasRegistration <<implemented>> {
+            + preferred_direction: Literal["horizontal", "vertical"]
             + max_retries: int
             + affine_registrator: Registrator
             + warp_registrator: Registrator
