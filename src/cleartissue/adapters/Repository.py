@@ -19,7 +19,7 @@ class Repository:
     source: Source
 
     _pipeline_base_name: str = "pipeline"
-    _config_path: Path = Path("src/clearbrain/adapters/configs/base.yaml")
+    _config_path: Path = Path("src/cleartissue/adapters/configs/base.yaml")
 
 
 

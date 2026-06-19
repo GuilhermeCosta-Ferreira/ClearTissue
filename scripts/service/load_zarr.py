@@ -9,9 +9,9 @@ from typing import cast
 from pathlib import Path
 from numpy.typing import NDArray
 
-from clearbrain.domain_model.data import TissueType, ClearVolume
-from clearbrain.adapters.DataDownloader import DataDownloader
-from clearbrain.adapters.Source import Source
+from cleartissue.domain_model.data import TissueType, ClearVolume
+from cleartissue.adapters.DataDownloader import DataDownloader
+from cleartissue.adapters.Source import Source
 
 
 

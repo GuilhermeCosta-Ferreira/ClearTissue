@@ -1,9 +1,9 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from clearbrain.domain_model.data import TissueType
-from clearbrain.service.ClearTissueProject import ClearTissueProject
-import clearbrain.domain_model.transformations as tr
+from cleartissue.domain_model.data import TissueType
+from cleartissue.service.ClearTissueProject import ClearTissueProject
+import cleartissue.domain_model.transformations as tr
 
 
 

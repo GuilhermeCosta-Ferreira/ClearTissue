@@ -10,8 +10,8 @@ from dataclasses import dataclass, field
 from brainglobe_atlasapi import BrainGlobeAtlas
 from tqdm import tqdm
 
-from clearbrain.tissue import TissueType, ClearVolume
-from clearbrain.data import TissueLoader, TissueSource
+from cleartissue.tissue import TissueType, ClearVolume
+from cleartissue.data import TissueLoader, TissueSource
 
 
 

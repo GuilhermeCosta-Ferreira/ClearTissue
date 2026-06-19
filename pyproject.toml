@@ -1,5 +1,5 @@
 [project]
-name = "clearbrain"
+name = "cleartissue"
 version = "0.1.0"
 description = "Everything that is needed to analyse clear brain data"
 authors = [
@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "clearbrain", from = "src"}]
+packages = [{include = "cleartissue", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

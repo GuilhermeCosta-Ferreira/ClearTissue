@@ -5,10 +5,10 @@ from matplotlib import pyplot as plt
 
 from pathlib import Path
 
-from clearbrain.processing import clear_external_points, rotate_spinal_cord, crop_excess, apply_crop_excess, crop_spinal_cord
-from clearbrain.tissue import TissueType
-from clearbrain.data import TissueLoader, TissueSource, TissueDownloader
-from clearbrain.tissue.view import plot_volume_coronal, plot_volume_overview
+from cleartissue.processing import clear_external_points, rotate_spinal_cord, crop_excess, apply_crop_excess, crop_spinal_cord
+from cleartissue.tissue import TissueType
+from cleartissue.data import TissueLoader, TissueSource, TissueDownloader
+from cleartissue.tissue.view import plot_volume_coronal, plot_volume_overview
 
 
 

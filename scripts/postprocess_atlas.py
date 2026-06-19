@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 
 from pathlib import Path
 
-from clearbrain.tissue import TissueType, ClearVolume
-from clearbrain.data import TissueLoader, TissueSource, TissueDownloader
+from cleartissue.tissue import TissueType, ClearVolume
+from cleartissue.data import TissueLoader, TissueSource, TissueDownloader
 
 
 
