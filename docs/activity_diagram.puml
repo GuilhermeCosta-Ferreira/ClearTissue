@@ -1,0 +1,89 @@
+@startuml
+
+skinparam backgroundColor #FFFFFF
+skinparam activity {
+    BackgroundColor #F8F8F8
+    BorderColor #333333
+    FontColor #111111
+}
+skinparam note {
+    BackgroundColor #FFF8DC
+    BorderColor #999999
+}
+
+legend right
+|= Colour |= Meaning |
+|<#D6EAF8> | User command / function call |
+|<#FADBD8> | User manual edit or file placement |
+|<#D5F5E3> | System action |
+|<#F5B7B1> | Error / failed validation |
+|<#FFF8DC> | Artefact note |
+endlegend
+
+|#E8F1FF|User|
+start
+:Run init_project(); <<#D6EAF8>>
+
+|#EAF7EA|System|
+:Create project file system; <<#D5F5E3>>
+:Create raw/ folder; <<#D5F5E3>>
+:Create initial metadata.json; <<#D5F5E3>>
+
+note right
+Created artefacts:
+- raw/
+- metadata.json
+end note
+
+|#E8F1FF|User|
+:Edit metadata.json with tissue specs; <<#FADBD8>>
+:Place extracted tissue volume in raw/; <<#FADBD8>>
+:Place cell detection JSON in raw/; <<#FADBD8>>
+:Edit metadata.json\nwith desired atlas; <<#FADBD8>>
+:Call load_raw(); <<#D6EAF8>>
+
+|#EAF7EA|System|
+:Read metadata.json; <<#D5F5E3>>
+:Validate raw data references; <<#D5F5E3>>
+
+if (Raw data valid?) then (yes)
+    :Load tissue ClearVolume; <<#D5F5E3>>
+    :Load cell detections; <<#D5F5E3>>
+    :Return raw SampleBatch; <<#D5F5E3>>
+else (no)
+    :Raise validation error; <<#F5B7B1>>
+    stop
+endif
+
+|#E8F1FF|User|
+:Run init_pipeline(); <<#D6EAF8>>
+
+|#EAF7EA|System|
+:Create pipeline file system; <<#D5F5E3>>
+
+note right
+Created artefacts:
+- pipeline_XX/
+- pipeline_XX/config.yaml
+end note
+
+|#E8F1FF|User|
+:Edit config.yaml parameters; <<#FADBD8>>
+:Define pipeline specification; <<#FADBD8>>
+:Select processing steps; <<#FADBD8>>
+:Run pipeline; <<#D6EAF8>>
+
+|#EAF7EA|System|
+:Read config.yaml; <<#D5F5E3>>
+:Validate pipeline specification; <<#D5F5E3>>
+
+if (Pipeline spec valid?) then (yes)
+    :Execute selected steps; <<#D5F5E3>>
+    :Save outputs; <<#D5F5E3>>
+else (no)
+    :Raise configuration error; <<#F5B7B1>>
+    stop
+endif
+
+stop
+@enduml

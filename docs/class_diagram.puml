@@ -1,0 +1,461 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor<<implemented>> #D5F5D5
+    BorderColor<<implemented>> #2E7D32
+    FontColor<<implemented>> #1B5E20
+
+    BackgroundColor<<partial>> #FFF3CD
+    BorderColor<<partial>> #B8860B
+    FontColor<<partial>> #7A5600
+
+    BackgroundColor<<planned>> #F8D7DA
+    BorderColor<<planned>> #B02A37
+    FontColor<<planned>> #842029
+
+    BackgroundColor<<external>> #E3F2FD
+    BorderColor<<external>> #1565C0
+    FontColor<<external>> #0D47A1
+}
+
+legend right
+|= Colour |
+|<#D5F5D5> Implemented |
+|<#FFF3CD> Partially implemented |
+|<#F8D7DA> Planned / not implemented |
+|<#E3F2FD> External dependency |
+endlegend
+
+' 0 = hide dependency lines
+' 1 = show dependency lines
+!$SHOW_DEPENDENCIES = 0
+
+package "Domain Model" {
+    package "Data Containers" {
+        class SampleBatch <<implemented>>{
+            + tissue: ClearVolume
+            + cells: ClearVolume | ClearPoints
+            + atlas: Atlas
+
+            + copy_with(): SampleBatch
+        }
+        SampleBatch --> ClearVolume
+        SampleBatch --> ClearPoints
+        SampleBatch --> Atlas
+
+
+        class ClearVolume <<implemented>>{
+            + shape: tuple[int, int, int]
+        }
+        ClearVolume --|> ClearData
+
+
+        class ClearPoints <<implemented>>{
+            + estimated_shape: tuple[int, int, int]
+        }
+        ClearPoints --|> ClearData
+
+
+        class Atlas <<implemented>>{
+            + hemisphere: NDArray
+            + look_up: pd.DataFrame
+
+            + copy_with(): Atlas
+        }
+        Atlas --|> ClearData
+
+
+        abstract class ClearData <<implemented>>{
+            + data: NDArray
+            + resolution: tuple[float, float, float]
+            + unit: tuple[str, str, str]
+            + orientation: str
+            + tissue_type: TissueType
+
+            + copy_with(): ClearData
+        }
+        ClearData --> TissueType
+
+
+        class SpinalCenterline <<implemented>>{
+            + smooth_derivative(smooth_factor: int): NDArray
+        }
+        SpinalCenterline --|> ClearPoints
+
+
+        enum TissueType <<implemented>>{
+            + SPINAL_CORD
+            + BRAIN
+        }
+    }
+
+    package "Config" {
+    class PipelineConfig <<implemented>> {
+        + config: Mapping[str, Any]
+        {static} + RESERVED_KEYS: set[str]
+
+        + mouse: str
+        + tissue_type: str
+        + pipeline_id: int
+        + pipeline_name: str
+
+        + drive_root: str
+        + zarr_path: str
+
+        + step_names: list[str]
+
+        + __post_init__(): None
+        + validate(): None
+
+        + has_step(step_name: str): bool
+        + step_params(step_name: str): dict[str, Any]
+        + step_config(step_name: str): StepConfig
+        + step_configs(ordered_step_names: list[str]): list[StepConfig]
+        + to_dict(): dict[str, Any]
+
+        - _require_key(key: str): None
+    }
+    PipelineConfig o-- StepConfig
+
+    class StepConfig <<implemented>> {
+        + name: str
+        + enabled: bool
+        + parameters: dict
+    }
+}
+
+
+
+
+    package "Transformations"{
+        interface Transformation <<implemented>>{
+            + apply(batch: SampleBatch): SampleBatch
+        }
+        !if ($SHOW_DEPENDENCIES == 1)
+        Transformation ..> SampleBatch
+        !endif
+
+
+        class RegularizeSample <<implemented>>{
+            - convert_points(points: ClearPoints): ClearVolume
+            - convert_atlas(atlas: ClearVolume): ClearVolume
+        }
+        RegularizeSample ..|> Transformation
+
+
+        class OrientSample <<implemented>>{
+            - orient_volume(clear_volume: ClearVolume, orientation: str): ClearVolume
+        }
+        OrientSample ..|> Transformation
+
+
+        class StretchSample <<implemented>>{
+            + smooth_centerline_window: int
+            - get_centerline(tissue: ClearVolume): SpinalCenterline
+            - stretch_volume(data: ClearVolume): ClearVolume
+        }
+        StretchSample ..|> Transformation
+
+
+        class UntwistSample <<implemented>>{
+            + tissue_registrator: Registrator
+            + cell_registrator: Registrator
+            + window_size: int
+            + gap_size: int
+            - untwist_spinal_coord(tissue: ClearVolume): ClearVolume
+            - apply_know_untwisting(cells: ClearVolume): ClearVolume
+        }
+        UntwistSample ..|> Transformation
+        UntwistSample --> Registrator
+
+
+        class RotateSample <<implemented>>{
+            - rotate_spinal_cord(data: ClearVolume, angle: float)
+        }
+        RotateSample ..|> Transformation
+
+
+        class CylindricalMaskSample <<implemented>>{
+            - clear_external_points(data: ClearVolume, margin: int)
+        }
+        CylindricalMaskSample ..|> Transformation
+
+
+        class EmptySpaceTrimSample <<implemented>>{
+            + crop_params: CropParams
+            - crop_excess(data: ClearVolume)
+            - apply_crop(data: ClearVolume, crop_params: CropParams)
+        }
+        EmptySpaceTrimSample ..|> Transformation
+        EmptySpaceTrimSample --> CropParams
+
+
+        class AxisCropSample <<planned>>{
+            + start_slice: int
+            + end_slice: int
+            + axis: int
+            - crop_excess(data: ClearVolume)
+        }
+        AxisCropSample ..|> Transformation
+
+
+        class NaiveAtlasRegistration <<implemented>>{
+            + max_retries: int
+            + affine_registrator: Registrator
+            + warp_registrator: Registrator
+            - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
+        }
+        NaiveAtlasRegistration ..|> Transformation
+
+        class CropParams <<implemented>>{
+            + z_crop: tuple
+            + y_crop: tuple
+            + x_crop: tuple
+            + source_shape: tuple[int, int, int]
+
+            + slices: tuple[slice, slice, slice]
+            + cropped_shape: tuple[int, int, int]
+        }
+
+        package "Registrator" <<external>> {
+            class Registrator <<external>>
+        }
+    }
+
+    package "Execution Metadata"{
+        class StepSignature <<implemented>> {
+            + step_name: str
+            + params_hash: str
+            + input_hash: str
+            + code_hash: str
+            + value: str
+        }
+
+        class StepManifest <<implemented>> {
+            + pipeline_id: int
+            + step_id: int
+            + step_name: str
+            + signature: str
+            + status: StepStatus
+            + source_pipeline_id: int | None
+            + source_step_id: int | None
+        }
+        StepManifest --> StepStatus
+
+        enum StepStatus <<implemented>> {
+            + MATERIALIZED
+            + REDIRECT
+        }
+    }
+}
+
+package "Adapters" {
+    class Source <<implemented>> {
+        + mouse: str
+        + tissue_type: TissueType
+        + base_path: Path
+        + atlas_name: str
+
+        + folder_path: Path
+        + file_base_name: str
+        + raw_path: Path
+    }
+    Source --> TissueType
+
+
+    class Repository <<implemented>> {
+        + source: Source
+
+        - _pipeline_base_name: str
+        - _config_path: Path
+
+        + init_project(): None
+        + init_new_pipleine(pipeline_id: int): None
+    }
+    Repository --> Source
+
+
+    class DataLoader <<implemented>>{
+        + source: Source
+
+        + load_metadata() -> dict
+        + load_raw(): SampleBatch
+        + load_batch(pipeline_id: int, step_id: int): SampleBatch
+    }
+    DataLoader --> Source
+    DataLoader --> RawDataLoader
+    DataLoader --> StepDataLoader
+    !if ($SHOW_DEPENDENCIES == 1)
+    DataLoader ..> SampleBatch
+    !endif
+
+
+    class RawDataLoader <<implemented>>{
+        + load_cells(): ClearPoints
+        + load_atlas(): Atlas
+        + load_tissue(): ClearVolume
+    }
+    !if ($SHOW_DEPENDENCIES == 1)
+    RawDataLoader ..> ClearPoints
+    RawDataLoader ..> ClearVolume
+    RawDataLoader ..> Atlas
+    !endif
+
+
+    class StepDataLoader <<implemented>>{
+        + load_cells(paths: list[Path]): ClearPoints | ClearVolume
+        + load_atlas(paths: list[Path]): Atlas
+        + load_tissue(paths: list[Path]): ClearVolume
+    }
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepDataLoader ..> ClearPoints
+    StepDataLoader ..> ClearVolume
+    StepDataLoader ..> Atlas
+    !endif
+
+
+    class DataDownloader <<implemented>>{
+        + source: Source
+
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int): Path
+
+        - _download_tissue(tissue: ClearVolume, pipeline_id: int, step_id: int): Path
+        - _download_cells(cells: ClearPoints, pipeline_id: int, step_id: int): Path
+        - _download_atlas(atlas: Atlas, pipeline_id: int, step_id: int): Path
+    }
+    DataDownloader --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    DataDownloader ..> SampleBatch
+    !endif
+
+
+    class DataConverter <<implemented>> {
+        + source: Source
+
+        + convert_batch(pipeline_id: int, step_id: int, out_file_type: str) -> Path
+    }
+    DataConverter --> Source
+
+    class HDF5_to_Nii <<implemented>> {
+        + source: Source
+
+        + convert_batch(batch: SampleBatch, step_path: Path): list[Path]
+        - _convert_volume(volume: ClearVolume, step_path: Path): Path
+        - convert_atlas(atlas: Atlas, step_path: Path): Path
+    }
+    HDF5_to_Nii --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    HDF5_to_Nii ..> SampleBatch
+    HDF5_to_Nii ..> Atlas
+    HDF5_to_Nii ..> ClearVolume
+    !endif
+
+
+    class ClearIO <<implemented>> {
+        + source: Source
+
+        - _loader: DataLoader
+        - _downloader: DataDownloader
+        - _pipeline_repo: PipelineConfigRepository
+        - _step_manifest_repo: StepManifestRepository
+
+        + load_raw(): SampleBatch
+        + load_batch(pipeline_id: int, step_id: int): SampleBatch
+        + download_batch(batch: SampleBatch, pipeline_id: int, step_id: int): Path
+        + load_config(pipeline_id: int): PipelineConfig
+        + find_reusable_step(signature: StepSignature): StepManifest | None
+        + save_step_manifest(pipeline_id: int, step_id: int, step_name: str, signature: str, status: str): None
+        + save_redirect(pipeline_id: int, step_id: int, source_pipeline_id: int, source_step_id: int, signature: str): None
+    }
+    ClearIO --> Source
+    ClearIO --> DataLoader
+    ClearIO --> DataDownloader
+    ClearIO --> PipelineConfigRepository
+    !if ($SHOW_DEPENDENCIES == 1)
+    ClearIO ..> PipelineConfig
+    ClearIO ..> SampleBatch
+    !endif
+
+
+    class PipelineConfigRepository <<partial>> {
+        + source: Source
+
+        + load_config(pipeline_id: int): PipelineConfig
+        + update_config(pipeline_id: int, config: PipelineConfig): None
+    }
+    PipelineConfigRepository --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    PipelineConfigRepository ..> PipelineConfig
+    !endif
+
+    class StepManifestRepository <<implemented>> {
+        + source: Source
+
+        + load_manifest(pipeline_id: int, step_id: int): StepManifest
+        + save_manifest(manifest: StepManifest): None
+        + find_by_signature(signature: str): StepManifest | None
+        + resolve_redirect(pipeline_id: int, step_id: int): StepManifest
+    }
+    StepManifestRepository --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepManifestRepository ..> StepStatus
+    !endif
+}
+
+package "Service Layer" {
+    class PipelineSpec <<implemented>>{
+        + pipeline_id: int
+        + pipeline_name: str
+        + steps: list[Type[AbstractTransformation]]
+        + config: PipelineConfig
+
+        + add_step(step: Type[AbstractTransformation]): None
+        + insert_step(index: int, step: Type[AbstractTransformation]): None
+        + remove_step(index: int): None
+        + clear(): None
+    }
+    PipelineSpec o-- Transformation
+    PipelineSpec --> PipelineConfig
+
+
+    class PipelineRunner <<implemented>>{
+        + io: ClearIO
+        + signature_builder: StepSignatureBuilder
+        + run(pipeline: PipelineSpec, batch: SampleBatch, pipeline_id: int, save_intermediate: bool): None
+    }
+    PipelineRunner --> ClearIO
+    PipelineRunner --> StepSignatureBuilder
+    !if ($SHOW_DEPENDENCIES == 1)
+    PipelineRunner ..> PipelineSpec
+    PipelineRunner ..> SampleBatch
+    !endif
+
+
+    class ClearTissueProject <<implemented>>{
+        + source: Source,
+        + clear_io: ClearIO,
+        + runner: PipelineRunner,
+
+        + init(mouse: str, tissue_type: TissueType, folder_path: Path, atlas_name: AtlasName: ClearTissueProject
+        + load_raw(): SampleBatch
+        + init_pipeline(): PipelineSpec
+        + run_pipeline(pipeline: PipelineSpec, batch: SampleBatch, save_intermediate: bool): SampleBatch
+    }
+    ClearTissueProject --> PipelineRunner
+    ClearTissueProject --> ClearIO
+    !if ($SHOW_DEPENDENCIES == 1)
+    ClearTissueProject ..> SampleBatch
+    ClearTissueProject ..> PipelineSpec
+    !endif
+
+    class StepSignatureBuilder <<implemented>> {
+        + build(step: Type[Transformation], params: dict, input_batch: SampleBatch): StepSignature
+    }
+    !if ($SHOW_DEPENDENCIES == 1)
+    StepSignatureBuilder ..> SampleBatch
+    StepSignatureBuilder ..> Transformation
+    StepSignatureBuilder ..> StepSignature
+    !endif
+}
+@enduml

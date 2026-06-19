@@ -1,0 +1,139 @@
+---
+# ================================================================
+# 1. Section: IDENTIFIERS
+# ================================================================
+mouse: ""
+tissue_type: ""
+pipeline_id: 00
+pipeline_name: ""
+
+# ================================================================
+# 2. Section: ZARR LOADING
+# ================================================================
+drive_root: /Volumes/GuiNR
+zarr_path: Transfer/561_CFos_raw.zarr
+
+# ================================================================
+# 3. Section: PREPROCESSING
+# ================================================================
+RegularizeSample: {}
+
+OrientSample: {}
+
+StretchSample:
+  smooth_window_size: 25
+
+UntwistSample:
+  window_size: 250
+  gap_size: 0
+  tissue_registrator_params:
+    seed: 7
+    MetricConfig:
+      name: CC
+      sampling_percentage: 1
+      histogram_bins: 50
+    OptimizerConfig:
+      name: GD
+      iterations: 500
+      learning_rate: 0.01
+      convergence_minimum_value: 1e-8
+      convergence_window_size: 30
+      gradient_convergence_tolerance: 1e-8
+      maximum_number_corrections: 5
+      estimate_learning_rate: 2
+      max_step_size_physical_units: 1.0
+      grid_size: 2
+      constrains: []
+      scales: []
+      initial_angle: null
+      initial_fixed_parameters: null
+      initial_parameters: null
+    InterpolationConfig:
+      registration: bspline
+      resampling: linear
+    MultipleResolutionConfig:
+      enabled: False
+      shrink_factors: [4, 2, 1]
+      smoothing_sigmas: [2, 1, 0]
+  cell_registrator_params:
+    InterpolationConfig:
+      registration: bspline
+      resampling: nearest
+
+RotateSample: {}
+
+CylindricalMaskSample: {}
+
+EmptySpaceTrimSample: {}
+
+# ================================================================
+# 4. Section: ATLAS REGISTRATION
+# ================================================================
+NaiveAtlasRegistration:
+  max_retries: 5
+
+  atlas_affine_registrator_params:
+    seed: 7
+    MetricConfig:
+      name: MI
+      sampling_percentage: 1
+      histogram_bins: 50
+    OptimizerConfig:
+      name: GD
+      iterations: 5000
+      learning_rate: 0.01
+      convergence_minimum_value: 1e-8
+      convergence_window_size: 25
+      gradient_convergence_tolerance: 1e-8
+      maximum_number_corrections: 5
+      estimate_learning_rate: 0
+      max_step_size_physical_units: 1.0
+      grid_size: 2
+      constrains: []
+      scales: []
+      initial_angle: null
+      initial_fixed_parameters: null
+      initial_parameters: null
+    InterpolationConfig:
+      registration: bspline
+      resampling: nearest
+    MultipleResolutionConfig:
+      enabled: false
+      shrink_factors: [4, 2, 1]
+      smoothing_sigmas: [2, 1, 0]
+
+  atlas_warp_registrator_params:
+    seed: 7
+    MetricConfig:
+      name: MI
+      sampling_percentage: 1
+      histogram_bins: 50
+    OptimizerConfig:
+      name: GD
+      iterations: 500
+      learning_rate: 0.01
+      convergence_minimum_value: 1e-12
+      convergence_window_size: 50
+      gradient_convergence_tolerance: 1e-8
+      maximum_number_corrections: 5
+      estimate_learning_rate: 1
+      max_step_size_physical_units: 1.0
+      grid_size: 2
+      constrains: []
+      scales: []
+      initial_angle: null
+      initial_fixed_parameters: null
+      initial_parameters: null
+    InterpolationConfig:
+      registration: linear
+      resampling: nearest
+    MultipleResolutionConfig:
+      enabled: true
+      shrink_factors: [4, 2, 1]
+      smoothing_sigmas: [2, 1, 0]
+
+# ================================================================
+# 5. Section: POST-REGISTRATION
+# ================================================================
+InterpolateAtlas:
+  background_label: 0
