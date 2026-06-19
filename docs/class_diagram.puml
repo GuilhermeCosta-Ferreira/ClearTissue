@@ -200,13 +200,13 @@ package "Domain Model" {
         AxisCropSample ..|> Transformation
 
 
-        class RegisterAtlasToSample <<planned>>{
+        class NaiveAtlasRegistration <<implemented>>{
             + max_retries: int
             + affine_registrator: Registrator
             + warp_registrator: Registrator
             - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
         }
-        RegisterAtlasToSample ..|> Transformation
+        NaiveAtlasRegistration ..|> Transformation
 
         class CropParams <<implemented>>{
             + z_crop: tuple
@@ -217,8 +217,6 @@ package "Domain Model" {
             + slices: tuple[slice, slice, slice]
             + cropped_shape: tuple[int, int, int]
         }
-
-        note "<b>RegularizeSample:</b> Responsible to make sure everything\nhas the same resolution and orientation" as N1
 
         package "Registrator" <<external>> {
             class Registrator <<external>>
