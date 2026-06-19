@@ -6,6 +6,7 @@ from .UntwistSample import UntwistSample
 from .RotateSample import RotateSample
 from .CylindricalMaskSample import CylindricalMaskSample
 from .EmptySpaceTrimSample import EmptySpaceTrimSample
+from .NaiveAtlasRegistration import NaiveAtlasRegistration
 
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "RotateSample",
     "CylindricalMaskSample",
     "EmptySpaceTrimSample",
+    "NaiveAtlasRegistration",
 ]

@@ -69,10 +69,11 @@ EmptySpaceTrimSample: {}
 # ================================================================
 # 4. Section: ATLAS REGISTRATION
 # ================================================================
-AtlasRegistration:
+NaiveAtlasRegistration:
   max_retries: 5
 
-  atlas_affine_registration:
+  atlas_affine_registrator_params:
+    seed: 7
     MetricConfig:
       name: MI
       sampling_percentage: 1
@@ -101,7 +102,8 @@ AtlasRegistration:
       shrink_factors: [4, 2, 1]
       smoothing_sigmas: [2, 1, 0]
 
-  atlas_warp_registration:
+  atlas_warp_registrator_params:
+    seed: 7
     MetricConfig:
       name: MI
       sampling_percentage: 1

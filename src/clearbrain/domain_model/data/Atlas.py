@@ -21,6 +21,10 @@ class Atlas(ClearData):
     hemisphere: NDArray
     look_up: pd.DataFrame
 
+    @property
+    def shape(self) -> tuple[int, int, int]:
+        return self.data.shape
+
     @classmethod
     def from_name(
         cls,
