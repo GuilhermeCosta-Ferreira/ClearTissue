@@ -31,6 +31,8 @@ if __name__ == '__main__':
         tr.OrientSample,
         tr.StretchSample,
         tr.UntwistSample,
+        tr.RotateSample,
+        tr.CylindricalMaskSample,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
