@@ -182,9 +182,10 @@ package "Domain Model" {
         CylindricalMaskSample ..|> Transformation
 
 
-        class EmptySpaceTrimSample <<planned>>{
+        class EmptySpaceTrimSample <<implemented>>{
             + crop_params: CropParams
             - crop_excess(data: ClearVolume)
+            - apply_crop(data: ClearVolume, crop_params: CropParams)
         }
         EmptySpaceTrimSample ..|> Transformation
         EmptySpaceTrimSample --> CropParams
@@ -207,11 +208,14 @@ package "Domain Model" {
         }
         RegisterAtlasToSample ..|> Transformation
 
-        class CropParams <<planned>>{
+        class CropParams <<implemented>>{
             + z_crop: tuple
             + y_crop: tuple
             + x_crop: tuple
             + source_shape: tuple[int, int, int]
+
+            + slices: tuple[slice, slice, slice]
+            + cropped_shape: tuple[int, int, int]
         }
 
         note "<b>RegularizeSample:</b> Responsible to make sure everything\nhas the same resolution and orientation" as N1
