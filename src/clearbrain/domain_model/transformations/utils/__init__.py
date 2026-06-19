@@ -6,6 +6,7 @@ from .centerline import get_centerline
 from .stretch import stretch_tissue
 from .untwist import untwist_spinal_coord, apply_know_untwisting
 from .rotate import rotate_spinal_cord
+from .noise import clear_external_points
 
 __all__ = [
     "scale_points",
@@ -18,4 +19,5 @@ __all__ = [
     "untwist_spinal_coord",
     "apply_know_untwisting",
     "rotate_spinal_cord",
+    "clear_external_points",
 ]

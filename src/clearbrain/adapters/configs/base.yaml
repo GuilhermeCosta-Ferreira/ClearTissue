@@ -62,6 +62,8 @@ UntwistSample:
 
 RotateSample: {}
 
+CylindricalMaskSample: {}
+
 # ================================================================
 # 4. Section: ATLAS REGISTRATION
 # ================================================================

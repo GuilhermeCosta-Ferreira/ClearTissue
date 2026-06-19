@@ -4,6 +4,7 @@ from .OrientSample import OrientSample
 from .StretchSample import StretchSample
 from .UntwistSample import UntwistSample
 from .RotateSample import RotateSample
+from .CylindricalMaskSample import CylindricalMaskSample
 
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "StretchSample",
     "UntwistSample",
     "RotateSample",
+    "CylindricalMaskSample",
 ]
