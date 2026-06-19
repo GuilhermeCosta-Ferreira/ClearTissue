@@ -29,4 +29,4 @@ if __name__ == '__main__':
     )
 
     converter = DataConverter(project.source)
-    converter.convert_batch(pipeline_id=2, step_id=3)
+    converter.convert_batch(pipeline_id=6, step_id=6)
