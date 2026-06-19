@@ -7,6 +7,7 @@ from .RotateSample import RotateSample
 from .CylindricalMaskSample import CylindricalMaskSample
 from .EmptySpaceTrimSample import EmptySpaceTrimSample
 from .NaiveAtlasRegistration import NaiveAtlasRegistration
+from .SizeMatchedAtlasRegistration import SizeMatchedAtlasRegistration
 
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "CylindricalMaskSample",
     "EmptySpaceTrimSample",
     "NaiveAtlasRegistration",
+    "SizeMatchedAtlasRegistration",
 ]

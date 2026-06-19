@@ -7,7 +7,6 @@ import cleartissue.domain_model.transformations as tr
 
 
 
-
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
@@ -22,9 +21,9 @@ if __name__ == '__main__':
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("Cache versions")
+    pipeline = project.init_pipeline("SizeMatchedAtlasRegistration")
 
-    input("Setup the config. Press enter when ready")
+    #input("Setup the config. Press enter when ready")
 
     pipeline.add_list([
         tr.RegularizeSample,
@@ -34,7 +33,7 @@ if __name__ == '__main__':
         tr.RotateSample,
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
-        tr.NaiveAtlasRegistration,
+        tr.SizeMatchedAtlasRegistration,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
