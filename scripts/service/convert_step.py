@@ -8,19 +8,7 @@ from clearbrain.adapters.DataConverter import DataConverter
 
 
 # ================================================================
-# 1. Section: INPUTS
-# ================================================================
-
-
-
-# ================================================================
-# 2. Section: FUNCTIONS
-# ================================================================
-
-
-
-# ================================================================
-# 3. Section: MAIN
+# 1. Section: MAIN
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
@@ -29,4 +17,4 @@ if __name__ == '__main__':
     )
 
     converter = DataConverter(project.source)
-    converter.convert_batch(pipeline_id=6, step_id=6)
+    converter.convert_batch(pipeline_id=7, step_id=7)

@@ -34,6 +34,7 @@ if __name__ == '__main__':
         tr.RotateSample,
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
+        tr.NaiveAtlasRegistration,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
