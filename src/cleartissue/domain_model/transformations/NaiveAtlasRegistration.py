@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 
 from ..data import SampleBatch
-from .utils import register_atlas_to_sample
+from .utils import register_atlas_to_sample_bad
 from .AbstractTransformations import AbstractTransformation
 from ...registration.strategies import BSplineRegistration, AffineRegistration
 from ...registration import Registrator, RegistrationConfig, RegistratorResampler
@@ -37,7 +37,7 @@ class NaiveAtlasRegistration(AbstractTransformation):
 
 
     def apply(self, batch: SampleBatch) -> SampleBatch:
-        registered_atlas = register_atlas_to_sample(
+        registered_atlas = register_atlas_to_sample_bad(
             batch.atlas,
             batch.tissue,
             self.affine_registrator,

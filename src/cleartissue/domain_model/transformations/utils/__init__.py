@@ -8,8 +8,9 @@ from .untwist import untwist_spinal_coord, apply_know_untwisting
 from .rotate import rotate_spinal_cord
 from .noise import clear_external_points
 from .crop import apply_crop_excess, crop_excess
-from .register import register_atlas_to_sample
+from .register import register_atlas_to_sample_bad
 from .size_match import build_size_matched_map, PreferredDirection
+from .mapped_registration import register_atlas_to_sample
 
 
 __all__ = [
@@ -26,7 +27,8 @@ __all__ = [
     "clear_external_points",
     "apply_crop_excess",
     "crop_excess",
-    "register_atlas_to_sample",
+    "register_atlas_to_sample_bad",
     "build_size_matched_map",
     "PreferredDirection",
+    "register_atlas_to_sample",
 ]

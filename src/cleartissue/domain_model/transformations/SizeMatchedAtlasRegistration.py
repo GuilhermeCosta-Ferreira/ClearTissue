@@ -1,13 +1,15 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
+import numpy as np
+
 from dataclasses import dataclass
 
 from ..data import SampleBatch
 from .AbstractTransformations import AbstractTransformation
-from .utils import build_size_matched_map, PreferredDirection
 from ...registration.strategies import BSplineRegistration, AffineRegistration
 from ...registration import Registrator, RegistrationConfig, RegistratorResampler
+from .utils import build_size_matched_map, PreferredDirection, register_atlas_to_sample
 
 
 
@@ -42,8 +44,12 @@ class SizeMatchedAtlasRegistration(AbstractTransformation):
 
     def apply(self, batch: SampleBatch) -> SampleBatch:
         # 1. Map the axial slices to the size-matched atlas
-        build_size_matched_map(batch.tissue, batch.atlas, self.preferred_direction)
+        atlas_index = build_size_matched_map(batch.tissue, batch.atlas, self.preferred_direction)
 
         # 2. Apply the affine and warp registrators to the size-matched atlas
+        registered_atlas = register_atlas_to_sample(
+            batch.atlas, batch.tissue, atlas_index, self.affine_registrator, self.warp_registrator, self.max_retries
+        )
 
-        raise NotImplementedError("SizeMatchedAtlasRegistration.apply is not implemented")
+        # 3. Return the batch with the registered atlas
+        return batch.copy_with(atlas=registered_atlas)

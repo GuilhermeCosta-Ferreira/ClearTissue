@@ -20,62 +20,23 @@ def build_size_matched_map(
     tissue: ClearVolume,
     atlas: Atlas,
     preferred_direction: PreferredDirection
-) -> None:
+) -> NDArray:
+    # 1. Get tissue and atlas maps (elongation over horizontal and vertical axis)
     tissue_map = get_data_bi_size(tissue)
     atlas_map = get_data_bi_size(atlas)
 
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.plot(tissue_map[:, 0], color="blue", label="tissue")
-    plt.plot(atlas_map[:, 0], color="red", label="atlas")
-    plt.title("Horizontal Map")
-    plt.legend()
-    plt.subplot(1, 2, 2)
-    plt.plot(tissue_map[:, 1], color="blue", label="tissue")
-    plt.plot(atlas_map[:, 1], color="red", label="atlas")
-    plt.title("Vertical Map")
-    plt.legend()
-    plt.show(block=False)
+    # 2. Find best shift by correlation
+    directional_index = 0 if preferred_direction == "horizontal" else 1
+    shift, _ = find_best_shift_by_correlation(
+        tissue_map[:, directional_index], atlas_map[:, directional_index]
+    )
+    #print(f"{preferred_direction.title()} shift: {shift}")
 
-    horizontal_shift, horizontal_correlation_map = find_best_shift_by_correlation(tissue_map[:, 0], atlas_map[:, 0])
-    vertical_shift, vertical_correlation_map = find_best_shift_by_correlation(tissue_map[:, 1], atlas_map[:, 1])
+    # 3. Apply shift to atlas index
+    atlas_index = np.arange(0, atlas_map.shape[0])
+    shifted_atlas_index = apply_shift(tissue_map[:, directional_index], atlas_index, shift)
 
-    print(f"Horizontal shift: {horizontal_shift}")
-    print(f"Vertical shift: {vertical_shift}")
-
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.plot(horizontal_correlation_map[:, 0], horizontal_correlation_map[:, 1])
-    plt.axvline(horizontal_shift, linestyle="--")
-    plt.xlabel("Shift")
-    plt.ylabel("Correlation")
-    plt.title("Horizontal Correlation")
-    plt.subplot(1, 2, 2)
-    plt.plot(vertical_correlation_map[:, 0], vertical_correlation_map[:, 1])
-    plt.axvline(vertical_shift, linestyle="--")
-    plt.xlabel("Shift")
-    plt.ylabel("Correlation")
-    plt.title("Vertical Correlation")
-    plt.show(block=False)
-
-    horizontal_shifted_atlas = apply_shift_for_plot(tissue_map[:, 0], atlas_map[:, 0], horizontal_shift)
-    vertical_shifted_atlas = apply_shift_for_plot(tissue_map[:, 1], atlas_map[:, 1], vertical_shift)
-
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.plot(tissue_map[:, 0], color="blue", label="tissue")
-    plt.plot(horizontal_shifted_atlas, color="red", label="shifted atlas")
-    plt.title("Horizontal Map")
-    plt.legend()
-    plt.subplot(1, 2, 2)
-    plt.plot(tissue_map[:, 1], color="blue", label="tissue")
-    plt.plot(vertical_shifted_atlas, color="red", label="shifted atlas")
-    plt.title("Vertical Map")
-    plt.legend()
-    plt.show()
-
-
-
+    return shifted_atlas_index
 
 
 # ──────────────────────────────────────────────────────
@@ -162,7 +123,6 @@ def get_overlap(
 
     return ref_segment, mov_segment
 
-
 def pearson_correlation(x: NDArray, y: NDArray) -> float:
     valid = np.isfinite(x) & np.isfinite(y)
 
@@ -183,7 +143,7 @@ def pearson_correlation(x: NDArray, y: NDArray) -> float:
 
     return float(np.mean((x / x_std) * (y / y_std)))
 
-def apply_shift_for_plot(reference: NDArray, moving: NDArray, shift: int) -> NDArray:
+def apply_shift(reference: NDArray, moving: NDArray, shift: int) -> NDArray:
     shifted = np.full_like(reference, np.nan, dtype=float)
 
     for i in range(len(reference)):

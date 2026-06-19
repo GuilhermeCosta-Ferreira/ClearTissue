@@ -21,9 +21,9 @@ if __name__ == '__main__':
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("SizeMatchedAtlasRegistration")
+    pipeline = project.init_pipeline("Horizontal Size Matched Atlas Registration")
 
-    #input("Setup the config. Press enter when ready")
+    input("Setup the config. Press enter when ready")
 
     pipeline.add_list([
         tr.RegularizeSample,
