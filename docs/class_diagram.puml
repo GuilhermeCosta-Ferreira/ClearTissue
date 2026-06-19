@@ -170,16 +170,14 @@ package "Domain Model" {
         UntwistSample --> Registrator
 
 
-        class RotateSample <<planned>>{
-            + rotation_angle: float
-            - rotate_spinal_cord(data: ClearVolume)
+        class RotateSample <<implemented>>{
+            - rotate_spinal_cord(data: ClearVolume, angle: float)
         }
         RotateSample ..|> Transformation
 
 
-        class CylindricalMaskSample <<planned>>{
-            + margin: int
-            - clear_external_points(data: ClearVolume)
+        class CylindricalMaskSample <<implemented>>{
+            - clear_external_points(data: ClearVolume, margin: int)
         }
         CylindricalMaskSample ..|> Transformation
 
