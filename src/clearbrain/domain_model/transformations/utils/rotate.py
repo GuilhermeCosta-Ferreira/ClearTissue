@@ -31,7 +31,6 @@ def rotate_spinal_cord(
             atlas_volume=atlas_volume,
         )
         print(f"Selected angle = {angle}")
-        print(f"Selected frame = {selected_frame}")
 
     rotated_volume = rotate_volume_xy(volume, angle)
 
