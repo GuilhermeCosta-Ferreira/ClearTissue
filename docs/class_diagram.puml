@@ -191,15 +191,6 @@ package "Domain Model" {
         EmptySpaceTrimSample --> CropParams
 
 
-        class AxisCropSample <<planned>>{
-            + start_slice: int
-            + end_slice: int
-            + axis: int
-            - crop_excess(data: ClearVolume)
-        }
-        AxisCropSample ..|> Transformation
-
-
         class NaiveAtlasRegistration <<implemented>>{
             + max_retries: int
             + affine_registrator: Registrator
@@ -361,7 +352,7 @@ package "Adapters" {
     !endif
 
 
-    class HDF5_to_Ply <<planned>> {
+    class HDF5_to_Ply <<implemented>> {
         + source: Source
 
         + convert_batch(batch: SampleBatch, step_path): list[Path]
