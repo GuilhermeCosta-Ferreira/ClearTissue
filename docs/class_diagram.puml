@@ -191,15 +191,6 @@ package "Domain Model" {
         EmptySpaceTrimSample --> CropParams
 
 
-        class AxisCropSample <<planned>>{
-            + start_slice: int
-            + end_slice: int
-            + axis: int
-            - crop_excess(data: ClearVolume)
-        }
-        AxisCropSample ..|> Transformation
-
-
         class NaiveAtlasRegistration <<implemented>>{
             + max_retries: int
             + affine_registrator: Registrator
@@ -207,6 +198,15 @@ package "Domain Model" {
             - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
         }
         NaiveAtlasRegistration ..|> Transformation
+
+        class SizeMatchedAtlasRegistration <<implemented>> {
+            + preferred_direction: Literal["horizontal", "vertical"]
+            + max_retries: int
+            + affine_registrator: Registrator
+            + warp_registrator: Registrator
+            - register_atlas(tissue: ClearVolume, atlas: Atlas): Atlas
+        }
+        SizeMatchedAtlasRegistration ..|> Transformation
 
         class CropParams <<implemented>>{
             + z_crop: tuple
@@ -349,6 +349,21 @@ package "Adapters" {
     HDF5_to_Nii ..> SampleBatch
     HDF5_to_Nii ..> Atlas
     HDF5_to_Nii ..> ClearVolume
+    !endif
+
+
+    class HDF5_to_Ply <<implemented>> {
+        + source: Source
+
+        + convert_batch(batch: SampleBatch, step_path): list[Path]
+        - _convert_volume(volume: ClearVolume, step_path: Path): Path
+        - convert_atlas(atlas: Atlas, step_path: Path): Path
+    }
+    HDF5_to_Ply --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    HDF5_to_Ply ..> SampleBatch
+    HDF5_to_Ply ..> Atlas
+    HDF5_to_Ply ..> ClearVolume
     !endif
 
 
