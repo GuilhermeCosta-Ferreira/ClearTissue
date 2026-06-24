@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .Source import Source
 from .HDF5_to_NII import HDF5_to_Nii
+from .HDF5_to_Ply import HDF5_to_Ply
 from .DataLoader import DataLoader
 
 
@@ -20,6 +21,7 @@ class DataConverter:
     def __post_init__(self):
         self.loader = DataLoader(self.source)
         self.nii_converter = HDF5_to_Nii(self.source)
+        self.ply_converter = HDF5_to_Ply(self.source)
 
     def convert_batch(self, pipeline_id: int, step_id: int, out_file_type: str = ".nii.gz") -> list[Path]:
         batch = self.loader.load_batch(pipeline_id, step_id)
@@ -27,5 +29,7 @@ class DataConverter:
 
         if out_file_type == ".nii.gz":
             return self.nii_converter.convert_batch(batch, step_path)
+        elif out_file_type == ".ply":
+            return self.ply_converter.convert_batch(batch, step_path)
         else:
             raise ValueError(f"Unsupported file type: {out_file_type}")

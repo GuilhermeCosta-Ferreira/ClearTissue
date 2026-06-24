@@ -5302,6 +5302,29 @@ files = [
 six = ">=1.13.0"
 
 [[package]]
+name = "trimesh"
+version = "4.12.2"
+description = "Import, export, process, analyze and view triangular meshes."
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "trimesh-4.12.2-py3-none-any.whl", hash = "sha256:b5b5afa63c5272345f2858f7676bc8c217dc8a89f4fadf6193fe10a81b5ff2aa"},
+    {file = "trimesh-4.12.2.tar.gz", hash = "sha256:c8ca31571ac00b112e4e160e66a2d4c3491df321f056bd33806be0485d1af9d9"},
+]
+
+[package.dependencies]
+numpy = ">=1.20"
+
+[package.extras]
+all = ["trimesh[deprecated,easy,recommend,test,test-more]"]
+deprecated = ["openctm"]
+easy = ["charset-normalizer", "colorlog", "embreex", "httpx", "jsonschema", "lxml", "manifold3d (>=2.3.0) ; python_version < \"3.14\"", "mapbox_earcut (>=1.0.2) ; python_version >= \"3.9\"", "networkx", "pillow", "pycollada (<=0.9.0) ; python_version < \"3.9\"", "pycollada ; python_version >= \"3.9\"", "rtree", "scipy", "shapely", "svg.path", "vhacdx ; python_version >= \"3.9\"", "xxhash"]
+recommend = ["cascadio", "fast-simplification", "manifold3d (>=2.3.0) ; python_version >= \"3.14\"", "pyglet (<2)", "python-fcl", "scikit-image", "sympy"]
+test = ["pyinstrument", "pytest", "pytest-cov", "ruff"]
+test-more = ["coveralls", "ezdxf", "ipython", "marimo", "matplotlib", "meshio", "pymeshlab ; python_version < \"3.14\"", "pytest-beartype ; python_version >= \"3.10\"", "triangle ; python_version < \"3.14\"", "xatlas"]
+
+[[package]]
 name = "typer"
 version = "0.26.7"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
@@ -5681,4 +5704,4 @@ remote = ["fsspec (>=2023.10.0)", "obstore (>=0.5.1)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "9c65d4edf605209424edfd19232a41f638cf5c156db411917626bb21f845b959"
+content-hash = "a9a9145213c7ad8b935fa8dc7ae0a84a7f40d9d9fb7ecec176b5eee00babaae7"
