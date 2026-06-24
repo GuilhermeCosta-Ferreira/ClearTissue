@@ -361,6 +361,21 @@ package "Adapters" {
     !endif
 
 
+    class HDF5_to_Ply <<planned>> {
+        + source: Source
+
+        + convert_batch(batch: SampleBatch, step_path): list[Path]
+        - _convert_volume(volume: ClearVolume, step_path: Path): Path
+        - convert_atlas(atlas: Atlas, step_path: Path): Path
+    }
+    HDF5_to_Ply --> Source
+    !if ($SHOW_DEPENDENCIES == 1)
+    HDF5_to_Ply ..> SampleBatch
+    HDF5_to_Ply ..> Atlas
+    HDF5_to_Ply ..> ClearVolume
+    !endif
+
+
     class ClearIO <<implemented>> {
         + source: Source
 
