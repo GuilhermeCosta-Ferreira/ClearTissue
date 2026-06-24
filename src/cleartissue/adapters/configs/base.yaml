@@ -198,5 +198,7 @@ SizeMatchedAtlasRegistration:
 # ================================================================
 # 5. Section: POST-REGISTRATION
 # ================================================================
+PruneAtlas: {}
+
 InterpolateAtlas:
   background_label: 0

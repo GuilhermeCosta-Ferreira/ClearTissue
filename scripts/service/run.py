@@ -21,7 +21,7 @@ if __name__ == '__main__':
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("Horizontal Size Matched Atlas Registration")
+    pipeline = project.init_pipeline("Cell Counts")
 
     input("Setup the config. Press enter when ready")
 
@@ -34,6 +34,7 @@ if __name__ == '__main__':
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
         tr.SizeMatchedAtlasRegistration,
+        tr.PruneAtlas
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
