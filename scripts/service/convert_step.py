@@ -17,4 +17,4 @@ if __name__ == '__main__':
     )
 
     converter = DataConverter(project.source)
-    converter.convert_batch(pipeline_id=11, step_id=8, out_file_type=".ply")
+    converter.convert_batch(pipeline_id=20, step_id=7, out_file_type=".nii.gz")

@@ -11,6 +11,7 @@ from .crop import apply_crop_excess, crop_excess
 from .register import register_atlas_to_sample_bad
 from .size_match import build_size_matched_map, PreferredDirection
 from .mapped_registration import register_atlas_to_sample
+from .inverse_mapped_registration import register_sample_to_atlas
 
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "build_size_matched_map",
     "PreferredDirection",
     "register_atlas_to_sample",
+    "register_sample_to_atlas"
 ]

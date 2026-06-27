@@ -8,6 +8,7 @@ from .CylindricalMaskSample import CylindricalMaskSample
 from .EmptySpaceTrimSample import EmptySpaceTrimSample
 from .NaiveAtlasRegistration import NaiveAtlasRegistration
 from .SizeMatchedAtlasRegistration import SizeMatchedAtlasRegistration
+from .InverseSizeMatchAtlasRegistration import InverseSizeMatchedAtlasRegistration
 from .PruneAtlas import PruneAtlas
 
 
@@ -22,5 +23,6 @@ __all__ = [
     "EmptySpaceTrimSample",
     "NaiveAtlasRegistration",
     "SizeMatchedAtlasRegistration",
+    "InverseSizeMatchedAtlasRegistration",
     "PruneAtlas"
 ]

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("Cell Counts")
+    pipeline = project.init_pipeline("Inverse registration")
 
     input("Setup the config. Press enter when ready")
 
@@ -33,8 +33,7 @@ if __name__ == '__main__':
         tr.RotateSample,
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
-        tr.SizeMatchedAtlasRegistration,
-        tr.PruneAtlas
+        tr.InverseSizeMatchedAtlasRegistration,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
