@@ -3,9 +3,12 @@
 # ================================================================
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.widgets import Slider
 
 from typing import Literal
 from numpy.typing import NDArray
+from scipy.signal import find_peaks
+from scipy.ndimage import gaussian_filter1d
 
 from ...data import ClearVolume, Atlas
 
@@ -25,18 +28,85 @@ def build_size_matched_map(
     tissue_map = get_data_bi_size(tissue)
     atlas_map = get_data_bi_size(atlas)
 
-    # 2. Find best shift by correlation
+    # DEBUG: elongation misalignment for both directions (comment out)
+    _debug_plot_elongation(tissue_map, atlas_map)
+
+    # Apply a smoothing with a Gaussian kernel
+    #tissue_map = gaussian_filter1d(tissue_map, sigma=2)
+    #atlas_map = gaussian_filter1d(atlas_map, sigma=2)
+
+    # DEBUG: elongation misalignment for both directions (comment out)
+    #_debug_plot_elongation(tissue_map, atlas_map)
+
+    # 2. Find best shift by correlation and the candidate peaks
     directional_index = 0 if preferred_direction == "horizontal" else 1
-    shift, _ = find_best_shift_by_correlation(
+    _, correlation_map = find_best_shift_by_correlation(
         tissue_map[:, directional_index], atlas_map[:, directional_index]
+    )
+    peak_shifts = find_correlation_peaks(correlation_map)
+
+    # DEBUG: correlation vs shift for preferred direction (comment out)
+    #_debug_plot_correlation(correlation_map, peak_shifts[0], preferred_direction)
+
+    # 3. Let the user pick a peak; the one shown on close is used
+    shift = select_shift_interactive(
+        tissue_map[:, directional_index],
+        atlas_map[:, directional_index],
+        peak_shifts,
+        preferred_direction,
     )
     #print(f"{preferred_direction.title()} shift: {shift}")
 
-    # 3. Apply shift to atlas index
+    # 4. Apply shift to atlas index
     atlas_index = np.arange(0, atlas_map.shape[0])
     shifted_atlas_index = apply_shift(tissue_map[:, directional_index], atlas_index, shift)
 
     return shifted_atlas_index
+
+
+# ──────────────────────────────────────────────────────
+# 1.2 Subsection: Debug Plots (safe to comment out the calls above)
+# ──────────────────────────────────────────────────────
+def _debug_plot_elongation(tissue_map: NDArray, atlas_map: NDArray) -> None:
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    for idx, name in enumerate(("horizontal", "vertical")):
+        axes[idx].plot(tissue_map[:, idx], label="tissue")
+        axes[idx].plot(atlas_map[:, idx], label="atlas")
+        axes[idx].set_title(f"{name} elongation (unshifted)")
+        axes[idx].set_xlabel("slice")
+        axes[idx].set_ylabel("elongation")
+        axes[idx].legend()
+    fig.tight_layout()
+    plt.show(block=False)
+
+def _debug_plot_correlation(
+    correlation_map: NDArray, shift: int, preferred_direction: PreferredDirection
+) -> None:
+    shifts = correlation_map[:, 0]
+    correlations = correlation_map[:, 1]
+    plt.figure(figsize=(6, 4))
+    plt.plot(shifts, correlations)
+    plt.axvline(shift, color="red", linestyle="--", label=f"best shift = {shift}")
+    plt.title(f"{preferred_direction} correlation vs shift")
+    plt.xlabel("shift")
+    plt.ylabel("correlation")
+    plt.legend()
+    plt.tight_layout()
+    plt.show(block=False)
+
+def _debug_plot_shift(
+    tissue_dir: NDArray, atlas_dir: NDArray, shift: int, preferred_direction: PreferredDirection
+) -> None:
+    shifted_atlas = apply_shift(tissue_dir, atlas_dir, shift)
+    plt.figure(figsize=(6, 4))
+    plt.plot(tissue_dir, label="tissue")
+    plt.plot(shifted_atlas, label=f"atlas (shift={shift})")
+    plt.title(f"{preferred_direction} elongation after shift")
+    plt.xlabel("slice")
+    plt.ylabel("elongation")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 
 # ──────────────────────────────────────────────────────
@@ -97,6 +167,102 @@ def find_best_shift_by_correlation(
     correlation_map = np.column_stack([shifts, correlations])
 
     return best_shift, correlation_map
+
+def find_correlation_peaks(correlation_map: NDArray) -> NDArray:
+    """Return the shifts at local maxima of the correlation curve.
+
+    Peaks are sorted by correlation strength, so the first entry is the
+    global best shift. Falls back to the single global maximum when the
+    curve has no interior local maxima.
+
+    Args:
+        correlation_map: (shift, correlation) columns as returned by
+            find_best_shift_by_correlation.
+
+    Returns:
+        Peak shift values, strongest first.
+    """
+    shifts = correlation_map[:, 0]
+    correlations = correlation_map[:, 1]
+
+    series = np.where(np.isfinite(correlations), correlations, -np.inf)
+    peak_indices, _ = find_peaks(series)
+
+    if len(peak_indices) == 0:
+        peak_indices = np.array([int(np.nanargmax(series))])
+
+    # Strongest correlation first
+    peak_indices = peak_indices[np.argsort(series[peak_indices])[::-1]]
+
+    return shifts[peak_indices].astype(int)
+
+def select_shift_interactive(
+    tissue_dir: NDArray,
+    atlas_dir: NDArray,
+    peak_shifts: NDArray,
+    preferred_direction: PreferredDirection,
+) -> int:
+    """Let the user scroll through candidate shifts and pick one.
+
+    Shows the tissue vs shifted-atlas elongation for each candidate peak; a
+    slider steps through them and the shift displayed when the window is
+    closed is the one returned. With a single candidate no window is shown.
+
+    Args:
+        tissue_dir: Tissue elongation along the preferred direction.
+        atlas_dir: Atlas elongation along the preferred direction.
+        peak_shifts: Candidate shifts, strongest first.
+        preferred_direction: Direction being matched (for the title).
+
+    Returns:
+        The selected shift.
+    """
+    if len(peak_shifts) == 1:
+        return int(peak_shifts[0])
+
+    selected_index = 0
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    plt.subplots_adjust(bottom=0.25)
+
+    def draw(idx: int) -> None:
+        shift = int(peak_shifts[idx])
+        shifted_atlas = apply_shift(tissue_dir, atlas_dir, shift)
+        ax.clear()
+        ax.plot(tissue_dir, label="tissue")
+        ax.plot(shifted_atlas, label=f"atlas (shift={shift})")
+        ax.set_title(
+            f"{preferred_direction} elongation | "
+            f"peak {idx + 1}/{len(peak_shifts)} | shift={shift}"
+        )
+        ax.set_xlabel("slice")
+        ax.set_ylabel("elongation")
+        ax.legend()
+
+    draw(selected_index)
+
+    slider_ax = plt.axes((0.2, 0.08, 0.6, 0.04))
+    peak_slider = Slider(
+        ax=slider_ax,
+        label="peak",
+        valmin=0,
+        valmax=len(peak_shifts) - 1,
+        valinit=selected_index,
+        valstep=1,
+    )
+
+    def update(value: float) -> None:
+        nonlocal selected_index
+
+        selected_index = int(value)
+        draw(selected_index)
+        fig.canvas.draw_idle()
+
+    peak_slider.on_changed(update)
+
+    plt.show(block=True)
+
+    return int(peak_shifts[selected_index])
 
 def get_overlap(
     reference: NDArray,
