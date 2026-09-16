@@ -16,7 +16,7 @@ from ....registration import Registrator, RegistrationResult
 # 1. Section: Functions
 # ================================================================
 def untwist_spinal_coord(
-    tissue: ClearVolume, registrator: Registrator, window_size: int = 75, gap: int = 0
+    tissue: ClearVolume, registrator: Registrator, window_size: int = 75, gap: int = 0, slices_to_skip: int = 1
 ) -> tuple[ClearVolume, list]:
     # 0. Get the needed data
     volume = tissue.data
@@ -32,7 +32,7 @@ def untwist_spinal_coord(
     # 2. Loop over every slice
     for sl in tqdm(range(nr_slices)):
         # 2.1. Skip the first slice
-        if sl == 0:
+        if sl < slices_to_skip:
             continue
 
         # 2.2. Start from the last rotation

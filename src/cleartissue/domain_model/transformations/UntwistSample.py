@@ -19,6 +19,7 @@ class UntwistSample(AbstractTransformation):
     cell_registrator_params: dict
     window_size: int
     gap_size: int
+    slices_to_skip: int
 
     def __post_init__(self):
         self.tissue_registrator_config = RegistrationConfig.from_dict(self.tissue_registrator_params)
@@ -42,7 +43,8 @@ class UntwistSample(AbstractTransformation):
             tissue = batch.tissue,
             registrator = self.tissue_registrator,
             window_size = self.window_size,
-            gap = self.gap_size
+            gap = self.gap_size,
+            slices_to_skip = self.slices_to_skip,
         )
 
         if isinstance(batch.cells, ClearVolume):
