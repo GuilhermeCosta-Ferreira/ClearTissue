@@ -23,6 +23,10 @@ OrientSample: {}
 StretchSample:
   smooth_window_size: 25
 
+StartEndTransformtaion:
+  start_slice: 0
+  end_slice: -1
+
 UntwistSample:
   window_size: 250
   gap_size: 0
