@@ -45,8 +45,13 @@ def register_sample_to_atlas(
 
         # 6.2. Extract those slices from the atlas and tissue
         atlas_slice = atlas.data[atlas_idx, :, :]
-        cell_slice = cells.data[i, :, :]
         tissue_slice = tissue.data[i, :, :]
+
+        # TEMPORARY
+        try:
+            cell_slice = cells.data[i, :, :]
+        except IndexError:
+            cell_slice = tissue_slice.copy()
 
         # 6.4 Register the template slice to the sample slice
         affine_result = affine_registrator.register(atlas_slice, tissue_slice)

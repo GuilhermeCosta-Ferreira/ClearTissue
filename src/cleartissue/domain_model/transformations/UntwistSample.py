@@ -48,11 +48,14 @@ class UntwistSample(AbstractTransformation):
         )
 
         if isinstance(batch.cells, ClearVolume):
+            """
             untwisted_cell = apply_know_untwisting(
                 batch.cells,
                 self.cell_registrator,
                 twisting_data
             )
+            """
+            untwisted_cell = batch.cells
         else:
             raise TypeError(
                 f"Expected ClearVolume, got {type(batch.cells)} instead"

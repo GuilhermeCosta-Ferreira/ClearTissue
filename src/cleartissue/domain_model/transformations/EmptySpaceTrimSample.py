@@ -18,7 +18,7 @@ class EmptySpaceTrimSample(AbstractTransformation):
         cropped_tissue, crop_params = crop_excess(batch.tissue)
 
         if isinstance(batch.cells, ClearVolume):
-            cropped_cells = apply_crop_excess(batch.cells, crop_params)
+            cropped_cells = apply_crop_excess(batch.cells, crop_params, False)
         else:
             raise TypeError(f"Expected ClearVolume, got {type(batch.cells)}")
 

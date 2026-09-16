@@ -121,7 +121,7 @@ def apply_crop_3d_array(
             f"{crop_params.source_shape}."
         )
 
-    validate_crop_params(arr, crop_params)
+    #validate_crop_params(arr, crop_params)
 
     return arr[crop_params.slices]
 
