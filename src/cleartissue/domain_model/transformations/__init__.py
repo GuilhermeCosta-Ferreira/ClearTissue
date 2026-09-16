@@ -10,6 +10,8 @@ from .NaiveAtlasRegistration import NaiveAtlasRegistration
 from .SizeMatchedAtlasRegistration import SizeMatchedAtlasRegistration
 from .InverseSizeMatchAtlasRegistration import InverseSizeMatchedAtlasRegistration
 from .PruneAtlas import PruneAtlas
+from .StartEndTransformtaion import StartEndTransformtaion
+from .CleanDebrisTransformation import CleanDebrisTransformation
 
 
 __all__ = [
@@ -24,5 +26,7 @@ __all__ = [
     "NaiveAtlasRegistration",
     "SizeMatchedAtlasRegistration",
     "InverseSizeMatchedAtlasRegistration",
-    "PruneAtlas"
+    "PruneAtlas",
+    "CleanDebrisTransformation",
+    "StartEndTransformtaion",
 ]

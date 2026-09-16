@@ -20,6 +20,8 @@ RegularizeSample: {}
 
 OrientSample: {}
 
+CleanDebrisTransformation: {}
+
 StretchSample:
   smooth_window_size: 25
 
