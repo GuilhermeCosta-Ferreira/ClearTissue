@@ -37,7 +37,7 @@ class CleanDebrisTransformation(AbstractTransformation):
 # 1.2 Subsection: Debug Plots
 # ──────────────────────────────────────────────────────
 def _debug_plot_components(mask: np.ndarray, axis: int = 0) -> None:
-    connectivity = np.ones((3, 3, 3), dtype=int)
+    connectivity = np.ones((1, 1, 1), dtype=int)
     labels, nr_components = label(mask, structure=connectivity)
 
     # Random colors per label, with background (0) forced to black
@@ -77,7 +77,7 @@ def build_mask(volume: ClearVolume) -> ClearVolume:
     return volume.copy_with(data=masked_data)
 
 def get_largest_connected_component(volume: ClearVolume) -> ClearVolume:
-    connectivity = np.ones((3, 3, 3), dtype=int)
+    connectivity = np.ones((1, 1, 1), dtype=int)
     labels, nr_components = label(volume.data, structure=connectivity)
 
     if nr_components == 0:
