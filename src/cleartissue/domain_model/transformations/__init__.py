@@ -12,6 +12,7 @@ from .InverseSizeMatchAtlasRegistration import InverseSizeMatchedAtlasRegistrati
 from .PruneAtlas import PruneAtlas
 from .StartEndTransformtaion import StartEndTransformtaion
 from .CleanDebrisTransformation import CleanDebrisTransformation
+from .ContrastEnhanceSample import ContrastEnhanceSample
 
 
 __all__ = [
@@ -28,5 +29,6 @@ __all__ = [
     "InverseSizeMatchedAtlasRegistration",
     "PruneAtlas",
     "CleanDebrisTransformation",
+    "ContrastEnhanceSample",
     "StartEndTransformtaion",
 ]
