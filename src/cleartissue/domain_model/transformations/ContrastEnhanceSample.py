@@ -50,19 +50,6 @@ class ContrastEnhanceSample(AbstractTransformation):
         enhanced_tissue = enhance_white_matter(batch.tissue, enhanced_tissue_mask)
         _debug_plot_slices(enhanced_tissue.data, axis=0, title="summed")
 
-        print("original tissue shape:", batch.tissue.data.shape)
-        print("enhanced tissue shape:", enhanced_tissue.data.shape)
-        print("original tissue data type:", type(batch.tissue.data))
-        print("enhanced tissue data type:", type(enhanced_tissue.data))
-        print("original tissue shape:", batch.tissue.shape)
-        print("enhanced tissue shape:", enhanced_tissue.shape)
-        print("original tissue mean:", batch.tissue.data.mean())
-        print("enhanced tissue mean:", enhanced_tissue.data.mean())
-        print("original tissue min:", batch.tissue.data.min())
-        print("enhanced tissue min:", enhanced_tissue.data.min())
-        print("original tissue max:", batch.tissue.data.max())
-        print("enhanced tissue max:", enhanced_tissue.data.max())
-
         return batch.copy_with(tissue=enhanced_tissue)
 
 
