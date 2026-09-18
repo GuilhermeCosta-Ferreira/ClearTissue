@@ -9,9 +9,10 @@ from typing import cast
 from pathlib import Path
 from numpy.typing import NDArray
 
-from cleartissue.domain_model.data import TissueType, ClearVolume
-from cleartissue.adapters.DataDownloader import DataDownloader
 from cleartissue.adapters.Source import Source
+from cleartissue.adapters.DataDownloader import DataDownloader
+from cleartissue.domain_model.data import TissueType, ClearVolume
+from cleartissue.service.ClearTissueProject import ClearTissueProject
 
 
 
@@ -19,15 +20,14 @@ from cleartissue.adapters.Source import Source
 # 1. Section: INPUTS
 # ================================================================
 DRIVE_ROOT: Path = Path("/Volumes/GuiNR")
-ZARR_PATH: Path = DRIVE_ROOT / "Transfer/561_CFos_raw.zarr"
+ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_raw.zarr"
 
-MOUSE: str = "32B"
-STUDY_DESCRIPTION: str = ""
+MOUSE: str = "198B-L2"
 DATA_FOLDER: Path = Path("data")
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
-TARGET_RESOLUTION: str = "level_03"
-TARGET_RESOLUTION_POSITION: int = -1
+TARGET_RESOLUTION: str = "level_02"
+TARGET_RESOLUTION_POSITION: int = -2
 UNIT: str = "um"
 ORIENTATION: str = "sal"
 
@@ -81,12 +81,18 @@ def get_scale_factor_to_high_resolution(root: zarr.Group, level: str) -> NDArray
 # 3. Section: MAIN
 # ================================================================
 if __name__ == '__main__':
+
+    project = ClearTissueProject.init(
+        mouse=MOUSE,
+        tissue_type=TissueType.SPINAL_CORD,
+    )
+
     # 1. Load the ZARR file
     root = zarr.open_group(ZARR_PATH, mode="r")
 
     resolution = root.metadata.attributes["multiscales"][0]["datasets"][TARGET_RESOLUTION_POSITION]['coordinateTransformations'][0]["scale"]
 
-    arr = cast(np.ndarray, root["level_03"])
+    arr = cast(np.ndarray, root[TARGET_RESOLUTION])
     tissue_volume = np.where(arr[:, :, :] > 50, arr[:, :, :], 0).astype(np.uint16)
     tissue_raw = ClearVolume(
         data = tissue_volume,

@@ -12,9 +12,9 @@ from cleartissue.adapters.DataConverter import DataConverter
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
-        mouse="32B",
+        mouse="198B",
         tissue_type=TissueType.SPINAL_CORD,
     )
 
     converter = DataConverter(project.source)
-    converter.convert_batch(pipeline_id=20, step_id=7, out_file_type=".nii.gz")
+    converter.convert_batch(pipeline_id=2, step_id=3, out_file_type=".nii.gz")
