@@ -35,8 +35,9 @@ class RegularizeSample(AbstractTransformation):
     def convert_atlas(self, tissue: ClearVolume, atlas: Atlas) -> Atlas:
         data = resample_to_isotropic(atlas.data, atlas.resolution, tissue.resolution[0], True)
         hemispheres = resample_to_isotropic(atlas.hemisphere, atlas.resolution, tissue.resolution[0], True)
+        tissue_template = resample_to_isotropic(atlas.tissue_template, atlas.resolution, tissue.resolution[0], True)
 
-        return atlas.copy_with(data=data, hemisphere=hemispheres, resolution=tissue.resolution)
+        return atlas.copy_with(data=data, hemisphere=hemispheres, tissue_template=tissue_template, resolution=tissue.resolution)
 
     def convert_points(self, tissue: ClearVolume, points: ClearPoints | ClearVolume) -> ClearVolume:
         if isinstance(points, ClearVolume):
