@@ -12,12 +12,12 @@ import cleartissue.domain_model.transformations as tr
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
-        mouse="198B",
+        mouse="01GT-Virus",
         tissue_type=TissueType.SPINAL_CORD,
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("Contrast enhance method full run")
+    pipeline = project.init_pipeline("New registration, this time let's use the tissue template as the fixed image")
 
     input("Setup the config. Press enter when ready")
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         tr.RotateSample,
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
-        tr.InverseSizeMatchedAtlasRegistration,
+        tr.InverseSizeMatchedTissueRegistration,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)
