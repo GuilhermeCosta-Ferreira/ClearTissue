@@ -25,8 +25,8 @@ def register_sample_to_atlas(
     warp_registrator: Registrator,
     max_retries: int
 ) -> tuple[ClearVolume, ClearVolume]:
-    registered_tissue = np.zeros_like(atlas.data)
-    registered_cells = np.zeros_like(atlas.data, dtype=np.float32)
+    registered_tissue = np.zeros_like(atlas.tissue_template)
+    registered_cells = np.zeros_like(atlas.tissue_template, dtype=np.float32)
 
     previous_affine_parameters = None
     previous_affine_fixed_parameters = None
