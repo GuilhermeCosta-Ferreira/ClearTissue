@@ -13,7 +13,14 @@ from .hash import hash_transformation_code, hash_sample_batch, stable_hash
 
 
 # ================================================================
-# 1. Section: Functions
+# 1. Section: Constants
+# ================================================================
+SERIALIZATION_VERSION = 2
+
+
+
+# ================================================================
+# 2. Section: Functions
 # ================================================================
 class StepSignatureBuilder:
     def build(
@@ -38,4 +45,5 @@ class StepSignatureBuilder:
             input_hash=input_hash,
             code_hash=code_hash,
             SimpleITK_version=simple_itk_version,
+            serialization_version=SERIALIZATION_VERSION,
         )

@@ -19,6 +19,7 @@ class StepSignature:
     input_hash: str
     code_hash: str
     SimpleITK_version: str
+    serialization_version: int
 
     @property
     def value(self) -> str:
@@ -28,6 +29,7 @@ class StepSignature:
             "input_hash": self.input_hash,
             "code_hash": self.code_hash,
             "SimpleITK_version": self.SimpleITK_version,
+            "serialization_version": self.serialization_version,
         })
 
 def hash_json(data: dict[str, Any]) -> str:
