@@ -39,7 +39,6 @@ class UntwistSample(AbstractTransformation):
 
 
     def apply(self, batch: SampleBatch) -> SampleBatch:
-        print("a")
         untwisted_tissue, twisting_data = untwist_spinal_coord(
             tissue = batch.tissue,
             registrator = self.tissue_registrator,

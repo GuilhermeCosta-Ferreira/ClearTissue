@@ -19,15 +19,16 @@ from .AbstractTransformations import AbstractTransformation
 # ================================================================
 @dataclass
 class ContrastEnhanceSample(AbstractTransformation):
-    background_sigma: float = 50.0
-    pm_iterations: int = 10
-    pm_kappa: float = 0.1
-    pm_gamma: float = 0.1
-    pm_option: int = 1
-    clahe_clip_limit: float = 0.01
-    clahe_kernel_size: int | tuple[int, ...] | None = None
+    background_sigma: float = 50.0 # inconsequential (dont make too small)
+    pm_iterations: int = 10 # if kappa is fine tuned, no much to do here
+    pm_kappa: float = 0.005 # smaller makes it have less effect. I liked this value for the virus sample
+    pm_gamma: float = 0.1 # don't touch this one, stability factor
+    pm_option: int = 2 # I think i like more 2, but more testing needed
+    clahe_clip_limit: float = 0.01 # keep it low, but below this won't notice any difference
+    clahe_kernel_size: int | tuple[int, ...] | None = None # keep it none, it does not chnage much (dont go below 50)
 
     def apply(self, batch: SampleBatch) -> SampleBatch:
+        # 1. Should not much of a diference. Let it at 50
         background_tissue = background_subtraction(batch.tissue, self.background_sigma)
 
         perona_tissue = perona_malik(
@@ -38,17 +39,20 @@ class ContrastEnhanceSample(AbstractTransformation):
             self.pm_option,
         )
 
+        """
         enhanced_tissue_mask = clahe(
             perona_tissue,
             self.clahe_clip_limit,
             self.clahe_kernel_size,
         )
-
-        # DEBUG: scroll through the enhanced slices (comment out)
-        _debug_plot_slices(enhanced_tissue_mask.data, axis=0, title="enhanced")
+        _debug_plot_slices(enhanced_tissue_mask.data, axis=0, title="clahe")
 
         enhanced_tissue = enhance_white_matter(batch.tissue, enhanced_tissue_mask)
         _debug_plot_slices(enhanced_tissue.data, axis=0, title="summed")
+        """
+
+        enhanced_tissue_data = perona_tissue.data * np.max(batch.tissue.data)
+        enhanced_tissue = batch.tissue.copy_with(data=enhanced_tissue_data.astype(np.uint16))
 
         return batch.copy_with(tissue=enhanced_tissue)
 
