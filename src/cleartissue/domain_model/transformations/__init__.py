@@ -9,6 +9,7 @@ from .EmptySpaceTrimSample import EmptySpaceTrimSample
 from .NaiveAtlasRegistration import NaiveAtlasRegistration
 from .SizeMatchedAtlasRegistration import SizeMatchedAtlasRegistration
 from .InverseSizeMatchAtlasRegistration import InverseSizeMatchedAtlasRegistration
+from .InverseSizeMatchedTissueRegistration import InverseSizeMatchedTissueRegistration
 from .PruneAtlas import PruneAtlas
 from .StartEndTransformtaion import StartEndTransformtaion
 from .CleanDebrisTransformation import CleanDebrisTransformation
@@ -27,6 +28,7 @@ __all__ = [
     "NaiveAtlasRegistration",
     "SizeMatchedAtlasRegistration",
     "InverseSizeMatchedAtlasRegistration",
+    "InverseSizeMatchedTissueRegistration",
     "PruneAtlas",
     "CleanDebrisTransformation",
     "ContrastEnhanceSample",
