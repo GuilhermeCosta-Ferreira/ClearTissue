@@ -76,6 +76,13 @@ class DataDownloader:
                 compression_opts=4,
             )
 
+            f.create_dataset(
+                "tissue_template",
+                data=atlas.tissue_template,
+                compression="gzip",
+                compression_opts=4,
+            )
+
             look_up_json = atlas.look_up.to_json(orient="records")
 
             f.create_dataset(

@@ -20,6 +20,7 @@ from .TissueType import TissueType
 class Atlas(ClearData):
     hemisphere: NDArray
     look_up: pd.DataFrame
+    tissue_template: NDArray
 
     @property
     def shape(self) -> tuple[int, int, int]:
@@ -38,6 +39,7 @@ class Atlas(ClearData):
             data = atlas.annotation,
             hemisphere = atlas.hemispheres,
             look_up = atlas.lookup_df,
+            tissue_template = atlas.reference,
             resolution = atlas.resolution,
             unit = unit,
             orientation = atlas.orientation,
@@ -54,6 +56,7 @@ class Atlas(ClearData):
             orientation: str | None = None,
             tissue_type: TissueType | None = None,
             hemisphere: NDArray | None = None,
+            tissue_template: NDArray | None = None,
             look_up: pd.DataFrame | None = None,
         ) -> "Atlas":
             return replace(
@@ -64,5 +67,6 @@ class Atlas(ClearData):
                 orientation=self.orientation if orientation is None else orientation,
                 tissue_type=self.tissue_type if tissue_type is None else tissue_type,
                 hemisphere=self.hemisphere if hemisphere is None else hemisphere,
+                tissue_template=self.tissue_template if tissue_template is None else tissue_template,
                 look_up=self.look_up if look_up is None else look_up,
             )
