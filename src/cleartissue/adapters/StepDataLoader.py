@@ -86,6 +86,7 @@ class StepDataLoader:
             return Atlas(
                 data = np.asarray(f["data"]),
                 hemisphere = np.asarray(f["hemisphere"]),
+                tissue_template=np.asarray(f["tissue_template"]),
                 look_up = pd.read_json(io.StringIO(look_up_json), orient="records"),  # type: ignore
                 resolution = tuple(json.loads(f.attrs["resolution"])),  # type: ignore
                 unit = tuple(json.loads(f.attrs["unit"])),  # type: ignore
