@@ -24,7 +24,7 @@ if __name__ == '__main__':
     pipeline.add_list([
         tr.RegularizeSample,
         tr.OrientSample,
-        tr.ContrastEnhanceSample,
+        #tr.ContrastEnhanceSample,
         tr.StretchSample,
         tr.StartEndTransformtaion,
         #tr.CleanDebrisTransformation,

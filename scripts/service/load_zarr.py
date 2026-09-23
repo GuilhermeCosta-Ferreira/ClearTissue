@@ -20,16 +20,18 @@ from cleartissue.service.ClearTissueProject import ClearTissueProject
 # 1. Section: INPUTS
 # ================================================================
 DRIVE_ROOT: Path = Path("/Volumes/GuiNR")
-ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_raw.zarr"
+ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_cells.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/01GT/488_Virus_raw.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/561_CFos_raw.zarr"
 
-MOUSE: str = "198B-L2"
+MOUSE: str = "198B-Cells"
 DATA_FOLDER: Path = Path("data")
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
-TARGET_RESOLUTION: str = "level_02"
-TARGET_RESOLUTION_POSITION: int = -2
+TARGET_RESOLUTION: str = "level_03"
+TARGET_RESOLUTION_POSITION: int = -1
 UNIT: str = "um"
-ORIENTATION: str = "sal"
+ORIENTATION: str = "sal" #"spl"
 
 
 
@@ -77,6 +79,8 @@ def get_scale_factor_to_high_resolution(root: zarr.Group, level: str) -> NDArray
 
 
 
+
+
 # ================================================================
 # 3. Section: MAIN
 # ================================================================
@@ -89,6 +93,13 @@ if __name__ == '__main__':
 
     # 1. Load the ZARR file
     root = zarr.open_group(ZARR_PATH, mode="r")
+
+    cells_resolution = root.metadata.attributes["multiscales"][0]["datasets"][-3]['coordinateTransformations'][0]["scale"]
+    print(f"cells_resolution: {cells_resolution}")
+
+    if len(root.metadata.attributes["multiscales"][0]["datasets"]) > 3:
+        resolutions = get_resolutions(root)
+        print(f"resolutions: {resolutions}")
 
     resolution = root.metadata.attributes["multiscales"][0]["datasets"][TARGET_RESOLUTION_POSITION]['coordinateTransformations'][0]["scale"]
 
