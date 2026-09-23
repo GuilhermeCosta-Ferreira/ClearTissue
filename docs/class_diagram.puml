@@ -295,6 +295,8 @@ package "Adapters" {
         + load_cells(): ClearPoints
         + load_atlas(): Atlas
         + load_tissue(): ClearVolume
+        + load_atlas_structures(): dict[int, dict]
+        + load_atlas_segments(): list[dict]
     }
     !if ($SHOW_DEPENDENCIES == 1)
     RawDataLoader ..> ClearPoints
