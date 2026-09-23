@@ -8,11 +8,11 @@ import numpy as np
 
 from numpy.typing import NDArray
 from dataclasses import dataclass
+from brainglobe_atlasapi import BrainGlobeAtlas
 
 from .Source import Source
 from .utils import get_json_cell_data, get_raw_tissue_path
 from ..domain_model.data import ClearPoints, Atlas, ClearVolume, TissueType
-
 
 
 # ================================================================
@@ -31,22 +31,30 @@ class RawDataLoader:
         data = get_json_cell_data(self.source.raw_path, self.source.cells_base_name)
 
         return ClearPoints(
-            data = np.asarray(data),
-            resolution = resolution,
-            unit = unit,
-            orientation = orientation,
-            tissue_type = self.source.tissue_type
+            data=np.asarray(data),
+            resolution=resolution,
+            unit=unit,
+            orientation=orientation,
+            tissue_type=self.source.tissue_type,
         )
 
     def load_raw_atlas(self, unit: tuple[str, str, str]) -> Atlas:
         return Atlas.from_name(
-            self.source.atlas_name,
-            unit = unit,
-            tissue_type = self.source.tissue_type
+            self.source.atlas_name, unit=unit, tissue_type=self.source.tissue_type
         )
 
+    def load_atlas_structures(self) -> dict[int, dict]:
+        atlas = BrainGlobeAtlas(self.source.atlas_name)
+        return {int(label): info for label, info in atlas.structures.items()}
+
+    def load_atlas_segments(self) -> list[dict]:
+        atlas = BrainGlobeAtlas(self.source.atlas_name)
+        return list(atlas.metadata.get("atlas_segments", []))
+
     def load_raw_tissue(self) -> ClearVolume:
-        h5_path = get_raw_tissue_path(self.source.raw_path, self.source.tissue_base_name)
+        h5_path = get_raw_tissue_path(
+            self.source.raw_path, self.source.tissue_base_name
+        )
 
         with h5py.File(h5_path, "r") as f:
             data: NDArray = np.asarray(f["data"])
