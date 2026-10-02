@@ -12,27 +12,19 @@ import cleartissue.domain_model.transformations as tr
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
-        mouse="01GT-Virus",
+        mouse="193R",
         tissue_type=TissueType.SPINAL_CORD,
     )
     raw_batch = project.load_raw()
 
-    pipeline = project.init_pipeline("New registration, this time let's use the tissue template as the fixed image")
+    pipeline = project.init_pipeline("Evaluation Pipeline")
 
     input("Setup the config. Press enter when ready")
 
     pipeline.add_list([
         tr.RegularizeSample,
         tr.OrientSample,
-        #tr.ContrastEnhanceSample,
         tr.StretchSample,
-        tr.StartEndTransformtaion,
-        #tr.CleanDebrisTransformation,
-        tr.UntwistSample,
-        tr.RotateSample,
-        tr.CylindricalMaskSample,
-        tr.EmptySpaceTrimSample,
-        tr.InverseSizeMatchedTissueRegistration,
     ])
 
     final_batch = project.run_pipeline(pipeline, raw_batch)

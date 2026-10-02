@@ -20,11 +20,14 @@ from cleartissue.service.ClearTissueProject import ClearTissueProject
 # 1. Section: INPUTS
 # ================================================================
 DRIVE_ROOT: Path = Path("/Volumes/GuiNR")
-ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_cells.zarr"
+ZARR_PATH: Path = DRIVE_ROOT / "Transfer/193R/488_Auto_raw.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/189R/488_Auto_raw.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_raw.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_cells.zarr"
 #ZARR_PATH: Path = DRIVE_ROOT / "Transfer/01GT/488_Virus_raw.zarr"
 #ZARR_PATH: Path = DRIVE_ROOT / "Transfer/561_CFos_raw.zarr"
 
-MOUSE: str = "198B-Cells"
+MOUSE: str = "193R"
 DATA_FOLDER: Path = Path("data")
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
@@ -85,7 +88,6 @@ def get_scale_factor_to_high_resolution(root: zarr.Group, level: str) -> NDArray
 # 3. Section: MAIN
 # ================================================================
 if __name__ == '__main__':
-
     project = ClearTissueProject.init(
         mouse=MOUSE,
         tissue_type=TissueType.SPINAL_CORD,
