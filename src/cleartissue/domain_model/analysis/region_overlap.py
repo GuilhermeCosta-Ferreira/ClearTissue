@@ -16,6 +16,8 @@ from ..data import Atlas, ClearVolume, ClearPoints
 # 1. Section: Constants
 # ================================================================
 BACKGROUND_LABEL: int = 0
+LEFT_HEMISPHERE: int = 1
+RIGHT_HEMISPHERE: int = 2
 
 
 
@@ -26,9 +28,16 @@ def count_region_overlap(
     cells: ClearVolume | ClearPoints,
     atlas: Atlas,
     structures: dict[int, dict],
+    mask: NDArray | None = None,
 ) -> pd.DataFrame:
-    cell_sums = _aggregate_up(_direct_cell_counts(cells, atlas.data), structures)
-    volumes = _aggregate_up(_direct_voxel_counts(atlas.data), structures)
+    # Restricting to a hemisphere = blanking the annotation outside it; the
+    # background label is already dropped from every count downstream.
+    annotation = atlas.data
+    if mask is not None:
+        annotation = np.where(mask, annotation, BACKGROUND_LABEL)
+
+    cell_sums = _aggregate_up(_direct_cell_counts(cells, annotation), structures)
+    volumes = _aggregate_up(_direct_voxel_counts(annotation), structures)
     children = _direct_children(structures)
 
     rows: list[dict] = []
@@ -78,6 +87,42 @@ def count_region_overlap(
         ],
     )
     return frame.sort_values("cell_sum", ascending=False).reset_index(drop=True)
+
+
+def count_region_overlap_by_hemisphere(
+    cells: ClearVolume | ClearPoints,
+    atlas: Atlas,
+    structures: dict[int, dict],
+) -> pd.DataFrame:
+    """Region overlap split into whole / left / right hemisphere columns.
+
+    One row per region. Region metadata (name, acronym, parent, ...) is kept
+    once; cell_sum, volume and density_pct are suffixed `_whole`/`_left`/
+    `_right`. Left/right are selected from ``atlas.hemisphere`` (1 = left,
+    2 = right); the whole-tissue column is the unmasked total, which may
+    exceed left + right where voxels carry no hemisphere label.
+    """
+    value_cols = ["cell_sum", "volume", "density_pct"]
+    masks = {
+        "whole": None,
+        "left": atlas.hemisphere == LEFT_HEMISPHERE,
+        "right": atlas.hemisphere == RIGHT_HEMISPHERE,
+    }
+
+    merged: pd.DataFrame | None = None
+    for suffix, mask in masks.items():
+        frame = count_region_overlap(cells, atlas, structures, mask=mask)
+        renamed = frame.rename(columns={c: f"{c}_{suffix}" for c in value_cols})
+
+        if merged is None:
+            # First pass is whole tissue: keep its full metadata + present flag.
+            merged = renamed
+        else:
+            keep = ["id", *[f"{c}_{suffix}" for c in value_cols]]
+            merged = merged.merge(renamed[keep], on="id", how="left")
+
+    assert merged is not None  # masks is non-empty
+    return merged.sort_values("cell_sum_whole", ascending=False).reset_index(drop=True)
 
 
 # ──────────────────────────────────────────────────────

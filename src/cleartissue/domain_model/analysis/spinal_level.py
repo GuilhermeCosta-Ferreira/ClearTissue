@@ -18,6 +18,8 @@ from ..data import Atlas, ClearVolume, ClearPoints
 # Orientation letters (BrainGlobe) whose axis runs rostro-caudal for the cord.
 _ROSTRO_CAUDAL_LETTERS: frozenset[str] = frozenset({"a", "p"})
 BACKGROUND_LABEL: int = 0
+LEFT_HEMISPHERE: int = 1
+RIGHT_HEMISPHERE: int = 2
 
 
 
@@ -28,12 +30,16 @@ def count_spinal_level_overlap(
     cells: ClearVolume | ClearPoints,
     atlas: Atlas,
     segments: list[dict],
+    mask: NDArray | None = None,
 ) -> pd.DataFrame:
     axis = _section_axis(atlas)
-    annotation = np.moveaxis(atlas.data, axis, 0)
+    # Restricting to a hemisphere = blanking the annotation outside it, so both
+    # the slab volumes and the per-cell hemisphere test drop the other side.
+    atlas_data = atlas.data if mask is None else np.where(mask, atlas.data, BACKGROUND_LABEL)
+    annotation = np.moveaxis(atlas_data, axis, 0)
     bounds = _level_bounds(segments, annotation.shape[0])
 
-    cell_axis_pos, cell_mask = _cells_on_axis(cells, annotation, atlas, axis)
+    cell_axis_pos, cell_mask = _cells_on_axis(cells, annotation, atlas, axis, atlas_data)
 
     rows: list[dict] = []
     for order, (name, start, end) in enumerate(bounds):
@@ -58,6 +64,38 @@ def count_spinal_level_overlap(
         rows,
         columns=["order", "segment", "present", "cell_sum", "volume", "density_pct"],
     )
+
+def count_spinal_level_overlap_by_hemisphere(
+    cells: ClearVolume | ClearPoints,
+    atlas: Atlas,
+    segments: list[dict],
+) -> pd.DataFrame:
+    """Spinal-level overlap split into whole / left / right hemisphere columns.
+
+    One row per spinal segment. cell_sum, volume and density_pct are suffixed
+    `_whole`/`_left`/`_right`; left/right are selected from ``atlas.hemisphere``
+    (1 = left, 2 = right).
+    """
+    value_cols = ["cell_sum", "volume", "density_pct"]
+    masks = {
+        "whole": None,
+        "left": atlas.hemisphere == LEFT_HEMISPHERE,
+        "right": atlas.hemisphere == RIGHT_HEMISPHERE,
+    }
+
+    merged: pd.DataFrame | None = None
+    for suffix, mask in masks.items():
+        frame = count_spinal_level_overlap(cells, atlas, segments, mask=mask)
+        renamed = frame.rename(columns={c: f"{c}_{suffix}" for c in value_cols})
+
+        if merged is None:
+            merged = renamed
+        else:
+            keep = ["order", *[f"{c}_{suffix}" for c in value_cols]]
+            merged = merged.merge(renamed[keep], on="order", how="left")
+
+    assert merged is not None  # masks is non-empty
+    return merged
 
 def region_spinal_levels(
     atlas: Atlas,
@@ -106,14 +144,15 @@ def _cells_on_axis(
     annotation: NDArray,
     atlas: Atlas,
     axis: int,
+    atlas_data: NDArray,
 ) -> tuple[NDArray, NDArray]:
     if isinstance(cells, ClearPoints):
         coords = np.rint(cells.data).astype(np.int64)
-        in_bounds = np.all((coords >= 0) & (coords < atlas.data.shape), axis=1)
+        in_bounds = np.all((coords >= 0) & (coords < atlas_data.shape), axis=1)
         coords = coords[in_bounds]
 
         axis_pos = coords[:, axis]
-        labels = atlas.data[coords[:, 0], coords[:, 1], coords[:, 2]]
+        labels = atlas_data[coords[:, 0], coords[:, 1], coords[:, 2]]
         return axis_pos, labels != BACKGROUND_LABEL
 
     if cells.data.shape != atlas.data.shape:
