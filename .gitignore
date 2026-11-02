@@ -219,3 +219,4 @@ out/
 
 *.nii.gz
 *.pkl
+renders/

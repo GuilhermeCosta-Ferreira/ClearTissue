@@ -220,23 +220,29 @@ def build_layers(batch: SampleBatch, data_names: list[str]) -> list[RenderLayer]
     return layers
 
 
-def blend_axis_frames(layers: list[RenderLayer], axis: int) -> list[NDArray]:
+def blend_axis_frames(
+    layers: list[RenderLayer],
+    axis: int,
+    weights: list[float],
+) -> list[NDArray]:
     """Sweep every slice along ``axis`` and composite the layers per slice.
 
     Each slice is composited back-to-front over black: every layer is drawn
-    with its own alpha scaled by ``1/n`` (``n`` = number of layers), so a
-    single layer is opaque and overlaps dim evenly. Leading and trailing
-    slices with no signal in any layer are trimmed.
+    with its own alpha scaled by its blend ``weight``, so a weight of 1.0 lets
+    a layer show at full opacity and a smaller weight fades it under the layers
+    above. Leading and trailing slices with no signal in any layer are trimmed.
+
+    Args:
+        weights: per-layer blend weight in ``[0, 1]``, parallel to ``layers``.
 
     Returns:
         RGB ``uint8`` frames in sweep order; empty if every slice is blank.
     """
     n_slices = layers[0].volume.shape[axis]
-    alpha_scale = 1.0 / len(layers)
 
     pairs: list[tuple[NDArray, bool]] = []
     for index in tqdm(range(n_slices), desc=f"axis {axis}"):
-        pairs.append(_composite_slice(layers, axis, index, alpha_scale))
+        pairs.append(_composite_slice(layers, axis, index, weights))
 
     return _trim_blank(pairs)
 
@@ -324,15 +330,15 @@ def _composite_slice(
     layers: list[RenderLayer],
     axis: int,
     index: int,
-    alpha_scale: float,
+    weights: list[float],
 ) -> tuple[NDArray, bool]:
     base_shape = np.take(layers[0].volume, index, axis=axis).shape
     acc_rgb = np.zeros((*base_shape, 3), dtype=np.float32)
     acc_alpha = np.zeros(base_shape, dtype=np.float32)
 
-    for layer in layers:
+    for layer, weight in zip(layers, weights):
         rgba = layer.colorize(np.take(layer.volume, index, axis=axis))
-        alpha = rgba[..., 3] * alpha_scale
+        alpha = rgba[..., 3] * weight
         over = alpha[..., None]
         acc_rgb = rgba[..., :3] * over + acc_rgb * (1.0 - over)  # 'over' composite
         acc_alpha = alpha + acc_alpha * (1.0 - alpha)
@@ -372,6 +378,18 @@ def parse_args() -> argparse.Namespace:
         help="Modalities to render, bottom-to-top (default: tissue cells)",
     )
     parser.add_argument(
+        "--alpha",
+        nargs="+",
+        type=float,
+        default=None,
+        help=(
+            "Per-layer blend weight in [0, 1], parallel to --data (or one "
+            "value for all). Default: 1/n for every layer. Use e.g. "
+            "'--data atlas tissue --alpha 0.4 1.0' to fade a solid atlas "
+            "under the tissue."
+        ),
+    )
+    parser.add_argument(
         "--speed",
         type=float,
         default=20.0,
@@ -384,6 +402,24 @@ def parse_args() -> argparse.Namespace:
         help="Root output folder (default: renders)",
     )
     return parser.parse_args()
+
+
+def _resolve_weights(alpha: list[float] | None, n_layers: int) -> list[float]:
+    """Expand the ``--alpha`` flag into one blend weight per layer.
+
+    ``None`` falls back to ``1/n`` for every layer; a single value is applied
+    to all; otherwise the count must match the number of selected modalities.
+
+    Raises:
+        ValueError: If the number of weights is neither 1 nor ``n_layers``.
+    """
+    if alpha is None:
+        return [1.0 / n_layers] * n_layers
+    if len(alpha) == 1:
+        return alpha * n_layers
+    if len(alpha) != n_layers:
+        raise ValueError(f"--alpha expects 1 or {n_layers} values, got {len(alpha)}")
+    return alpha
 
 
 # ================================================================
@@ -399,12 +435,13 @@ def main() -> None:
     batch = project.io.load_batch(pipeline_id=args.pipeline_id, step=args.step_id)
 
     layers = build_layers(batch, args.data)
+    weights = _resolve_weights(args.alpha, len(args.data))
 
     run_dir = args.out_dir / f"{args.mouse_id}_p{args.pipeline_id:02d}_s{args.step_id}"
     modalities = "+".join(args.data)
 
     for axis in range(3):
-        frames = blend_axis_frames(layers, axis)
+        frames = blend_axis_frames(layers, axis, weights)
         if not frames:
             print(f"axis {axis}: no signal, skipped")
             continue

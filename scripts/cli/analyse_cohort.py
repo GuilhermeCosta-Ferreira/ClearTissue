@@ -1,9 +1,10 @@
 # ================================================================
 # 0. Section: IMPORTS
 # ================================================================
-from pathlib import Path
-
 import pandas as pd
+
+from pathlib import Path
+from dataclasses import dataclass
 
 from cleartissue.domain_model.data import TissueType
 from cleartissue.adapters.RawDataLoader import RawDataLoader
@@ -16,30 +17,53 @@ from cleartissue.domain_model.analysis import (
 
 
 # ================================================================
-# 1. Section: Inputs
+# 1. Section: Types
+# ================================================================
+@dataclass(frozen=True)
+class AnimalRun:
+    mouse: str
+    pipeline_id: int
+    step_id: int
+
+
+# ================================================================
+# 2. Section: Inputs
 # ================================================================
 # Edit these in place — this is a cohort script, not a CLI.
-ANIMALS: list[str] = ["189R", "193R", "212B"]
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
-PIPELINE_ID: int = 2
-STEP_ID: int = 8
+ANIMALS: list[AnimalRun] = [
+    AnimalRun(mouse="31E", pipeline_id=3, step_id=8),
+    AnimalRun(mouse="32E", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="33E", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="79E", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="116Rest", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="117Rest", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="120Rest", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="121Rest", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="122Rest", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="189R", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="191R", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="193R", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="194B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="195B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="196B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="198B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="210B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="211B", pipeline_id=2, step_id=8),
+    AnimalRun(mouse="212B", pipeline_id=2, step_id=8),
+]
 
 OUTPUT_PATH: Path = Path("cohort_analysis.xlsx")
 
 
 # ================================================================
-# 2. Section: Functions
+# 3. Section: Functions
 # ================================================================
-def analyse_animal(mouse: str) -> dict[str, pd.DataFrame]:
-    """Compute the per-animal overlap tables for one mouse.
+def analyse_animal(run: AnimalRun) -> dict[str, pd.DataFrame]:
+    project = ClearTissueProject.load(mouse=run.mouse, tissue_type=TISSUE_TYPE)
 
-    Mirrors analyse.py but returns the frames (whole/left/right hemisphere)
-    with a leading ``animal`` column instead of writing per-step CSVs.
-    """
-    project = ClearTissueProject.load(mouse=mouse, tissue_type=TISSUE_TYPE)
-
-    batch = project.io.load_batch(pipeline_id=PIPELINE_ID, step=STEP_ID)
+    batch = project.io.load_batch(pipeline_id=run.pipeline_id, step=run.step_id)
     raw_loader = RawDataLoader(project.source)
     structures = raw_loader.load_atlas_structures()
     segments = raw_loader.load_atlas_segments()
@@ -56,14 +80,14 @@ def analyse_animal(mouse: str) -> dict[str, pd.DataFrame]:
     )
 
     return {
-        "region_overlap": _with_animal(overlap, mouse),
-        "region_overlap_leaves": _with_animal(leaves, mouse),
-        "spinal_level_overlap": _with_animal(by_level, mouse),
+        "region_overlap": _with_animal(overlap, run.mouse),
+        "region_overlap_leaves": _with_animal(leaves, run.mouse),
+        "spinal_level_overlap": _with_animal(by_level, run.mouse),
     }
 
 
 # ──────────────────────────────────────────────────────
-# 2.1 Subsection: Helper Functions
+# 3.1 Subsection: Helper Functions
 # ──────────────────────────────────────────────────────
 def _with_animal(frame: pd.DataFrame, mouse: str) -> pd.DataFrame:
     out = frame.copy()
@@ -72,7 +96,7 @@ def _with_animal(frame: pd.DataFrame, mouse: str) -> pd.DataFrame:
 
 
 # ================================================================
-# 3. Section: Main
+# 4. Section: Main
 # ================================================================
 def main() -> None:
     per_sheet: dict[str, list[pd.DataFrame]] = {
@@ -81,11 +105,11 @@ def main() -> None:
         "spinal_level_overlap": [],
     }
 
-    for mouse in ANIMALS:
-        tables = analyse_animal(mouse)
+    for run in ANIMALS:
+        tables = analyse_animal(run)
         for sheet, frame in tables.items():
             per_sheet[sheet].append(frame)
-        print(f"Analysed {mouse}")
+        print(f"Analysed {run.mouse} (pipeline {run.pipeline_id}, step {run.step_id})")
 
     with pd.ExcelWriter(OUTPUT_PATH, engine="openpyxl") as writer:
         for sheet, frames in per_sheet.items():

@@ -12,7 +12,7 @@ from cleartissue.adapters.DataConverter import DataConverter
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
-        mouse="193R",
+        mouse="198B",
         tissue_type=TissueType.SPINAL_CORD,
     )
 

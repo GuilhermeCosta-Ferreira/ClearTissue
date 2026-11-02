@@ -20,14 +20,9 @@ from cleartissue.service.ClearTissueProject import ClearTissueProject
 # 1. Section: INPUTS
 # ================================================================
 DRIVE_ROOT: Path = Path("/Volumes/GuiNR")
-ZARR_PATH: Path = DRIVE_ROOT / "Transfer/193R/488_Auto_raw.zarr"
-#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/189R/488_Auto_raw.zarr"
-#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_raw.zarr"
-#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/198B/561_CFos_cells.zarr"
-#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/01GT/488_Virus_raw.zarr"
-#ZARR_PATH: Path = DRIVE_ROOT / "Transfer/561_CFos_raw.zarr"
+ZARR_PATH: Path = DRIVE_ROOT / "Spark/Gait Imbalance/ClearTissue Project/Transfer/190R/488_Auto_raw.zarr"
 
-MOUSE: str = "193R"
+MOUSE: str = "190R"
 DATA_FOLDER: Path = Path("data")
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
