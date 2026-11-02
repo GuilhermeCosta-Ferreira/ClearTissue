@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from pathlib import Path
 from brainglobe_atlasapi import BrainGlobeAtlas
-from brainglobe_atlasapi.atlas_name import AtlasName
 from datetime import datetime
 from dataclasses import replace
 from numpy.typing import NDArray
@@ -85,7 +84,9 @@ def main() -> None:
     scale = np.array(json.loads(str(attrs["resolution"]))) / np.array(atlas.resolution[1:])
     tissue = normalise(rescale(background.astype(np.float32), scale, anti_aliasing=True))
 
-    allowed = segment_mask(args.atlas, args.segments, len(atlas.tissue_template))
+    n_slices = len(atlas.tissue_template)
+    bounds = _level_bounds(BrainGlobeAtlas(args.atlas).metadata["atlas_segments"], n_slices)
+    allowed = segment_mask(bounds, args.segments, n_slices)
     scores, orients = score_slices(tissue, atlas.tissue_template, allowed)
     picks = top_k(scores, atlas.tissue_template, args.top_k)
     plot_scores(scores, orients, picks, out / "debug" / "correlation.png")
@@ -122,9 +123,9 @@ def main() -> None:
              idx, scores[idx], k, flip, args.atlas)
         plot_registration(tissue, template, a_template, w.registered_image,
                           w_labels, rescale(signal.astype(np.float32), scale),
-                          f"slice {idx}  ncc={scores[idx]:.3f}  rot90={k} flip={flip}",
+                          f"slice {idx} ({segment_of(bounds, idx)})  ncc={scores[idx]:.3f}  rot90={k} flip={flip}",
                           out / "debug" / f"slice_{idx:04d}.png")
-        tqdm.write(f"slice {idx}: ncc={scores[idx]:.3f} affine={a.final_metric:.3f} "
+        tqdm.write(f"slice {idx} ({segment_of(bounds, idx)}): ncc={scores[idx]:.3f} affine={a.final_metric:.3f} "
               f"warp={w.final_metric:.3f}")
 
 
@@ -162,11 +163,15 @@ def crop_to_tissue(image: NDArray) -> NDArray:
     return (crop - crop.mean()) / (crop.std() + 1e-9)
 
 
-def segment_mask(atlas_name: AtlasName, segments: list[str] | None, n_slices: int) -> NDArray:
+def segment_of(bounds: list[tuple[str, int, int]], idx: int) -> str:
+    return next(name for name, start, end in bounds if start <= idx < end)
+
+
+def segment_mask(bounds: list[tuple[str, int, int]], segments: list[str] | None,
+                 n_slices: int) -> NDArray:
     """Which atlas slices belong to the requested segments (all if None)."""
     if not segments:
         return np.ones(n_slices, bool)
-    bounds = _level_bounds(BrainGlobeAtlas(atlas_name).metadata["atlas_segments"], n_slices)
     unknown = set(segments) - {name for name, _, _ in bounds}
     if unknown:
         raise ValueError(f"Unknown segments {sorted(unknown)}; atlas has {[b[0] for b in bounds]}")
