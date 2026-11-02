@@ -3,7 +3,7 @@
 1. Downsample the convert.py background to the atlas in-plane resolution.
 2. Score every atlas template slice (in all 8 flips/rotations) by normalised
    cross-correlation against the background, both cropped to their bounding box.
-3. For the top-k distinct templates: outline affine + B-spline register the template to the tissue,
+3. For the top-k templates (one per run of identical slices): outline affine + B-spline register the template to the tissue,
    resample the atlas annotation through both transforms onto the native grid.
 
 Writes into <out>/<timestamp>/ one <stem>_atlas_<idx>.hdf5 per slice (/annotation on the tissue grid,
@@ -87,8 +87,9 @@ def main() -> None:
     n_slices = len(atlas.tissue_template)
     bounds = _level_bounds(BrainGlobeAtlas(args.atlas).metadata["atlas_segments"], n_slices)
     allowed = segment_mask(bounds, args.segments, n_slices)
-    scores, orients = score_slices(tissue, atlas.tissue_template, allowed)
-    picks = top_k(scores, atlas.tissue_template, args.top_k)
+    run, reps = collapse_runs(atlas.tissue_template, allowed)
+    scores, orients = score_slices(tissue, atlas.tissue_template, run, reps, allowed)
+    picks = sorted(reps, key=lambda i: scores[i], reverse=True)[: args.top_k]
     plot_scores(scores, orients, picks, out / "debug" / "correlation.png")
 
     affine = Registrator(AffineRegistration(), RegistratorResampler(), TEMPLATE_AFFINE_REGISTRATION)
@@ -181,27 +182,29 @@ def segment_mask(bounds: list[tuple[str, int, int]], segments: list[str] | None,
     return mask
 
 
-def score_slices(tissue: NDArray, template: NDArray, allowed: NDArray) -> tuple[NDArray, NDArray]:
+def collapse_runs(template: NDArray, allowed: NDArray) -> tuple[NDArray, list[int]]:
+    """Run id per slice and one allowed representative per run.
+
+    The atlas was upsampled along the cord with constant interpolation, so it is
+    made of runs of identical slices; scoring one per run is enough.
+    """
+    same = np.array([np.array_equal(a, b) for a, b in zip(template[1:], template[:-1])])
+    run = np.concatenate([[0], np.cumsum(~same)])
+    reps = [int(np.flatnonzero((run == r) & allowed)[0]) for r in np.unique(run[allowed])]
+    return run, reps
+
+
+def score_slices(tissue: NDArray, template: NDArray, run: NDArray, reps: list[int],
+                 allowed: NDArray) -> tuple[NDArray, NDArray]:
     """Best NCC per atlas slice over all orientations, and which orientation won."""
     target = crop_to_tissue(tissue)
     scores = np.full((len(template), len(ORIENTATIONS)), -1.0)
-    for i, slice_ in enumerate(tqdm(template, desc="scoring atlas slices")):
-        if not allowed[i] or slice_.max() == 0:
+    for i in tqdm(reps, desc="scoring atlas templates"):
+        if template[i].max() == 0:
             continue
-        for j, (k, flip) in enumerate(ORIENTATIONS):
-            scores[i, j] = np.mean(target * crop_to_tissue(orient(slice_, k, flip)))
+        row = [np.mean(target * crop_to_tissue(orient(template[i], k, f))) for k, f in ORIENTATIONS]
+        scores[(run == run[i]) & allowed] = row
     return scores.max(1), scores.argmax(1)
-
-
-def top_k(scores: NDArray, template: NDArray, k: int) -> list[int]:
-    """Best k slices, skipping repeats: the template is constant within segments."""
-    picks: list[int] = []
-    for idx in np.argsort(scores)[::-1]:
-        if all(not np.array_equal(template[idx], template[p]) for p in picks):
-            picks.append(int(idx))
-        if len(picks) == k:
-            break
-    return picks
 
 
 def save(path: Path, annotation: NDArray, attrs: dict, idx: int, score: float,
