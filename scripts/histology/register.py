@@ -26,6 +26,8 @@ import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from pathlib import Path
+from brainglobe_atlasapi import BrainGlobeAtlas
+from brainglobe_atlasapi.atlas_name import AtlasName
 from datetime import datetime
 from dataclasses import replace
 from numpy.typing import NDArray
@@ -34,6 +36,7 @@ from skimage.segmentation import find_boundaries
 from skimage.transform import rescale, resize
 
 from cleartissue.domain_model.data import Atlas
+from cleartissue.domain_model.analysis.spinal_level import _level_bounds
 from cleartissue.registration import Registrator, RegistratorResampler
 from cleartissue.registration.configs import (
     TEMPLATE_AFFINE_REGISTRATION,
@@ -58,7 +61,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", type=Path, help="Output folder (default: next to input)")
     parser.add_argument("--atlas", default="allen_cord_20um", help="BrainGlobe atlas")
     parser.add_argument("--top-k", type=int, default=3, help="Atlas slices to register")
-    parser.add_argument("--grid", type=int, default=4, help="The amount of points per grid")
+    parser.add_argument("--segments", nargs="+", help="Only consider these, e.g. C5 C6 T1")
+    parser.add_argument("--grid", type=int, default=2, help="The amount of points per grid")
+    parser.add_argument("--warp-method", type=str, default="MI", help="The warp method")
     return parser.parse_args()
 
 
@@ -80,13 +85,15 @@ def main() -> None:
     scale = np.array(json.loads(str(attrs["resolution"]))) / np.array(atlas.resolution[1:])
     tissue = normalise(rescale(background.astype(np.float32), scale, anti_aliasing=True))
 
-    scores, orients = score_slices(tissue, atlas.tissue_template)
+    allowed = segment_mask(args.atlas, args.segments, len(atlas.tissue_template))
+    scores, orients = score_slices(tissue, atlas.tissue_template, allowed)
     picks = top_k(scores, atlas.tissue_template, args.top_k)
     plot_scores(scores, orients, picks, out / "debug" / "correlation.png")
 
     affine = Registrator(AffineRegistration(), RegistratorResampler(), TEMPLATE_AFFINE_REGISTRATION)
     warp_config = replace(
         TEMPLATE_WARP_REGISTRATION,
+        metric=replace(TEMPLATE_WARP_REGISTRATION.metric, name=args.warp_method),
         optimizer=replace(TEMPLATE_WARP_REGISTRATION.optimizer, grid_size=args.grid),
     )
     warp = Registrator(BSplineRegistration(), RegistratorResampler(), warp_config)
@@ -155,12 +162,26 @@ def crop_to_tissue(image: NDArray) -> NDArray:
     return (crop - crop.mean()) / (crop.std() + 1e-9)
 
 
-def score_slices(tissue: NDArray, template: NDArray) -> tuple[NDArray, NDArray]:
+def segment_mask(atlas_name: AtlasName, segments: list[str] | None, n_slices: int) -> NDArray:
+    """Which atlas slices belong to the requested segments (all if None)."""
+    if not segments:
+        return np.ones(n_slices, bool)
+    bounds = _level_bounds(BrainGlobeAtlas(atlas_name).metadata["atlas_segments"], n_slices)
+    unknown = set(segments) - {name for name, _, _ in bounds}
+    if unknown:
+        raise ValueError(f"Unknown segments {sorted(unknown)}; atlas has {[b[0] for b in bounds]}")
+    mask = np.zeros(n_slices, bool)
+    for name, start, end in bounds:
+        mask[start:end] |= name in segments
+    return mask
+
+
+def score_slices(tissue: NDArray, template: NDArray, allowed: NDArray) -> tuple[NDArray, NDArray]:
     """Best NCC per atlas slice over all orientations, and which orientation won."""
     target = crop_to_tissue(tissue)
     scores = np.full((len(template), len(ORIENTATIONS)), -1.0)
     for i, slice_ in enumerate(tqdm(template, desc="scoring atlas slices")):
-        if slice_.max() == 0:
+        if not allowed[i] or slice_.max() == 0:
             continue
         for j, (k, flip) in enumerate(ORIENTATIONS):
             scores[i, j] = np.mean(target * crop_to_tissue(orient(slice_, k, flip)))
