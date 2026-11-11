@@ -30,6 +30,7 @@ from cleartissue.adapters.RawDataLoader import RawDataLoader
 from cleartissue.service.ClearTissueProject import ClearTissueProject
 from cleartissue.domain_model.analysis import spinal_level_bounds
 from cleartissue.domain_model.transformations import CorrelationAlignment
+from cleartissue.domain_model.transformations.utils.alignment import ratio_profile
 from cleartissue.domain_model.analysis.cord_profile import (
     CurveSummary,
     BumpFit,
@@ -43,7 +44,6 @@ from cleartissue.domain_model.analysis.cord_profile import (
     elongation_profile,
     keep_main_component,
     pca_elongation_profiles,
-    ratio_profile,
     place_on_atlas,
     resample_to_grid,
     smooth_curve,

@@ -7,11 +7,8 @@ from dataclasses import dataclass, field
 from .CorrelationAlignment import CorrelationAlignment
 from .AtlasSliceMatchAlignment import AtlasSliceMatchAlignment
 from .AbstractProfileAlignment import AbstractProfileAlignment
-from ..analysis.cord_profile import (
-    fit_ratio_bump,
-    pca_elongation_profiles,
-    ratio_profile,
-)
+from .utils.alignment import ratio_profile
+from ..analysis.cord_profile import fit_ratio_bump, pca_elongation_profiles
 
 _INNER_ALIGNMENTS: dict[str, type[AbstractProfileAlignment]] = {
     "CorrelationAlignment": CorrelationAlignment,

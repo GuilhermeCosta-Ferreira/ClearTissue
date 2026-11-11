@@ -27,6 +27,14 @@ def apply_atlas_shift(batch: SampleBatch, shift: int) -> SampleBatch:
     return batch.copy_with(atlas=atlas)
 
 
+def ratio_profile(numerator: NDArray, denominator: NDArray) -> NDArray:
+    """Per-slice numerator / denominator; NaN where either is 0 (empty slice)."""
+    ratio = np.full(len(numerator), np.nan)
+    valid = (numerator > 0) & (denominator > 0)
+    ratio[valid] = numerator[valid] / denominator[valid]
+    return ratio
+
+
 # ──────────────────────────────────────────────────────
 # 1.1 Subsection: Helper Functions
 # ──────────────────────────────────────────────────────

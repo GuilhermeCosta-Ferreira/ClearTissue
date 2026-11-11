@@ -10,7 +10,7 @@ from ...registration.strategies import AffineRegistration
 from .AbstractProfileAlignment import AbstractProfileAlignment
 from ...registration.QuickRegistrator import QuickRegistrator
 from ...registration import RegistrationConfig, RegistratorResampler
-from ..analysis.cord_profile import unique_slice_runs, vote_shift
+from ..analysis.cord_profile import _unique_slice_runs, _vote_shift
 
 
 # ================================================================
@@ -23,7 +23,7 @@ class AtlasSliceMatchAlignment(AbstractProfileAlignment):
     Each tissue slice in the first head_fraction of the cord gets a 2D affine
     registration from every unique atlas slice (masks); candidates are ranked
     by final registration loss (lower is better) and the top_k vote for the
-    shift with weights k..1 (vote_shift, Gaussian-smoothed by vote_sigma).
+    shift with weights k..1 (_vote_shift, Gaussian-smoothed by vote_sigma).
     Costs n_head x n_unique registrations, so keep the registrator light.
     The atlas is cropped / zero-padded along axis 0 so tissue slice i lines up
     with atlas slice i (see AbstractProfileAlignment).
@@ -53,7 +53,7 @@ class AtlasSliceMatchAlignment(AbstractProfileAlignment):
     ) -> int:
         tissue_mask, atlas_mask = tissue > 0, atlas > 0
         head_idx = _head_slices(tissue_mask, excluded, self.head_fraction)
-        reps = np.array([(s + e - 1) // 2 for s, e in unique_slice_runs(atlas_mask)])
+        reps = np.array([(s + e - 1) // 2 for s, e in _unique_slice_runs(atlas_mask)])
 
         losses = np.array(
             [
@@ -68,7 +68,7 @@ class AtlasSliceMatchAlignment(AbstractProfileAlignment):
         )
         order = np.argsort(losses, axis=1)[:, : min(self.top_k, len(reps))]
         # Rank-only weights: raw losses aren't comparable across tissue slices.
-        shifts, votes = vote_shift(
+        shifts, votes = _vote_shift(
             head_idx,
             reps[order],
             np.ones(order.shape),
