@@ -20,16 +20,18 @@ from cleartissue.service.ClearTissueProject import ClearTissueProject
 # 1. Section: INPUTS
 # ================================================================
 DRIVE_ROOT: Path = Path("/Volumes/GuiNR")
-ZARR_PATH: Path = DRIVE_ROOT / "Spark/Gait Imbalance/ClearTissue Project/Transfer/190R/488_Auto_raw.zarr"
+ZARR_PATH: Path = DRIVE_ROOT / "Spark/Gait Imbalance/Paddle EES Size Testing Project/Transfer/EESpaddle_17mm_2/488_Auto_raw.zarr"
+#ZARR_PATH: Path = DRIVE_ROOT / "Spark/Gait Imbalance/ClearTissue Project/Transfer/EESpaddle_2mm_2/488_Auto_raw.zarr"
 
-MOUSE: str = "190R"
+MOUSE: str = "EESpaddle_17mm_2"
 DATA_FOLDER: Path = Path("data")
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
+HAS_CELLS: bool = False
 
 TARGET_RESOLUTION: str = "level_03"
 TARGET_RESOLUTION_POSITION: int = -1
 UNIT: str = "um"
-ORIENTATION: str = "sal" #"spl"
+ORIENTATION: str = "spl" #"sal"
 
 
 
@@ -86,6 +88,7 @@ if __name__ == '__main__':
     project = ClearTissueProject.init(
         mouse=MOUSE,
         tissue_type=TissueType.SPINAL_CORD,
+        has_cells=HAS_CELLS,
     )
 
     # 1. Load the ZARR file

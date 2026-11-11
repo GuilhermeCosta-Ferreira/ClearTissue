@@ -4,8 +4,8 @@
 import argparse
 
 from cleartissue.domain_model.data import TissueType
-from cleartissue.service.ClearTissueProject import ClearTissueProject
 import cleartissue.domain_model.transformations as tr
+from cleartissue.service.ClearTissueProject import ClearTissueProject
 
 
 # ================================================================
@@ -60,7 +60,7 @@ def main() -> None:
         tr.RotateSample,
         tr.CylindricalMaskSample,
         tr.EmptySpaceTrimSample,
-        tr.InverseSizeMatchedTissueRegistration,
+        #tr.InverseSizeMatchedTissueRegistration,
     ])
 
     project.run_pipeline(pipeline, raw_batch)

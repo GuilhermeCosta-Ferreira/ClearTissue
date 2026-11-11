@@ -12,7 +12,7 @@ import cleartissue.domain_model.transformations as tr
 # ================================================================
 if __name__ == '__main__':
     project = ClearTissueProject.load(
-        mouse="198B",
+        mouse="EESpaddle_17mm_2",
         tissue_type=TissueType.SPINAL_CORD,
     )
     raw_batch = project.load_raw()
