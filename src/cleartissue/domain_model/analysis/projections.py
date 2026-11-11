@@ -85,3 +85,23 @@ def pca_profiles_along_axis(volume: NDArray, axis: int) -> PcaProfiles:
     the axes appear in the volume.
     """
     return pca_elongation_profiles(np.moveaxis(volume, axis, 0))
+
+
+def pc1_angle_along_axis(volume: NDArray, axis: int) -> NDArray:
+    """Signed PC1 angle per slice perpendicular to axis, in degrees (-90, 90].
+
+    Measured from the same in-plane column axis as pca_profiles_along_axis's
+    pc1_horizontal, which only holds |cos| and so loses the sign. Empty or
+    near-empty slices (< 3 pixels) are NaN.
+    """
+    slices = np.moveaxis(volume, axis, 0)
+    angles = np.full(len(slices), np.nan)
+    for i, sl in enumerate(slices):
+        coords = np.argwhere(sl > 0).astype(float)
+        if len(coords) < 3:
+            continue
+        _, eigvecs = np.linalg.eigh(np.cov(coords, rowvar=False, ddof=0))
+        angle = np.degrees(np.arctan2(eigvecs[0, -1], eigvecs[1, -1]))
+        # PC1's sign is arbitrary, so fold the angle into (-90, 90].
+        angles[i] = angle - 180.0 * np.sign(angle) * (abs(angle) > 90.0)
+    return angles

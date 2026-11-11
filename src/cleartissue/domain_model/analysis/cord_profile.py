@@ -66,7 +66,6 @@ class PcaProfiles:
     pc1_spread: NDArray
     pc2_spread: NDArray
     pc1_horizontal: NDArray
-    pc1_angle: NDArray  # signed degrees from the column axis, in (-90, 90]
 
 
 @dataclass(frozen=True)
@@ -150,15 +149,13 @@ def pca_elongation_profiles(volume: NDArray) -> PcaProfiles:
     - spread: 4 * sqrt(eigenvalue). Equals the full axis length of a filled
       ellipse; stray pixels shift it only slightly.
     PC1 is the higher-variance axis. pc1_horizontal is |cos| between PC1 and
-    the horizontal (column) axis: 1 = horizontal, 0 = vertical. pc1_angle is the
-    signed angle to that axis in degrees. Empty slices give 0 lengths and NaN
-    direction.
+    the horizontal (column) axis: 1 = horizontal, 0 = vertical. Empty slices
+    give 0 lengths and NaN direction.
     """
     n = volume.shape[0]
     pc1, pc2 = np.zeros(n), np.zeros(n)
     pc1_spread, pc2_spread = np.zeros(n), np.zeros(n)
     pc1_horizontal = np.full(n, np.nan)
-    pc1_angle = np.full(n, np.nan)
 
     for sl in range(volume.shape[0]):
         coords = np.argwhere(volume[sl] > 0).astype(float)
@@ -176,11 +173,8 @@ def pca_elongation_profiles(volume: NDArray) -> PcaProfiles:
         spreads = 4.0 * np.sqrt(np.clip(eigvals[::-1], 0.0, None))
         pc1_spread[sl], pc2_spread[sl] = spreads[0], spreads[1]
         pc1_horizontal[sl] = abs(eigvecs[1, -1])  # column component of PC1
-        # PC1's sign is arbitrary, so fold the angle into (-90, 90].
-        angle = np.degrees(np.arctan2(eigvecs[0, -1], eigvecs[1, -1]))
-        pc1_angle[sl] = angle - 180.0 * np.sign(angle) * (abs(angle) > 90.0)
 
-    return PcaProfiles(pc1, pc2, pc1_spread, pc2_spread, pc1_horizontal, pc1_angle)
+    return PcaProfiles(pc1, pc2, pc1_spread, pc2_spread, pc1_horizontal)
 
 def find_atlas_shift(tissue_profile: NDArray, atlas_profile: NDArray) -> int:
     """Shift s such that tissue slice i sits on atlas slice i + s.

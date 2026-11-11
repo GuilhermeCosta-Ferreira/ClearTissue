@@ -32,6 +32,7 @@ from cleartissue.service.ClearTissueProject import ClearTissueProject
 from cleartissue.domain_model.analysis import (
     cumsum_projection,
     mean_projection,
+    pc1_angle_along_axis,
     pca_profiles_along_axis,
     view_projection,
 )
@@ -127,6 +128,7 @@ def _plot_projection(
 
 def _plot_pca(ax: Axes, volume: NDArray, axis: int) -> None:
     pca = pca_profiles_along_axis(volume, axis)
+    angle = pc1_angle_along_axis(volume, axis)
     with np.errstate(divide="ignore", invalid="ignore"):
         ratio = np.where(pca.pc2 > 0, pca.pc1 / pca.pc2, np.nan)
     index = np.arange(len(ratio))
@@ -138,15 +140,15 @@ def _plot_pca(ax: Axes, volume: NDArray, axis: int) -> None:
     ax.tick_params(labelsize=7)
 
     twin = ax.twinx()
-    twin.plot(index, pca.pc1_angle, color="tab:red", lw=1)
+    twin.plot(index, angle, color="tab:red", lw=1)
     twin.set_ylim(-90, 90)
     twin.set_ylabel(
         f"PC1 angle to axis {in_plane[-1]} (°)", color="tab:red", fontsize=8
     )
     twin.tick_params(labelsize=7)
 
-    finite = np.isfinite(pca.pc1_angle)
-    mean_angle = float(pca.pc1_angle[finite].mean()) if finite.any() else np.nan
+    finite = np.isfinite(angle)
+    mean_angle = float(angle[finite].mean()) if finite.any() else np.nan
     ax.set_title(
         f"axis {axis}: per-slice PCA, mean angle {mean_angle:.1f}°", fontsize=9
     )
