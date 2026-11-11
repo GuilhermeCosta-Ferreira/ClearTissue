@@ -14,6 +14,10 @@ from .PruneAtlas import PruneAtlas
 from .StartEndTransformtaion import StartEndTransformtaion
 from .CleanDebrisTransformation import CleanDebrisTransformation
 from .ContrastEnhanceSample import ContrastEnhanceSample
+from .MainComponentCleanSample import MainComponentCleanSample
+from .CorrelationAlignment import CorrelationAlignment
+from .AtlasSliceMatchAlignment import AtlasSliceMatchAlignment
+from .BumpExcludedAlignment import BumpExcludedAlignment
 
 
 __all__ = [
@@ -32,5 +36,9 @@ __all__ = [
     "PruneAtlas",
     "CleanDebrisTransformation",
     "ContrastEnhanceSample",
+    "MainComponentCleanSample",
+    "CorrelationAlignment",
+    "AtlasSliceMatchAlignment",
+    "BumpExcludedAlignment",
     "StartEndTransformtaion",
 ]

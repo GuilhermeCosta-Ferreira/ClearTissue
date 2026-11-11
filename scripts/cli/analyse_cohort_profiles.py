@@ -29,6 +29,8 @@ from cleartissue.domain_model.data import TissueType
 from cleartissue.adapters.RawDataLoader import RawDataLoader
 from cleartissue.service.ClearTissueProject import ClearTissueProject
 from cleartissue.domain_model.analysis import spinal_level_bounds
+from cleartissue.domain_model.transformations import CorrelationAlignment
+from cleartissue.domain_model.transformations.utils.alignment import ratio_profile
 from cleartissue.domain_model.analysis.cord_profile import (
     CurveSummary,
     BumpFit,
@@ -42,7 +44,6 @@ from cleartissue.domain_model.analysis.cord_profile import (
     elongation_profile,
     keep_main_component,
     pca_elongation_profiles,
-    find_atlas_shift,
     place_on_atlas,
     resample_to_grid,
     smooth_curve,
@@ -177,10 +178,8 @@ def align_animal(run: AnimalRun, correct_bump: bool = False) -> AlignedAnimal:
     tissue_raw, direction = _all_profiles(tissue, tissue_um)
     atlas_raw, _ = _all_profiles(atlas, atlas_um)
 
-    tissue_align = elongation_profile(tissue, ALIGN_DIRECTION)
-    atlas_align = elongation_profile(atlas, ALIGN_DIRECTION)
-
-    correlation_shift = find_atlas_shift(tissue_align, atlas_align)
+    correlation = CorrelationAlignment(ALIGN_DIRECTION)
+    correlation_shift = correlation.find_shift(tissue, atlas, None)
 
     head, bump = None, None
     shift = correlation_shift
@@ -192,9 +191,7 @@ def align_animal(run: AnimalRun, correct_bump: bool = False) -> AlignedAnimal:
         if bump is None:
             print(f"  {run.mouse}: bump fit failed, using plain correlation shift")
         else:
-            masked = tissue_align.copy()
-            masked[bump.excluded(BUMP_EXCLUDE_SIGMAS)] = np.nan
-            shift = find_atlas_shift(masked, atlas_align)
+            shift = correlation.find_shift(tissue, atlas, bump.excluded(BUMP_EXCLUDE_SIGMAS))
 
     atlas_curves = {}
     for mode in MODES:
@@ -449,13 +446,10 @@ def _all_profiles(volume: NDArray, voxel_um: float) -> tuple[dict[str, NDArray],
         "pca1": pc1 * voxel_um,
         "pca2": pc2 * voxel_um,
         # Unitless, so voxel size cancels; 1.0 = round slice, higher = flatter.
-        "pca_ratio": np.divide(pc1, pc2, out=np.zeros_like(pc1), where=pc2 > 0),
+        "pca_ratio": ratio_profile(pc1, pc2),
         "pca1_spread": pca.pc1_spread * voxel_um,
         "pca2_spread": pca.pc2_spread * voxel_um,
-        "pca_spread_ratio": np.divide(
-            pca.pc1_spread, pca.pc2_spread,
-            out=np.zeros_like(pc1), where=pca.pc2_spread > 0,
-        ),
+        "pca_spread_ratio": ratio_profile(pca.pc1_spread, pca.pc2_spread),
     }
     for curve in curves.values():
         curve[curve == 0] = np.nan  # empty slices are outside the cord, not width 0
