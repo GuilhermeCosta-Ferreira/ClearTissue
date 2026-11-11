@@ -1,6 +1,6 @@
 """Render projection views and per-slice PCA of one spinal cord along each axis.
 
-One figure, one column per volume axis (0, 1, 2). Rows:
+One file per volume axis (0, 1, 2), each a row of equal-size panels:
 - mean: mean intensity over the top half of the cord along the axis (from the
   centre of the non-background extent to its high-index edge).
 - view: intensity of the first voxel above VIEW_THRESHOLD met looking down
@@ -51,14 +51,20 @@ VIEWS: dict[str, str] = {
 # ================================================================
 # 2. Section: Inputs
 # ================================================================
-MOUSE: str = "190R"
+MOUSE: str = "EESpaddle_2mm_1"
 PIPELINE_ID: int = 2
 STEP_ID: int = 7
 TISSUE_TYPE: TissueType = TissueType.SPINAL_CORD
 
 FMT: Literal["png", "svg"] = "png"
-VIEW_THRESHOLD: float = 0  # voxels at or below this are background
+VIEW_THRESHOLD: float = 10  # voxels at or below this are background
 OUTPUT_ROOT: Path = Path("data/cord_views")
+# Any matplotlib colormap name per view mode, e.g. "magma", "viridis", "gray_r".
+CMAPS: dict[str, str] = {
+    "mean": "gray",
+    "view": "hot",
+    "cumsum": "gray",
+}
 
 
 # ================================================================
@@ -70,50 +76,55 @@ def main() -> None:
     volume = np.asarray(batch.tissue.data)
     resolution = tuple(float(r) for r in batch.tissue.resolution)
 
-    fig = _render(volume, resolution)
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-    out = OUTPUT_ROOT / f"cord_views_{MOUSE}_p{PIPELINE_ID}_s{STEP_ID}.{FMT}"
-    fig.savefig(out, dpi=150)
-    plt.close(fig)
-    print(f"saved {out}")
+    for axis in AXES:
+        fig = _render(volume, resolution, axis)
+        name = f"cord_views_{MOUSE}_p{PIPELINE_ID}_s{STEP_ID}_axis{axis}.{FMT}"
+        out = OUTPUT_ROOT / name
+        fig.savefig(out, dpi=150)
+        plt.close(fig)
+        print(f"saved {out}")
 
 
 # ──────────────────────────────────────────────────────
 # 3.1 Subsection: Helper Functions
 # ──────────────────────────────────────────────────────
-def _render(volume: NDArray, resolution: tuple[float, ...]) -> Figure:
-    n_rows = len(VIEWS) + 1
-    fig, grid = plt.subplots(
-        n_rows,
-        len(AXES),
-        figsize=(4.5 * len(AXES), 4.2 * n_rows),
-        squeeze=False,
-        gridspec_kw={"wspace": 0.45, "hspace": 0.35},
-    )
-    projections: dict[str, Callable[[int], NDArray]] = {
-        "mean": lambda ax: mean_projection(volume, ax, VIEW_THRESHOLD),
-        "view": lambda ax: view_projection(volume, ax, VIEW_THRESHOLD),
-        "cumsum": lambda ax: cumsum_projection(volume, ax, VIEW_THRESHOLD),
+def _render(volume: NDArray, resolution: tuple[float, ...], axis: int) -> Figure:
+    projections: dict[str, Callable[[], NDArray]] = {
+        "mean": lambda: mean_projection(volume, axis, VIEW_THRESHOLD),
+        "view": lambda: view_projection(volume, axis, VIEW_THRESHOLD),
+        "cumsum": lambda: cumsum_projection(volume, axis, VIEW_THRESHOLD),
     }
-    for col, axis in enumerate(AXES):
-        for row, (key, label) in enumerate(VIEWS.items()):
-            _plot_projection(grid[row, col], projections[key](axis), axis, resolution)
-            grid[row, col].set_title(f"axis {axis}: {label}", fontsize=9)
-        _plot_pca(grid[-1, col], volume, axis)
+    n_panels = len(VIEWS) + 1
+    # Same figsize for every axis so panels match in size across the files.
+    fig, row = plt.subplots(
+        1,
+        n_panels,
+        figsize=(4.5 * n_panels, 4.6),
+        squeeze=False,
+        gridspec_kw={"wspace": 0.45},
+    )
+    panels = row[0]
+    for panel, (key, label) in zip(panels, VIEWS.items()):
+        _plot_projection(panel, projections[key](), axis, resolution, CMAPS[key])
+        panel.set_title(f"axis {axis}: {label}", fontsize=9)
+    _plot_pca(panels[-1], volume, axis)
 
-    fig.suptitle(f"{MOUSE}  pipeline {PIPELINE_ID}  step {STEP_ID}", fontsize=12)
-    fig.subplots_adjust(top=0.95, left=0.06, right=0.94, bottom=0.04)
+    fig.suptitle(
+        f"{MOUSE}  pipeline {PIPELINE_ID}  step {STEP_ID}  axis {axis}", fontsize=12
+    )
+    fig.subplots_adjust(top=0.85, left=0.04, right=0.96, bottom=0.12)
     return fig
 
 
 def _plot_projection(
-    ax: Axes, image: NDArray, axis: int, resolution: tuple[float, ...]
+    ax: Axes, image: NDArray, axis: int, resolution: tuple[float, ...], cmap: str
 ) -> None:
     rows_axis, cols_axis = (a for a in AXES if a != axis)
     h, w = image.shape
     ax.imshow(
         image,
-        cmap="gray",
+        cmap=cmap,
         extent=(0, w * resolution[cols_axis], h * resolution[rows_axis], 0),
         aspect="equal",
         interpolation="nearest",

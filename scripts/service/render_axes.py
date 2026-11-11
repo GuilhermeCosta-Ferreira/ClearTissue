@@ -50,13 +50,8 @@ from cleartissue.domain_model.transformations.utils.points_to_volume import (
 # ================================================================
 # 1. Section: Constants
 # ================================================================
-# Low/high percentiles for intensity normalisation, over nonzero voxels only.
 _INTENSITY_PERCENTILES: tuple[float, float] = (1.0, 99.5)
-
-# Seed for the atlas region colour lookup table, so colours are stable.
 _ATLAS_COLOUR_SEED: int = 7
-
-# Registry of selectable modalities: CLI name -> concrete layer class.
 _LAYER_REGISTRY: dict[str, type["RenderLayer"]] = {}
 
 
