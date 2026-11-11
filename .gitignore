@@ -220,3 +220,4 @@ out/
 *.nii.gz
 *.pkl
 renders/
+*CLAUDE.md
