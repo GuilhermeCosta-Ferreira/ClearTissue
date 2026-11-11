@@ -23,7 +23,7 @@ class Repository:
 
 
 
-    def init_project(self) -> None:
+    def init_project(self, has_cells: bool = True) -> None:
         # 1. Check if project folder already exists
         if self.source.folder_path.exists():
             raise FileExistsError(f"Project folder already exists: {self.source.folder_path}")
@@ -36,7 +36,7 @@ class Repository:
         raw.mkdir(parents=True, exist_ok=True)
 
         # 4. Create metadata file
-        metadata = build_metadata(self.source)
+        metadata = build_metadata(self.source, has_cells)
         metadata_path = self.source.folder_path / "metadata.json"
         download_json(metadata, metadata_path, False)
 
@@ -81,9 +81,10 @@ class Repository:
         used_ids = self.get_built_pipeline_ids()
         return max(used_ids) + 1 if used_ids else 1
 
-def build_metadata(source: Source) -> dict:
+def build_metadata(source: Source, has_cells: bool = True) -> dict:
     metadata = source.as_dict
 
+    metadata["has_cells"] = has_cells
     metadata["cells_resolution"] = (4.8, 1.8, 1.8)
     metadata["cells_unit"] = ("um", "um", "um")
     metadata["cells_orientation"] = "psl"

@@ -65,6 +65,10 @@ def count_spinal_level_overlap(
         columns=["order", "segment", "present", "cell_sum", "volume", "density_pct"],
     )
 
+def spinal_level_bounds(segments: list[dict], axis_len: int) -> list[tuple[str, int, int]]:
+    """(segment name, start, end) slice ranges for an atlas axis of axis_len."""
+    return _level_bounds(segments, axis_len)
+
 def count_spinal_level_overlap_by_hemisphere(
     cells: ClearVolume | ClearPoints,
     atlas: Atlas,

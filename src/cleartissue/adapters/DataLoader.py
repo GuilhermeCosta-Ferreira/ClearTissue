@@ -37,13 +37,18 @@ class DataLoader:
 
     def load_raw(self) -> SampleBatch:
         metadata = self.load_metadata()
-        cells = self._raw_loader.load_raw_cells(
-            metadata["cells_resolution"],
-            metadata["cells_unit"],
-            metadata["cells_orientation"]
-        )
         atlas = self._raw_loader.load_raw_atlas(metadata["atlas_unit"])
         tissue = self._raw_loader.load_raw_tissue()
+
+        # Older metadata files predate the flag; they all had cells.
+        if metadata.get("has_cells", True):
+            cells = self._raw_loader.load_raw_cells(
+                metadata["cells_resolution"],
+                metadata["cells_unit"],
+                metadata["cells_orientation"],
+            )
+        else:
+            cells = self._raw_loader.empty_cells_like(tissue)
 
         if tissue.tissue_type != self.source.tissue_type:
             raise ValueError("Tissue type in metadata does not match tissue type in H5 file")

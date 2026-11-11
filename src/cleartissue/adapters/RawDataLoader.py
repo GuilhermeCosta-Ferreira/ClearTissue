@@ -38,6 +38,20 @@ class RawDataLoader:
             tissue_type=self.source.tissue_type,
         )
 
+    def empty_cells_like(self, tissue: ClearVolume) -> ClearPoints:
+        """Zero-point cloud sharing the tissue's frame, for samples without cells.
+
+        It must copy the tissue's orientation: OrientSample permutes each volume
+        by its own label, so a mismatch leaves cells on different axes.
+        """
+        return ClearPoints(
+            data=np.empty((0, 3), dtype=np.float64),
+            resolution=tissue.resolution,
+            unit=tissue.unit,
+            orientation=tissue.orientation,
+            tissue_type=tissue.tissue_type,
+        )
+
     def load_raw_atlas(self, unit: tuple[str, str, str]) -> Atlas:
         return Atlas.from_name(
             self.source.atlas_name, unit=unit, tissue_type=self.source.tissue_type

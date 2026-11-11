@@ -9,6 +9,7 @@ from .spinal_level import (
     count_spinal_level_overlap,
     count_spinal_level_overlap_by_hemisphere,
     region_spinal_levels,
+    spinal_level_bounds,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "count_spinal_level_overlap",
     "count_spinal_level_overlap_by_hemisphere",
     "region_spinal_levels",
+    "spinal_level_bounds",
 ]

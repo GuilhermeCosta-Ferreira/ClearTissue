@@ -32,7 +32,10 @@ class HDF5_to_Ply:
         tissue_ply = self._convert_volume(batch.tissue, step_path)
         out_paths.append(tissue_ply)
 
-        if isinstance(batch.cells, ClearVolume):
+        # marching_cubes raises on a volume that never reaches the level.
+        if isinstance(batch.cells, ClearVolume) and batch.cells.data.max() <= 0.9:
+            print("Cells volume is empty, so will not be converted to Ply")
+        elif isinstance(batch.cells, ClearVolume):
             ply_path = step_path / f"{self.source.cells_base_name}.ply"
             cells_ply = self._convert_volume(batch.cells, step_path, ply_path, 0.9)
             out_paths.append(cells_ply)

@@ -39,7 +39,13 @@ class ClearTissueProject:
         tissue_type: TissueType,
         folder_path: Path = Path("data"),
         atlas_name: AtlasName = "allen_cord_20um",
+        has_cells: bool = True,
     ) -> "ClearTissueProject":
+        """Create the project folder and metadata.
+
+        has_cells=False records that this sample has no cell file; raw loading
+        then substitutes an empty point cloud so every step still runs.
+        """
         source = Source(
             mouse=mouse,
             tissue_type=tissue_type,
@@ -48,7 +54,7 @@ class ClearTissueProject:
         )
 
         repository = Repository(source=source)
-        repository.init_project()
+        repository.init_project(has_cells=has_cells)
 
         clear_io = ClearIO(source=source)
         runner = PipelineRunner(io=clear_io)

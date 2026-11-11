@@ -17,7 +17,10 @@ class CylindricalMaskSample(AbstractTransformation):
     def apply(self, batch: SampleBatch) -> SampleBatch:
         masked_tissue, angle = clear_external_points(batch.tissue)
 
-        if isinstance(batch.cells, ClearVolume):
+        # The circle is fitted to the cells' own data, which an empty volume lacks.
+        if isinstance(batch.cells, ClearVolume) and not batch.cells.data.any():
+            masked_cells = batch.cells
+        elif isinstance(batch.cells, ClearVolume):
             masked_cells, _ = clear_external_points(batch.cells, angle)
         else:
             raise TypeError(f"Expected ClearVolume, got {type(batch.cells)}")
