@@ -14,6 +14,7 @@ from .PruneAtlas import PruneAtlas
 from .StartEndTransformtaion import StartEndTransformtaion
 from .CleanDebrisTransformation import CleanDebrisTransformation
 from .ContrastEnhanceSample import ContrastEnhanceSample
+from .MainComponentCleanSample import MainComponentCleanSample
 
 
 __all__ = [
@@ -32,5 +33,6 @@ __all__ = [
     "PruneAtlas",
     "CleanDebrisTransformation",
     "ContrastEnhanceSample",
+    "MainComponentCleanSample",
     "StartEndTransformtaion",
 ]
