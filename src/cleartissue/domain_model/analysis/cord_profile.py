@@ -216,7 +216,7 @@ def head_alignment(
     n_head = max(1, int(round(len(filled) * head_fraction)))
     head_idx = filled[:n_head]
 
-    groups = _unique_slice_runs(atlas_mask)
+    groups = unique_slice_runs(atlas_mask)
     reps = np.array([(s + e - 1) // 2 for s, e in groups])
 
     canvas = (
@@ -236,7 +236,7 @@ def head_alignment(
     atlas_slices = reps[order]
     scores = np.take_along_axis(dice, order, axis=1)
 
-    vote_shifts, vote = _vote_shift(
+    vote_shifts, vote = vote_shift(
         head_idx, atlas_slices, scores, len(atlas_mask), len(tissue_mask), vote_sigma
     )
     shift = int(vote_shifts[np.argmax(vote)])
@@ -270,6 +270,47 @@ def fit_ratio_bump(curve: NDArray, smooth_slices: int = 15) -> BumpFit | None:
 
     amplitude, centre, sigma = params[:3]
     return BumpFit(float(centre), float(sigma), float(amplitude), smoothed, _gauss_line(x, *params))
+
+def unique_slice_runs(mask: NDArray) -> list[tuple[int, int]]:
+    """[start, end) runs of consecutive identical slices (atlas repeats them)."""
+    runs: list[tuple[int, int]] = []
+    start = 0
+    for i in range(1, len(mask) + 1):
+        if i == len(mask) or not np.array_equal(mask[i], mask[start]):
+            if mask[start].any():  # empty atlas slices can't match anything
+                runs.append((start, i))
+            start = i
+    return runs
+
+def vote_shift(
+    tissue_idx: NDArray, atlas_slices: NDArray, scores: NDArray,
+    atlas_len: int, tissue_len: int, sigma: float,
+) -> tuple[NDArray, NDArray]:
+    """Rank-weighted histogram of candidate shifts (atlas - tissue index).
+
+    Row i of atlas_slices holds tissue slice i's top-k matches, best first;
+    each votes k..1 by rank times its score. Returns (shifts, smoothed votes).
+    """
+    k = atlas_slices.shape[1]
+    rank_weight = np.arange(k, 0, -1, dtype=float)  # best match counts k, last 1
+    shifts = atlas_slices - tissue_idx[:, None]
+    weights = scores * rank_weight[None, :]
+
+    offset = tissue_len  # shifts can be negative; histogram needs >= 0 bins
+    hist = np.bincount(
+        (shifts + offset).ravel(), weights=weights.ravel(),
+        minlength=atlas_len + tissue_len + 1,
+    ).astype(float)
+    if sigma > 0:
+        hist = gaussian_filter1d(hist, sigma, mode="constant")
+    return np.arange(len(hist)) - offset, hist
+
+def ratio_profile(numerator: NDArray, denominator: NDArray) -> NDArray:
+    """Per-slice numerator / denominator; NaN where either is 0 (empty slice)."""
+    ratio = np.full(len(numerator), np.nan)
+    valid = (numerator > 0) & (denominator > 0)
+    ratio[valid] = numerator[valid] / denominator[valid]
+    return ratio
 
 def place_on_atlas(curve: NDArray, shift: int, atlas_length: int) -> NDArray:
     """Re-index a per-tissue-slice curve onto atlas slices; NaN where uncovered."""
@@ -347,17 +388,6 @@ def _largest_component(mask: NDArray) -> NDArray:
     sizes[0] = 0
     return labels == int(np.argmax(sizes))
 
-def _unique_slice_runs(mask: NDArray) -> list[tuple[int, int]]:
-    """[start, end) runs of consecutive identical slices (atlas repeats them)."""
-    runs: list[tuple[int, int]] = []
-    start = 0
-    for i in range(1, len(mask) + 1):
-        if i == len(mask) or not np.array_equal(mask[i], mask[start]):
-            if mask[start].any():  # empty atlas slices can't match anything
-                runs.append((start, i))
-            start = i
-    return runs
-
 def _centred_stack(masks: NDArray, canvas: tuple[int, int]) -> NDArray:
     """Flatten each 2D mask after moving its centroid to the canvas centre."""
     out = np.zeros((len(masks), canvas[0] * canvas[1]), dtype=np.float32)
@@ -371,24 +401,6 @@ def _centred_stack(masks: NDArray, canvas: tuple[int, int]) -> NDArray:
         keep = (ys >= 0) & (ys < canvas[0]) & (xs >= 0) & (xs < canvas[1])
         out[i, ys[keep] * canvas[1] + xs[keep]] = 1.0
     return out
-
-def _vote_shift(
-    tissue_idx: NDArray, atlas_slices: NDArray, scores: NDArray,
-    atlas_len: int, tissue_len: int, sigma: float,
-) -> tuple[NDArray, NDArray]:
-    k = atlas_slices.shape[1]
-    rank_weight = np.arange(k, 0, -1, dtype=float)  # best match counts k, last 1
-    shifts = atlas_slices - tissue_idx[:, None]
-    weights = scores * rank_weight[None, :]
-
-    offset = tissue_len  # shifts can be negative; histogram needs >= 0 bins
-    hist = np.bincount(
-        (shifts + offset).ravel(), weights=weights.ravel(),
-        minlength=atlas_len + tissue_len + 1,
-    ).astype(float)
-    if sigma > 0:
-        hist = gaussian_filter1d(hist, sigma, mode="constant")
-    return np.arange(len(hist)) - offset, hist
 
 def _gauss_line(x: NDArray, a: float, c: float, s: float, b0: float, b1: float) -> NDArray:
     return a * np.exp(-0.5 * ((x - c) / s) ** 2) + b0 + b1 * x
